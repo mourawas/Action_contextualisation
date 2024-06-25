@@ -1,0 +1,45 @@
+<mujoco model="apc_red_bowlx2">
+    <compiler angle="radian" meshdir="" />
+    <size njmax="500" nconmax="100" />
+
+    <asset>
+        <mesh name="champagne_glass" file="llm_objects/champagne_glass/champagne_glass.obj"/>
+
+        <texture name="texgeom" type="cube" builtin="flat" mark="cross" width="127" height="1278"
+                rgb1="0.8 0.6 0.4" rgb2="0.8 0.6 0.4" markrgb="1 1 1" random="0.01"/>
+        <texture name="texplane" type="2d" builtin="checker" rgb1=".2 .3 .4" rgb2=".1 0.15 0.2"
+                width="512" height="512"/>
+
+        <material name='MatPlane' reflectance='0.5' texture="texplane" texrepeat="1 1" texuniform="true"/>
+        <material name='geom' texture="texgeom" texuniform="true"/>
+    </asset>
+
+<!--      <include file="llm_objects/llm_object_preloads.xml"/>-->
+    <include file="llm_objects/champagne_glass/preloads.xml"/>
+
+
+    <default>
+        <default class="visual">
+          <geom contype="0" conaffinity="0"/>
+        </default>
+      <default class="obj">
+           <geom contype="1" conaffinity="1" friction="1 0 0.001" solref="0.02  2" rgba="0.7 0 0 0" />
+      </default>
+        <default class="collision">
+        <geom contype="1" conaffinity="1" friction="1 0.5 0.1" />
+    </default>
+    </default>
+
+    <worldbody>
+        <light pos="0 0 10" castshadow="false"/>
+         <light directional='false' diffuse='.8 .8 .8' specular='0.3 0.3 0.3' pos='0 0 4.0' dir='0 -.15 -1'/>
+        <geom name="floor" class="collision" type="plane" size="10 10 1" rgba=".8 .8 .8 1" material="MatPlane"/>
+
+        <body name="obj_base" euler="0 0 0" pos="0 0 0.3">
+            <geom pos="0 0 0.00" class="collision" name="champagne_glass" type="mesh" rgba="1 0.423529 0.0392157 0.5" mesh="champagne_glass" />
+            <freejoint/>
+         </body>
+
+        <include file="llm_objects/llm_object_bodies.xml"/>
+    </worldbody>
+</mujoco>

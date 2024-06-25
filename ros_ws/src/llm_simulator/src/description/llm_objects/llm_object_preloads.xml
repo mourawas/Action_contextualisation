@@ -1,0 +1,23 @@
+<llm>
+
+    <include file="llm_objects/champagne_glass/preloads.xml"/>
+    <include file="llm_objects/kitchen/sink/preloads.xml"/>
+    <include file="llm_objects/trash/trash_bin/preloads.xml"/>
+
+    <!-- we can add more objects here-->
+
+    <asset>
+        <mesh file="llm_objects/trash/paper_ball/paper_ball.obj" name="paper_ball" />
+        <texture type="2d" name="paper_ball" file="llm_objects/trash/paper_ball/baked_mesh_ao0.png"/>
+        <material name="paper_ball" texture="paper_ball" specular="0.5" shininess="0.5" />
+
+<!--          apple -->
+        <mesh file="llm_objects/apple/apple.obj" name="apple" />
+        <texture type="2d" name="apple" file="llm_objects/apple/apple_texture.png"/>
+        <texture type="2d" name="eaten_apple" file="llm_objects/apple/eaten_apple_texture.png"/>
+        <material name="apple" texture="apple" specular="0.5" shininess="0.5" />
+        <material name="eaten_apple" texture="eaten_apple" specular="0.5" shininess="0.5" />
+
+    </asset>
+
+</llm>

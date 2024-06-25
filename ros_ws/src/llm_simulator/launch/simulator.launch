@@ -1,0 +1,4 @@
+<launch>
+    <!-- Simulator node -->
+    <node pkg="llm_simulator" type="llm_simulator_node.py" name="llm_simulator_node" output="screen"></node>
+</launch>

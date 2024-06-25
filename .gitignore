@@ -1,0 +1,29 @@
+
+# Python and jupyter
+__pycache__/
+.idea
+.ipynb_checkpoints/
+*.pyc
+
+# Dev tools
+.vscode
+
+
+# Imaged and ressources
+*.jpg
+*.mp4
+*.npy
+
+# Mujoco
+MUJOCO_LOG.TXT
+**/kinematics/*.txt
+
+
+# ROS
+devel/
+logs/
+build/
+lib/
+msg_gen/
+srv_gen/
+

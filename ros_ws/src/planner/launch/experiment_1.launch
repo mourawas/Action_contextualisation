@@ -1,0 +1,4 @@
+<launch>
+    <!-- Test task plan node -->
+    <node pkg="planner" type="experiment_1.py" name="experiement_1_node" output="screen"></node>
+</launch>

@@ -1,0 +1,25 @@
+<launch>
+    <!-- vrpn Optitrack -->
+    <arg name="server" default="128.178.145.172"/>
+    <node pkg="vrpn_client_ros" type="vrpn_client_node" name="vrpn_client_node" output="screen">
+        <rosparam subst_value="true">
+        server: $(arg server)
+        port: 3883
+        frame_id: vrpn_world
+        broadcast_tf: true
+        # Must either specify refresh frequency gt 0.0, or a list of trackers to create
+        refresh_tracker_frequency: 1.0
+        #trackers:
+        #- FirstTracker
+        #- SecondTracker
+        </rosparam>
+    </node>
+
+    <include file="$(find iiwa_driver)/launch/iiwa_bringup.launch">
+        <arg name="model" value="7"/>
+        <arg name="controller" value="TorqueController"/>
+    </include>
+
+    <node pkg="vision_server" type="vision_server.py" name="vision_server" output="screen"/>
+    
+</launch>

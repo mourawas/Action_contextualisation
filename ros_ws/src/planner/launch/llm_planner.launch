@@ -1,0 +1,4 @@
+<launch>
+    <!-- Test task plan node -->
+    <node pkg="planner" type="llm_planner_node.py" name="llm_planner_node" output="screen"></node>
+</launch>
