@@ -10,7 +10,6 @@ from copy import deepcopy
 import typing as tp
 import os
 import numpy as np
-import sys
 
 scene_description = (
     "The image shows an indoor scene with a white table at the center, scattered with various objects. "
@@ -26,7 +25,7 @@ scene_description = (
 # Labels that are considered objects which a robot may interact with
 objects = [
     "white table",
-    "crumpled paper ball 1",
+    # "crumpled paper ball 1",
     # "crumpled paper ball 2",
     #"crumpled paper ball 3",
     #"crumpled paper ball 4",
@@ -54,14 +53,13 @@ locations = [
     "storage shelf"
 ]
 
-#task = "put away the 'half-eaten apple' and the 'glass with yellowish liquid'"
-task = "put away the 'half-eaten apple', the 'glass with yellowish liquid' and the 'crumpled paper ball 1'"
-# task = "put away the 'half-eaten apple', the 'glass with yellowish liquid', the 'crumpled paper ball 1' and the 'whole apple'"
+task = "put away the 'half-eaten apple' and the 'glass with yellowish liquid'"
+# task = "put away the 'crumpled paper ball 2', the 'half-eaten apple' and the 'crumpled paper ball 1'"
+# task = "put away the 'half-eaten apple', the 'crumpled paper ball 2', the 'empty glass 1' and the 'glass with yellowish liquid'"
 
-plan_iter = 1
-retune_iter = 1
-retune_count = 4
-replan_count = 2
+iter = 1
+retune_count = 3
+replan_count = 4
 
 log_folder = ""
 
@@ -75,6 +73,7 @@ def extract_plan(full_answer: str) -> tp.Tuple[bool, str, tp.List]:
 
     # Check number of code blocks
     if len(raw_code) == 0:
+        breakpoint()
         error_message = "I expected to find python code in your answer but didn't get any. Please regenerate the plan"
     elif len(raw_code) > 1:
         error_message = "I expected to find only one python code in your answer but found more. Please regenerate your answer with a single python code block"
@@ -195,7 +194,7 @@ def ask_for_task_plan(llm_bot: GptChatBot,
     if not plan_is_correct:
         raise Exception(f"Unable to generate valid task plan from LLM. The latest error message was {error_message}")
 
-    with open(os.path.join(log_folder, 'task_plan' + str(plan_iter) + '.pkl'), 'wb') as file:
+    with open(os.path.join(log_folder, 'task_plan' + str(iter) + '.pkl'), 'wb') as file:
         pickle.dump(f"task_plan = {str(task_plan)}", file)
 
     return task_plan
@@ -220,7 +219,7 @@ def ask_for_evaluation_plan(llm_bot: GptChatBot):
     if not plan_is_correct:
         raise Exception(f"Unable to generate valid evaluation plan from LLM. The latest error message was {error_message}")
 
-    with open(os.path.join(log_folder, 'evaluation_plan' + str(plan_iter) + '.pkl'), 'wb') as file:
+    with open(os.path.join(log_folder, 'evaluation_plan' + str(iter) + '.pkl'), 'wb') as file:
         pickle.dump(f"task_plan = {str(eval_plan)}", file)
 
     return eval_plan
@@ -249,7 +248,7 @@ def ask_for_action_plan_retune(llm_bot: GptChatBot,
     if not plan_is_correct:
         raise Exception(f"Unable to generate valid retune plan from LLM. The latest error message was {error_message}")
 
-    with open(os.path.join(log_folder, 'retuned_plan' + str(plan_iter) + "_" + str(retune_iter) + '.pkl'), 'wb') as file:
+    with open(os.path.join(log_folder, 'retuned_plan' + str(iter) + "_" + str(retune_idx) + '.pkl'), 'wb') as file:
         pickle.dump(f"task_plan = {str(retuned_plan)}", file)
 
     return retuned_plan
@@ -276,11 +275,10 @@ def ask_for_action_replanned(llm_bot: GptChatBot, history_log, previous_task_pla
     if not plan_is_correct:
         raise Exception(f"Unable to generate valid task plan from LLM. The latest error message was {error_message}")
 
-    global plan_iter
-    plan_iter += 1
-    global retune_iter
-    retune_iter = 1
-    with open(os.path.join(log_folder, 'task_plan' + str(plan_iter) + '.pkl'), 'wb') as file:
+    global iter
+    iter += 1
+
+    with open(os.path.join(log_folder, 'task_plan' + str(iter) + '.pkl'), 'wb') as file:
         pickle.dump(f"task_plan = {str(task_plan)}", file)
 
     return task_plan
@@ -302,29 +300,11 @@ def execute_and_log_plans(task_plan: tp.List, evaluation_plan: tp.List, tpu: Tas
 
 def plan_and_retune(parameter_history, domain_history, warm_start=False):
     global log_folder
-    log_folder = create_experiment_log("exp_2_3_ONR_28")
+    log_folder = create_experiment_log("exp_2_2_07_N")
     chat_log_file = os.path.join(log_folder, 'chat_log.pckl')
     task_plan_meta_data_file = os.path.join(log_folder, 'task_plan_log.pkl')
     llm_bot = GptChatBot(auto_save_file_name=chat_log_file)
     tpu = TaskPlanExecutor(metadata_file=task_plan_meta_data_file)
-
-    # Redirecting logger to file
-    class Logger(object):
-        def __init__(self):
-            self.terminal = sys.stdout
-            self.log = open(os.path.join(log_folder, "console_output.txt"), "a")
-    
-        def write(self, message):
-            self.terminal.write(message)
-            self.log.write(message)  
-
-        def flush(self):
-            # this flush method is needed for python 3 compatibility.
-            # this handles the flush command by doing nothing.
-            # you might want to specify some extra behavior here.
-            pass    
-    sys.stdout = sys.__stdout__
-    sys.stdout = Logger()
 
     if warm_start:
         llm_bot.set_history(warm_start_history)
@@ -403,17 +383,15 @@ def plan_and_retune(parameter_history, domain_history, warm_start=False):
 
 if __name__ == "__main__":
     rospy.init_node("llm_planner")
-    res = []
-
+    results = []
     for _ in range(10):
-        plan_iter = 1
-        retune_iter = 1
-        parameter_history = parameter_history = {'success': {}, 'failure': {}}
+        iter = 1
+        parameter_history = {'success': {}, 'failure': {}}
         domain_history = None
-        try:
-            success, parameter_history, domain_history =  plan_and_retune(parameter_history, domain_history, warm_start=False)
-        except Exception as e:
-            print(e)
-            success = False
-        res.append(success)
-        print(f"======================= RESULTS: {res}")
+        success = False
+        # try:
+        success, parameter_history, domain_history =  plan_and_retune(parameter_history, domain_history, warm_start=False)
+        # except:
+        #     success = False
+        results.append(success)
+        print("================RESULTS: ", results)

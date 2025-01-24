@@ -15,7 +15,7 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
 
     AVOIDANCE_FACTOR = 0.001
     COLLISION_PROXIMITY = 0.02
-    COLLISION_THRESHOLD = -0.001
+    COLLISION_THRESHOLD = 0.0005
 
     def __init__(self,
                  description_folder: tp.Union[str, Path],
@@ -71,7 +71,7 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
                 self._send_iiwa_torque(np.zeros(self._n_rbt))
 
         jacob = self.jacobe(q, end=self._robot_ee_link)
-        self._condition_numbers.append(np.linalg.cond(jacob))
+        self._condition_numbers.append(1/np.linalg.cond(jacob))
 
         # Apply orientation constraints
         desired_qd = self._project_in_null_rot_space(q, desired_qd)
@@ -168,7 +168,6 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
         obstacle_names = np.asarray(self._obstacles_names)
 
         # Update proximity history
-        self._proximity_history.append(np.min(min_distances))
         self._max_prox = np.max([self._max_prox, np.max(adjusted_distances)])
 
         # Disregard collision with grasped object
@@ -180,6 +179,7 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
             radii = radii[valid_obstacles_idx]
 
         # Check for collisions in general
+        self._proximity_history.append(np.min(min_distances))
         is_collided = np.min(min_distances) < self.COLLISION_THRESHOLD
         obstacle_collided = ""
         if is_collided:
@@ -195,6 +195,13 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
                 collided_idx = np.argmin(min_distances)
                 potential_collision_names = np.asarray(obstacle_names)
                 obstacle_collided = potential_collision_names[collided_idx]
+        
+        # TODO: ADD comment here
+        prox_obs = np.copy(min_distances)
+        if len(self.obj_grasped) > 0:
+            non_grasped_obj_idx = (np.asarray(obstacle_names) != self.obj_grasped)
+            prox_obs = prox_obs[non_grasped_obj_idx]
+        self._proximity_history.append(np.min(prox_obs))
 
         # Postential object to disregard
         if len(self._obstacle_to_approach) > 0:
@@ -204,6 +211,7 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
             obstacle_names = obstacle_names[valid_obstacles_idx]
             radii = radii[valid_obstacles_idx]
 
+        
         close_idx = np.where(min_distances < self.collision_proximity * 2)[0]
         # close_idx = np.where(min_distances < np.inf)[0]
         if len(close_idx) > 0:
@@ -212,7 +220,7 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
             grad = -grad.cpu().numpy()
             min_distances = min_distances[close_idx]
             # omega_hat = (self.collision_proximity / min_distances) ** 2
-            omega_hat = (0.009 / min_distances) ** 4
+            omega_hat = (self.collision_proximity / min_distances) ** 4
             omega_sum = np.min([np.sum(omega_hat), (1/0.001) ** 4])
             omega = omega_hat / np.max([1, omega_sum])
             grad_norm = np.linalg.norm(grad, axis=1)
@@ -439,13 +447,18 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
 
         return ik_res, True
 
-    def compute_motion_health(self) -> float:
+    def compute_motion_health(self, reset=True) -> float:
+        
+        if len(self._proximity_history) > 0 and len(self._condition_numbers) > 0:
+            distance_health = np.min(self._proximity_history) / self._max_prox
+            condition_health = np.min(self._condition_numbers)
+        else:
+            distance_health = -1
+            condition_health = -1
 
-        distance_health = np.average(self._proximity_history) / self._max_prox
-        condition_health = np.average(self._condition_numbers)
-
-        self._proximity_history = []
-        self._condition_numbers = []
+        if reset:
+            self._proximity_history = []
+            self._condition_numbers = []
 
         return distance_health + condition_health
 
@@ -463,7 +476,7 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
             obj_distances = adjusted_distances[np.asarray(self._obstacles_names) == self.obj_grasped]
 
             if len(obj_distances) > 0:
-                contact_points = obj_distances[obj_distances < self.COLLISION_THRESHOLD]
+                contact_points = obj_distances[obj_distances < self.COLLISION_THRESHOLD * 2]
                 if len(contact_points) >= 2:
                     holding = True
 

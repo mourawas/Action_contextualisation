@@ -140,12 +140,17 @@ class TaskPlanExecutor:
             tic = time.time()
             action_function(object_to_approach, *action_arguments[1:])
             toc = time.time()
+            print("Time: ", toc-tic)
 
             from primitives.action_functions import js_lds
             action_timings.append((action_function_name, object_to_approach, action_arguments, toc-tic))
             action_health.append((action_function_name, object_to_approach, action_arguments, js_lds._condition_numbers, js_lds._proximity_history))
             self.full_execution_time += toc-tic
-            total_score_history.append(np.average(js_lds._condition_numbers) + np.average(js_lds._proximity_history)/js_lds._max_prox)
+
+            if len(js_lds._proximity_history) == 0 or len(js_lds._condition_numbers) == 0:
+                total_score_history.append(-2)  # Minimal score if the movement couldn't execute
+            else:
+                total_score_history.append(np.min(js_lds._condition_numbers) + np.min(js_lds._proximity_history)/js_lds._max_prox)
             self.average_score = np.average(total_score_history)
 
             # ======  Evaluate

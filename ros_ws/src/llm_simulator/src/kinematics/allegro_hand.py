@@ -1,9 +1,5 @@
 """
 Forward kinematics by KDL, https://github.com/orocos/orocos_kinematics_dynamics
-<<<<<<< HEAD:ros_ws/src/llm_simulator/src/kinematics/allegro_hand.py
-=======
-
->>>>>>> main:kinematics/allegro_hand.py
 You may have some issues to install the package, I suggest not to use this one but import "allegro_hand_sym.py"
 """
 import numpy as np

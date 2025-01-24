@@ -47,16 +47,16 @@ RUN sudo apt-get update && sudo apt-get install -y \
     && sudo apt-get upgrade -y && sudo apt-get clean
 
 # Install gazebo (9 or 11 depending on distro)
-WORKDIR /home/${USER}
-RUN sudo apt-get update
-RUN if [ "$ROS_DISTRO" = "noetic" ] ; \
-        then sudo apt-get install -y gazebo11 ; fi
-RUN if [ "$ROS_DISTRO" = "melodic" ] ; \
-        then sudo apt-get install -y gazebo9 ; fi
+# WORKDIR /home/${USER}
+# RUN sudo apt-get update
+# RUN if [ "$ROS_DISTRO" = "noetic" ] ; \
+#         then sudo apt-get install -y gazebo11 ; fi
+# RUN if [ "$ROS_DISTRO" = "melodic" ] ; \
+#         then sudo apt-get install -y gazebo9 ; fi
 
-# Install gaezbo ros packages
-RUN sudo apt install -y ros-${ROS_DISTRO}-gazebo-ros-pkgs \
-                        ros-${ROS_DISTRO}-gazebo-ros-control
+# # Install gaezbo ros packages
+# RUN sudo apt install -y ros-${ROS_DISTRO}-gazebo-ros-pkgs \
+#                         ros-${ROS_DISTRO}-gazebo-ros-control
 
 # Handle SIMD option
 RUN if [ "${USE_SIMD}" = "ON" ] ; \
@@ -144,7 +144,11 @@ RUN pip install mujoco \
                 pyembree \
                 openai \
                 pddl \
-                pyVHACD
+                pyVHACD \
+                mistralai
+
+
+RUN sudo apt install python3-rosdep
 
 # Install Pinocchio
 RUN sudo apt install -qqy lsb-release curl
@@ -165,8 +169,9 @@ RUN git clone https://github.com/niederha/robotics-toolbox-python.git && pip ins
 
 ### Build ros workspace
 WORKDIR /home/${USER}/ros_ws
-RUN source /home/${USER}/.bashrc && rosdep install --from-paths src --ignore-src -r -y
-RUN source /home/${USER}/.bashrc && catkin_make;
+# Calling these 2 manually
+# RUN source /home/${USER}/.bashrc && rosdep install --from-paths src --ignore-src -r -y
+# RUN source /home/${USER}/.bashrc && catkin_make
 
 # For some reason we need a more recencent version of numpy
 RUN pip install --upgrade numpy==1.23

@@ -1,10 +1,5 @@
 """
-<<<<<<< HEAD:ros_ws/src/llm_simulator/src/kinematics/allegro_hand_sym.py
  An symbolic expression of kinematic model for the allegro hand
-=======
- An symbolic experssion of kinematic model for the allegro hand
-
->>>>>>> main:kinematics/allegro_hand_sym.py
 """
 import sympy as sy
 import xml.etree.ElementTree as ET
@@ -54,10 +49,7 @@ class Robot:
         # for position jacobian
         self.jac_syms = [sy.Matrix(self.T_list[i][:3, 3]).jacobian(list(self.q[i])) for i in
                          range(4)]  # symbolic value for position jacobian
-<<<<<<< HEAD:ros_ws/src/llm_simulator/src/kinematics/allegro_hand_sym.py
 
-=======
->>>>>>> main:kinematics/allegro_hand_sym.py
         # a list of lambda function for the fingertip jacobians, which will receive joints for numeric computation
         self.jac = [sy.lambdify([self.q[i]], self.jac_syms[i]) for i in range(4)]
 

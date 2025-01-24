@@ -28,8 +28,8 @@ class JS_LDS(ControllerBase):
                    .0, .0, .0, .0]) * 0. # Thumb
 
     # TODO: Build these arrays better
-    JOINT_TOL = np.array([0.01] * 7 + [0.05] * 16)
-    SPEED_TOL = np.array([0.01] * 7 + [0.05] * 16)
+    JOINT_TOL = np.array([0.01] * 7 + [0.1] * 16)
+    SPEED_TOL = np.array([0.01] * 7 + [0.1] * 16)
     CONTROLLER_SLEEP_PRD = 0.001
 
     TASK_SPACE_TRANS_TOL = 0.0025   # m
@@ -268,7 +268,7 @@ class JS_LDS(ControllerBase):
             is_locked = is_locked and grasping_has_converged
 
         if self.let_go:
-            let_go_has_converged = np.all(np.absolute(q[7:] - self._joint_goal[7:]) <= self.JOINT_TOL[7:]) or delta_time >=45
+            let_go_has_converged = np.all(np.absolute(q[7:] - self._joint_goal[7:]) <= self.JOINT_TOL[7:]) or delta_time >= 20
             goal_reached = goal_reached and let_go_has_converged
             has_converged = has_converged and let_go_has_converged
             is_locked = has_converged or let_go_has_converged   # Doesn't make sense to compute lock on let go

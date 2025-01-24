@@ -29,15 +29,16 @@ IIWA_URDF_PATH = IIWA_URDF_FOLDER / "model.urdf"
 ALLEGRO_URDF_FOLDER = WS_PATH / "primitive_library/descriptions/allegro"
 ALLEGRO_URDF_PATH = ALLEGRO_URDF_FOLDER / "allegro_hand_description/allegro_hand_description_left.urdf"
 
-# TODO: This is not super effective. Think of a better way
-SIM_OBJECT_LIST = ["champagne_1", "champagne_2", "champagne_3",
+# TODO: This is not super effective. Think of a better way # HERE: Add new object names here
+SIM_OBJECT_LIST = ["champagne_1", "champagne_2",
                    "apple", "eaten_apple",
-                   "paper_ball_1", "paper_ball_2", "paper_ball_3", "paper_ball_4", "paper_ball_5"]
+                   "paper_ball_1", "paper_ball_2"]
 
-# These objects can be approximated by a sphere
+# These objects can be approximated by a sphere (during approach)
 ROUND_OBJECTS = ["apple", "eaten_apple", "paper_ball_1", "paper_ball_2", "paper_ball_3", "paper_ball_4", "paper_ball_5"]
 
-STATIC_ELEMENTS = ['kuka_table', 'table', 'sink', 'trash_bin']
+STATIC_ELEMENTS = ['table', 'sink', 'trash_bin', 'shelf'] # Static objects, name same as before
+OBSTACLES = SIM_OBJECT_LIST + STATIC_ELEMENTS
 
 # TODO: Get that programatically as well?
 IIWA_JOINT_NAMES = ['iiwa_joint_1',
