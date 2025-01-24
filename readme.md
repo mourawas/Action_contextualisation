@@ -59,6 +59,66 @@ roslaunch llm_simulator simulator.launch
 ### Developing with docker
 You can simply edit your files on your computer, the changes will synchronize with the docker. Alternatively you can use a docker tool in your favorite IDE and work directly in the docker environment. It doesn't matter if you edit files in the docker or on your computer they are synchronized in real time. VScode's docker extension works very well for example.
 
+
+### Real robot specifics
+
+#### Prerequisit for real robot
+Unfortunately you can't port the allegro hand controller to docker. So natively on your computer you will need to download and install the allegro hand ros package: https://github.com/epfl-lasa/allegro_hand_ros.git. You need to switch to the "ahalya" branch which has the ability to control the hand in torque.
+
+
+#### Staring
+
+First of all you need to start you hand controller on the host computer:
+```bash
+roslaunch allegro_hand allegro_hand.launch HAND:=right CONTROLLER:=torque
+```
+
+Then you need to start the vision server on the docker:
+```bash
+roslaunch vision_server full_real_robot.launch 
+```
+
+Then you need to start the FRIOverlay_gripper on the IIWA tablet. Choose the gripper you have calibrated, pick position control and 
+then on a second docker window start the contrller with:
+
+```bash
+rosrun primitive_library test_task_plan.py
+```
+
+Then allow the robot to move by selected a gain of 500. 
+
+The test_task_plan.py script is a bit make-shift but works. There you can go and change action and evaluation plans to test different scenarios.
+
+#### Vision
+Vision is done through the optitrack system. For the realife scenario to work you need to define the following objects:
+- paper_ball_1
+- paper_ball_2
+- champagne_1 (this will be the full one)
+- champagne_2
+- apple
+- eaten_apple
+- table
+- sink
+- shelf
+- iiwa_base7
+- trash_bin
+
+Make sure that the origin of the objects is as much as possible to the center. Ideally for the champagne glasses you will need to put the center about 12 cm from the base of the glass. All objects are represented as collection of spheres. Those spheres are defined in the object frame. If you need to adjust them you can do so in os_ws_src/vision_server/scripts/vision_server.py you will find a bunch of function called `get_OBJECT_NAME_mesh`. Just check the one corresponding to your object.
+
+You also need to make sure that the iiwa_base7 object has z up, and x towards the windows. If the markers have moved you will need to redefine the transformation from the optitrack base to the urdf base of the iiwa7. This transformation is stored in ros_ws_src/vision_server/scripts/vision_server.py and is called `IIWA_BASE_IN_IIWA_MARKER`. 
+
+#### Caveat of real execution
+
+##### Loosing sight of objects
+You should avoid loosing sight of the object in real robot execution. If you happend to lose sight of objects the optitrack my put them at a random place in the workspace and generate unexpected collisions. At the begining if an object is not in sight, it will trigger a breakpoint in the vision server. This gives the experiemnter all the time he wants to go back to the optitrack screen, check which object is not in sight, make sure he makes the object visible and then only type "continue" in the vision server windows to resume the execution.
+
+##### Failed predicates
+In real life example, we do not stop for failed predicates. They are sometimes inaccurate since the hand and robot tend to hide markers. The predicates will output their results on screen but will not impact the run.
+
+##### Action continue no matter what
+For real life scenario the robot always attemps to do all actions. Which means if he can't find an IK or if a collision is detected it will none the less skip to the next action. Even within action such as pick which is made of an approach of the object, a grasp and a vertical flyoff, the robot will attempt to exectue them all even if one fails. That beeing said, action that have a zero length will trigger and error (which is not very clear when you read it) in the task_plan_executor. So sometimes if an action doesn't start because, for example a collision is detected at the first time stamp an error will be thrown and stop the program. This is a mix between a bug and a feature.
+
+
 ### Structure
 
 The ropository is structured as follow:
