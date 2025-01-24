@@ -30,6 +30,30 @@ source devel/setup.bash
 roslaunch llm_simulator simulator.launch
 ```
 
+
+First of all you need to start you hand controller on the host computer:
+```bash
+roslaunch allegro_hand allegro_hand.launch HAND:=right CONTROLLER:=torque
+```
+
+Then you need to start the vision server on the docker:
+```bash
+roslaunch vision_server full_real_robot.launch 
+```
+
+Then you need to start the FRIOverlay_gripper on the IIWA tablet. Choose the gripper you have calibrated, pick position control and 
+then on a second docker window start the contrller with:
+
+```bash
+rosrun primitive_library test_task_plan.py
+```
+
+Then allow the robot to move by selected a gain of 500. 
+
+You can manually alter the test_task_plan.py script to test different scenarios.
+
+
+
 ### Developing with docker
 You can simply edit your files on your computer, the changes will synchronize with the docker. Alternatively you can use a docker tool in your favorite IDE and work directly in the docker environment. It doesn't matter if you edit files in the docker or on your computer they are synchronized in real time. VScode's docker extension works very well for example.
 
