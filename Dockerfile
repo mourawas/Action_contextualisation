@@ -27,6 +27,12 @@ USER ${USER}
 RUN git config --global user.name "${GIT_NAME}"
 RUN git config --global user.email "${GIT_EMAIL}"
 
+# Fix ROS GPG key issue
+RUN sudo mkdir -p /usr/share/keyrings
+RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key | sudo tee /usr/share/keyrings/ros-archive-keyring.gpg > /dev/null
+RUN sudo rm -f /etc/apt/sources.list.d/ros*.list
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros-latest.list > /dev/null
+
 # Setup python version for noetic
 RUN sudo apt update
 RUN if [ "${ROS_DISTRO}" == "noetic" ] ; \
@@ -64,25 +70,25 @@ RUN if [ "${USE_SIMD}" = "ON" ] ; \
 
 ### Install all dependencies of IIWA ROS
 # Clone KUKA FRI (need to be root to clone private repo)
-WORKDIR /tmp
-USER root
-RUN mkdir -p -m 0775 /root/.ssh && ssh-keyscan github.com >> /root/.ssh/known_hosts
+#WORKDIR /tmp
+#USER root
+#RUN mkdir -p -m 0775 /root/.ssh && ssh-keyscan github.com >> /root/.ssh/known_hosts
 
-RUN --mount=type=ssh git clone git@github.com:epfl-lasa/kuka_fri.git
-WORKDIR /tmp/kuka_fri
-RUN if [ "${USE_SMID}" != "ON" ] ; \
-    then wget https://gist.githubusercontent.com/matthias-mayr/0f947982474c1865aab825bd084e7a92/raw/244f1193bd30051ae625c8f29ed241855a59ee38/0001-Config-Disables-SIMD-march-native-by-default.patch \
-    ; fi
-RUN --mount=type=ssh  if [ "${USE_SMID}" != "ON" ] ; \
-    then git am 0001-Config-Disables-SIMD-march-native-by-default.patch ; fi
-
+#RUN --mount=type=ssh git clone git@github.com:epfl-lasa/kuka_fri.git
+#WORKDIR /tmp/kuka_fri
+#RUN if [ "${USE_SMID}" != "ON" ] ; \
+#    then wget https://gist.githubusercontent.com/matthias-mayr/0f947982474c1865aab825bd084e7a92/raw/244f1193bd30051ae625c8f29ed241855a59ee38/0001-Config-Disables-SIMD-march-native-by-default.patch \
+#    ; fi
+#RUN --mount=type=ssh  if [ "${USE_SMID}" != "ON" ] ; \
+#    then git am 0001-Config-Disables-SIMD-march-native-by-default.patch ; fi
+#
 # Transfer repo back to original user after root clone
-WORKDIR /tmp
-RUN chown -R ${USER}:${HOST_GID} kuka_fri
+#WORKDIR /tmp
+#RUN chown -R ${USER}:${HOST_GID} kuka_fri
 
 # Install kuka Fri as USER
-USER ${USER}
-RUN cd kuka_fri && ./waf configure && ./waf && sudo ./waf install
+#USER ${USER}
+#RUN cd kuka_fri && ./waf configure && ./waf && sudo ./waf install
 
 # Install SpaceVecAlg
 RUN git clone --recursive https://github.com/jrl-umi3218/SpaceVecAlg.git
@@ -117,8 +123,11 @@ RUN sudo ldconfig
 RUN sudo rm -rf /tmp/*
 
 ### Install IIWA ROS
+# CHANGES STARTING FROM THE FIRST &&, REMOVE IF NEEDED
 WORKDIR /home/${USER}/ros_ws/src
-RUN git clone https://github.com/epfl-lasa/iiwa_ros.git
+RUN git clone https://github.com/epfl-lasa/iiwa_ros.git && \
+	cd iiwa_ros && \
+	rm -rf iiwa_driver iiwa_moveit iiwa_gazebo
 
 ### Add environement variables to bashrc
 WORKDIR /home/${USER}
