@@ -1,4 +1,4 @@
 <launch>
-    <!-- Test task plan node -->
+    <!-- Test simple 2obj node -->
     <node pkg="primitive_library" type="test_simple_2obj.py" name="test_simple_2obj" output="screen"></node>
 </launch>
