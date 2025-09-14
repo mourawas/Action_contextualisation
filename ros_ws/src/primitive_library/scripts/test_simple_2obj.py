@@ -8,14 +8,14 @@ import os
 
 task_plan = [
     # obj 1: Move empty glass to sink
-    (0, 'approach', ['empty glass 1', 0.5, 0.05, 'side']), #speed, precision, grasp_type
-    (1, 'pick', ['empty glass 1', 0.3, 0.01, 'side']),
-    (2, 'place', ['large white sink', 0., 0.5, 0.05]), #place(location, orientation, speed, obstacle_clearance)
-
+    (0, 'approach', ('empty glass 1', 1, 0.05, 'side')),  # Moderate speed
+    (1, 'pick', ('empty glass 1', 1, 0.05, 'side')),      # Slower speed, larger clearance (5cm)
+    (2, 'place', ('large white sink', 0., 1, 0.05)),      
+    
     # obj 2: Move apple to trash
-    (3, 'approach', ['half-eaten apple', 0.5, 0.05, 'top']),
-    (4, 'pick', ['half-eaten apple', 0.3, 0.02, 'top']),
-    (5, 'drop', ['large red trash can', 0.5, 0.05])
+    (3, 'approach', ('half-eaten apple', 1, 0.05, 'top')),
+    (4, 'pick', ('half-eaten apple', 1, 0.05, 'top')),    # Slower speed, larger clearance
+    (5, 'drop', ('large red trash can', 1, 0.05))
 ]
 
 evaluation_plan = [
