@@ -72,7 +72,7 @@ def task_plan_gen(task: str, prompt0: str, objects: tp.List[str], locations: tp.
 
     locations = {locations}
     """
-
+    # For grasp, added to never use None
     str_2 = f"""
 
     There is a robot, labeled 'robot', that can only manipulate ONE object at a time. The robot accepts commands in the form 'action functions' written in python. These action functions, which can be imported from the 'action_functions' library are:
@@ -89,7 +89,7 @@ def task_plan_gen(task: str, prompt0: str, objects: tp.List[str], locations: tp.
 
     The "orientation" argument for the 'place' and 'drop' function, regulates how crucial it is for the robot to maintain the original orientation of object that the robot is holding. A value closer to 1, instructs the robot to strictly maintain the orientation, but may result in difficulty to avoid external perturbations or obstacles .
 
-    The "grasp" argument for 'approach' and 'pick' assumes one of the two values {"top", "side"}, where "top" instructs the robot to approach or pick the object from the top and selecting "side" instructs the robot to approach or pick the object from the side.
+    The "grasp" argument for 'approach' and 'pick' is mandatory and assumes one of the two values {"top", "side"}, never use None, where "top" instructs the robot to approach or pick the object from the top and selecting "side" instructs the robot to approach or pick the object from the side.
 
     The "obstacle_clearance" for 'drop', 'approach', 'place' and 'pick' functions defines how close the robot can get from an object (including the one it is trying to grasp in the pick action) before starting to avoid it. The distance is in meter. Small values allow the robot to get closer to obstacles and usually give a better chance of reaching the object, picking it and holding it. Typically values are between 0.005 and 0.05 although values out of this range are possible.
 
@@ -116,6 +116,7 @@ def task_plan_gen(task: str, prompt0: str, objects: tp.List[str], locations: tp.
 def eval_plan_gen():
     """Generates the prompt to fetch the evaluation plan
     """
+    #Added the "for functions that take no arguments" part
     prompt2 = """
     The robot may not be able to execute an action function, or encounter object collision during execution. Thus, it is required to check for completion of each action function after they have been performed.
 
@@ -143,6 +144,8 @@ def eval_plan_gen():
     - motion health
 
     Output this plan as a Python list of tuples, where each tuple is of the form (action number int, dictionary with check_function names as keys and a tuple of arguments as value, tuple of expected outputs). Do not assume any other object or location, beyond those in object_labels.
+    
+    For functions that take no arguments (collision_free, timeout, check_motion_health, holding), use empty tuples () as the value. For functions that take arguments, use a tuple containing the arguments.
 
     Each tuple is meant to be checked after the acton with the corresponding number.
 
@@ -377,11 +380,14 @@ def retune_gen(history_log, parameter_history, task_plan):
                 s_score = s_param[1]
                 str_past_successes += f"        SUCCESS: {action_name}: {object_name} {tuple(s_arg)} | score = {s_score}\n"
 
+    #Added the "make significant parameter adjustments" part
     str_3 = f"""
 
     The score indicates the suitability of a combination. A higher score is better. First explain how the changes your are making will improve the chances of success of the task.
 
     Then alter the arguments of the failed action at index {failure_index} in task_plan, to overcome the failure. Output should be of the for task_plan[i] = (index, action, new parameters), similar to initial task_plan's format
+
+    Make significant parameter adjustments in order to avoid the previous failure mode.
 
     Do not use other action. Make in-place change in task_plan, while retaining the format of task_plan. 
 

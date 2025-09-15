@@ -4,8 +4,9 @@ import typing as tp
 import pickle
 import time
 
-from mistralai.client import MistralClient
-from mistralai.models.chat_completion import ChatMessage
+# CHANGE 1: Updated import statement
+from mistralai import Mistral
+# REMOVED: from mistralai.models.chat_completion import ChatMessage
 
 
 class GptChatBot:
@@ -31,7 +32,8 @@ class GptChatBot:
 
         ## Change
         # self.client = OpenAI(api_key=os.getenv(self.API_KEY_ENV_VAR)) # GPT 
-        self.client = MistralClient(api_key=os.getenv(self.API_KEY_ENV_VAR)) # Mistral
+        # CHANGE 2: Updated client initialization
+        self.client = Mistral(api_key=os.getenv(self.API_KEY_ENV_VAR)) # Mistral
         # self.client = OpenAI(api_key=os.getenv(self.API_KEY_ENV_VAR),
                             #  base_url = "https://api.llama-api.com") # LLAMA3
 
@@ -69,10 +71,11 @@ class GptChatBot:
         # Format messages
         ## Change
         # GPT, LLAMA
-        # system_msg = [{"role": "system", "content": self._system_msg}] # Change message format here, use ChatMessage
+        # CHANGE 3: Use dictionary format instead of ChatMessage
+        system_msg = [{"role": "system", "content": self._system_msg}] # Change message format here, use dictionary
 
         # Mistral
-        system_msg = [ChatMessage(role="system", content=self._system_msg)] # Change message format here, use ChatMessage
+        # REMOVED: system_msg = [ChatMessage(role="system", content=self._system_msg)] # Change message format here, use ChatMessage
 
         self._history.append(input)
 
@@ -82,13 +85,14 @@ class GptChatBot:
 
         ##
         # GPT, LLAMA
-        # user_bot_dialogue = [{"role": "assistant", "content": self._history[i]} if i % 2 else
-        #                      {"role": "user", "content": self._history[i]}
-        #                      for i in range(len(self._history))] # Change here us ChatMessage objects
+        # CHANGE 4: Use dictionary format instead of ChatMessage
+        user_bot_dialogue = [{"role": "assistant", "content": self._history[i]} if i % 2 else
+                             {"role": "user", "content": self._history[i]}
+                             for i in range(len(self._history))] # Change here use dictionary
         # Mistral
-        user_bot_dialogue = [ChatMessage(role="assistant", content=self._history[i]) if i % 2 else
-                             ChatMessage(role="user", content=self._history[i])
-                             for i in range(len(self._history))] # Change here us ChatMessage objects
+        # REMOVED: user_bot_dialogue = [ChatMessage(role="assistant", content=self._history[i]) if i % 2 else
+        #                      ChatMessage(role="user", content=self._history[i])
+        #                      for i in range(len(self._history))] # Change here us ChatMessage objects
 
 
 
@@ -99,7 +103,8 @@ class GptChatBot:
         ## GPT, LLAMA
         # response = self.client.chat.completions.create(model=model, messages=msgs, max_tokens=128000) # Change to use correct api call method
         ## Mistral
-        response = self.client.chat(model=model, messages=msgs) # Change to use correct api call method
+        # CHANGE 5: Updated method name from chat() to chat.complete()
+        response = self.client.chat.complete(model=model, messages=msgs) # Change to use correct api call method
 
         toc = time.time()
         self._response_times.append(toc-tic)
