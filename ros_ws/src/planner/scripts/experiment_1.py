@@ -13,12 +13,8 @@ import os
 import numpy as np
 
 scene_description = (
-    "The image shows an indoor scene with a white table at the center, scattered with various objects. "
-    "On the table, there are crumpled paper balls, a whole apple, a half-eaten apple, and two different types of glasses, "
-    "one of which appear to be empty and one partially filled with a yellowish liquid. "
-    "To the left, there is a large white sink with a faucet against a tiled wall. A storage shelf is also kept near the table."
-    "In the background, there are two doors, one closed and one ajar, and a folded white chair next to the table. "
-    "On the right side, a large red trash can is visible, filled with discarded items including colorful plastic wrappers. "
+    "The image shows an indoor scene with a white table at the center, scattered with two objects. "
+    "On the table, there are two whole apples "
     "The room has a clinical or institutional feel, possibly a break room or a workshop space."
 )
 
@@ -26,17 +22,18 @@ scene_description = (
 # Labels that are considered objects which a robot may interact with
 objects = [
     "white table",
-    "crumpled paper ball 1",
-    "crumpled paper ball 2",
+    # "crumpled paper ball 1",
+    # "crumpled paper ball 2",
     #"crumpled paper ball 3",
     #"crumpled paper ball 4",
     #"crumpled paper ball 5",
-    "whole apple",
-    "half-eaten apple",
-    "empty glass 1",
+    "apple_1",
+    "apple_2"
+    # "half-eaten apple",
+    # "empty glass 1",
     #"empty glass 2",
-    "glass with yellowish liquid",
-    "large red trash can",
+    # "glass with yellowish liquid",
+    # "large red trash can",
     # "discarded plastic wrapper 1",
     # "discarded plastic wrapper 2",
     # "discarded plastic wrapper 3",
@@ -44,17 +41,21 @@ objects = [
 
 # Labels that are considered locations
 locations = [
-    "large white sink",
-    "faucet",
-    "tiled wall",
-    "closed door",
-    "ajar door",
-    "folded white chair",
-    "clinical room",
-    "storage shelf"
+    "left_side",
+    "center", 
+    "right_side",
+    "next_to_apple_2",  # for relative positioning
+    # "large white sink",
+    # "faucet",
+    # "tiled wall",
+    # "closed door",
+    # "ajar door",
+    # "folded white chair",
+    "clinical room"
+    # "storage shelf"
 ]
 
-obj_to_clear = "empty glass 1"
+obj_to_clear = "apple_1"
 task = f"Put away the {obj_to_clear} efficiently and quickly"
 
 iter = 1
