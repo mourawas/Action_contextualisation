@@ -8,6 +8,10 @@ __pycache__/
 # Dev tools
 .vscode
 
+# Logs
+*.log
+log/
+
 
 # Imaged and ressources
 *.jpg
