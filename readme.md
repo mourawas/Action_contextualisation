@@ -20,7 +20,7 @@
 
 ### LLM Integration
 - **LLM framework**: Built the planner package with LLM code, adapted code to use Mistral AI in chatbots.py and adapted some prompts in prompt_generator.py
-- **API Key Setup**: After building and sourcing the workspace, set your Mistral API key with `export MISTRAL_API_KEY=YOUR_API_KEY`
+- **API Key Setup**: For Mistral (Free limited API), get your key here https://admin.mistral.ai/organization/api-keys. After building and sourcing the workspace, set your Mistral API key with `export MISTRAL_API_KEY=YOUR_API_KEY`
 
 ### Launch Commands
 
@@ -31,7 +31,7 @@ bash start_docker.sh interactive
 catkin_make
 source devel/setup.bash
 export MISTRAL_API_KEY=YOUR_API_KEY  # Set API key after sourcing
-roslaunch llm_simulator simulator.launch
+roslaunch planner experiment_1.launch
 ```
 
 #### If you have no launch file, in a second terminal run like this (no LLM with test_task_plan.py, impossible to complete the task):

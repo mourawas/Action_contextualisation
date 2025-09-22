@@ -45,7 +45,7 @@ locations = [
     "left_side",
     "center", 
     "right_side",
-    "next_to_apple_2",  # for relative positioning
+    # "next_to_apple_2",  # for relative positioning
     # "large white sink",
     # "faucet",
     # "tiled wall",
