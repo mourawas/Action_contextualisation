@@ -157,7 +157,7 @@ class TaskPlanExecutor:
             elif object_to_approach in self.object_matching_dict:
                 # Existing object matching
                 object_to_approach = self.object_matching_dict[object_to_approach]
-                
+
             else:
                 # Unknown location/object
                 print(f"Warning: Unknown location/object: {object_to_approach}")
@@ -196,7 +196,14 @@ class TaskPlanExecutor:
 
                 for val in values:
                     if isinstance(val, str) and val not in ["top", "side"]:
-                        corrected_arguments.append(self.object_matching_dict[val])
+                        # NEW: Check table_positions first
+                        if val in self.table_positions:
+                            corrected_arguments.append(val)  # Keep as string for predicates
+                        elif val in self.object_matching_dict:
+                            corrected_arguments.append(self.object_matching_dict[val])
+                        else:
+                            # If not found in either, keep original (might be needed for some predicates)
+                            corrected_arguments.append(val)
                     else:
                         corrected_arguments.append(val)
 

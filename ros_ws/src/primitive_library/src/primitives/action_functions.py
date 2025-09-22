@@ -238,14 +238,16 @@ def approach(js_lds, # object_to_grasp: str,
     
     # NEW: Check if object_to_grasp is a position list
     if isinstance(object_to_grasp, list):
-        # Direct position provided -> skip service calls
-        iiwa_pos = [0, 0, 0, 1, 0, 0, 0]  # Default or get from service
+        # Direct position provided - skip service calls
+        rospy.wait_for_service('objPos')
+        obj_frame_service = rospy.ServiceProxy('objPos', objPos, persistent=True)
+        iiwa_pos = obj_frame_service('kuka_base').object_position
         iiwa_base_pos = llmh.mujoco_pos_quat_to_se3(iiwa_pos[:3], iiwa_pos[3:])
         
         obj_com_pos = np.ones((4, 1))
         obj_com_pos[:3, 0] = object_to_grasp  # Use provided position
         
-        # For positions, we need dummy mesh data (single point at position)
+        # For positions, use dummy mesh data
         obj_mesh = np.array([object_to_grasp])
         obj_radii = np.array([0.01])  # Small default radius
         

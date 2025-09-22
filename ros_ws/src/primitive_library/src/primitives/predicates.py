@@ -32,10 +32,21 @@ def can_grasp(object_to_grasp: str, grasp_side: str) -> bool:
 
     return (object_in_vicinity and object_in_workspace) or is_holding
 
-
+# Modify to handle table positions 
 def can_reach(object_to_reach: str, grasp_side: str) -> bool:
     from primitives.action_functions import js_lds
-    pick(object_to_reach, 1., 0.0, grasp_side, mock_run=True)
+    from primitives.execute_task_plan import TaskPlanExecutor
+    
+    # Check if it's a table position
+    tpe = TaskPlanExecutor()
+    if object_to_reach in tpe.table_positions:
+        # For table positions, pass the position list to pick
+        position = tpe.table_positions[object_to_reach]
+        pick(position, 1., 0.0, grasp_side, mock_run=True)
+    else:
+        # For objects, use the object name
+        pick(object_to_reach, 1., 0.0, grasp_side, mock_run=True)
+    
     object_reachable = not js_lds._failed_ik
     return object_reachable
 
@@ -92,9 +103,9 @@ def at_location(object: str, location: str) -> bool:
         
     # NEW: Check if location is a table position
     tpe = TaskPlanExecutor()  # Create instance to access table_positions
-    if location in tpe.object_matching_dict and tpe.object_matching_dict[location] in tpe.table_positions:
+    if location in tpe.table_positions:
         # Get the table position coordinates
-        table_pos = tpe.table_positions[tpe.object_matching_dict[location]]
+        table_pos = tpe.table_positions[location]
         
         # Get object position
         obj_mesh, obj_radii, _ = get_meshes([object], detailed_meshes=True)
@@ -106,7 +117,7 @@ def at_location(object: str, location: str) -> bool:
         return min_dst < 0.15  # Within 15cm of table position
     
     else:
-        # EXISTING CODE for object-to-object distance
+        # Existing code for object-to-object distance
         obj_mesh, obj_radii, _ = get_meshes([object], detailed_meshes=True)
         location_mesh, location_radii, _ = get_meshes([location], detailed_meshes=True)
         distances = distance.cdist(obj_mesh, location_mesh)

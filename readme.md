@@ -77,6 +77,26 @@ Then update dictionaries in `llm_common/utils.py`:
 
 Rebuild and restart after changes.
 
+## First adaptation for pick-and-place
+First, I simplified the working space by removing everything except the robot, the table, and two apples on the table.
+
+For pick-and-place, we will probably need to use coordinates.   
+In the original project, there was no coordinate system, only named objects linked to their location in `ros_ws/src/llm_simulator/src/description/llm_objects/llm_object_bodies.xml` and in `ros_ws/src/llm_simulator/src/description/llm_objects/static_env_current.xml`.  
+
+We have two choices
+- Do we add positions as objects that we will have to define in objects xml files and add them to sim_objects_list ?
+- Or do we modify `execute_task_plan.py` to handle positions ?   
+
+I decided to modify `execute_task_plan.py` to achieve that.  
+Three positions were introduced:
+- right_side (of the table)
+- left_side (of the table)
+- center (of the table)
+
+These were added in the list of locations `locations` in `ros_ws/src/planner/scripts/experiment_1.py`, and their coordinates are in the `execute_task_plan.py` file in `self.table_positions`, so not linked to any objects from `xml` files.   
+
+For this to work, a lot of functions from `experiment_1.py`, `execute_task_plan.py`, `action_functions.py`, and `predicates.py` had to be modified, since these functions expect object names that get resolved to positions.
+
 ### Status
 - **Result**: Working MuJoCo simulation environment with IIWA robot and GPU acceleration
 - **LLM Integration**: Code built and configured with Mistral AI
