@@ -40,6 +40,7 @@ objects = [
 ]
 
 # Labels that are considered locations
+# TODO: Introduce relative locations
 locations = [
     "left_side",
     "center", 
@@ -56,7 +57,7 @@ locations = [
 ]
 
 obj_to_clear = "apple_1"
-task = f"Put away the {obj_to_clear} efficiently and quickly"
+task = f"Move the {obj_to_clear} efficiently and quickly"
 
 iter = 1
 retune_count = 3

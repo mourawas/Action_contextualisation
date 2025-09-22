@@ -22,6 +22,10 @@ class TaskPlanExecutor:
                                        'drop': drop,
                                        'throw': throw}
 
+        # Do we add positions as objects that we will have to define in objects xml files
+        # and add them to sim_objects_list ?
+        # or do we modify execute_task_plan to handle positions ?
+
         self.object_matching_dict = {'crumpled paper ball 1': 'paper_ball_1',
                                      'crumpled paper ball 2': 'paper_ball_2',
                                      'crumpled paper ball 3': 'paper_ball_3',
@@ -39,6 +43,12 @@ class TaskPlanExecutor:
                                      'storage shelf': 'shelf',
                                      "white table": "table",
                                      '': ''}
+        
+        # Table positions
+        # Table is at pos="0.4 -0.4 0" with surface at z=1.01
+        self.table_positions = {'left_side': [0.5, 0.2, 1.01],
+                                'center': [0.7, 0.1, 1.01],
+                                'right_side': [0.9, 0.0, 1.01]}
 
         self.predicate_matching_dict = {'at_location': at_location,
                                         'can_grasp': can_grasp,
@@ -133,8 +143,24 @@ class TaskPlanExecutor:
             if type(action_arguments) == str:
                 action_arguments = [action_arguments]
 
-            object_to_approach = self.object_matching_dict[action_arguments[0]]
-            print(action_function_name, object_to_approach)
+            # Handling positions here
+            # object_to_approach = self.object_matching_dict[action_arguments[0]]
+            # print(action_function_name, object_to_approach)
+
+            object_to_approach = action_arguments[0]
+
+            # Check if it's a table position first
+            if object_to_approach in self.table_positions:
+                # For table positions pass the position directly
+                object_to_approach = self.table_positions[object_to_approach]
+
+            elif object_to_approach in self.object_matching_dict:
+                # Existing object matching
+                object_to_approach = self.object_matching_dict[object_to_approach]
+                
+            else:
+                # Unknown location/object
+                print(f"Warning: Unknown location/object: {object_to_approach}")
 
             # Execute and time action
             print(action_function_name, object_to_approach, action_arguments[1:])

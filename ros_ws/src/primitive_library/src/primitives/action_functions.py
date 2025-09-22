@@ -215,7 +215,8 @@ def update_static_obstacles() -> None:
 
 
 @robot_action
-def approach(js_lds, object_to_grasp: str,
+def approach(js_lds, # object_to_grasp: str,
+             object_to_grasp: tp.Union[str, list], # Modified to accept direct position
              speed: float,
              obstacle_clearance: tp.Optional[float],
              grasp: str,
@@ -234,26 +235,62 @@ def approach(js_lds, object_to_grasp: str,
     # Default grasp to top
     if grasp == '':
         grasp = 'top'
-    # Waiting for services
-    rospy.wait_for_service('objComPos')
-    rospy.wait_for_service('objPos')
-    rospy.wait_for_service('objMesh')
-    obj_frame_service = rospy.ServiceProxy('objPos', objPos, persistent=True)
-    com_pos_service = rospy.ServiceProxy('objComPos', objPos, persistent=True)
-    mesh_service = rospy.ServiceProxy('objMesh', objMesh, persistent=True)
-
-    # Getting object positions
-    iiwa_pos = obj_frame_service('kuka_base').object_position
-    iiwa_base_pos = llmh.mujoco_pos_quat_to_se3(iiwa_pos[:3], iiwa_pos[3:])
-    obj_com_pos = np.ones((4, 1))
-    obj_com_pos[:3] = np.expand_dims(com_pos_service(object_to_grasp).object_position, axis=1)
-
-    # Here we are doing something cheeky because I am too tired to figure out why the proper way doesn't work. TODO: Do this right
-    if object_to_grasp in ['shelf', 'table']:
-        (obj_mesh, obj_radii, _) = get_meshes([object_to_grasp], detailed_meshes=True, use_robot_frame=False)
+    
+    # NEW: Check if object_to_grasp is a position list
+    if isinstance(object_to_grasp, list):
+        # Direct position provided -> skip service calls
+        iiwa_pos = [0, 0, 0, 1, 0, 0, 0]  # Default or get from service
+        iiwa_base_pos = llmh.mujoco_pos_quat_to_se3(iiwa_pos[:3], iiwa_pos[3:])
+        
+        obj_com_pos = np.ones((4, 1))
+        obj_com_pos[:3, 0] = object_to_grasp  # Use provided position
+        
+        # For positions, we need dummy mesh data (single point at position)
+        obj_mesh = np.array([object_to_grasp])
+        obj_radii = np.array([0.01])  # Small default radius
+        
     else:
-        obj_mesh = np.reshape(mesh_service(object_to_grasp).object_vertices, (-1, 3))
-        obj_radii = np.asarray(mesh_service(object_to_grasp).object_radii)
+        # FROM EXISTING CODE: Get position from services
+        rospy.wait_for_service('objComPos')
+        rospy.wait_for_service('objPos')
+        rospy.wait_for_service('objMesh')
+        obj_frame_service = rospy.ServiceProxy('objPos', objPos, persistent=True)
+        com_pos_service = rospy.ServiceProxy('objComPos', objPos, persistent=True)
+        mesh_service = rospy.ServiceProxy('objMesh', objMesh, persistent=True)
+        
+        iiwa_pos = obj_frame_service('kuka_base').object_position
+        iiwa_base_pos = llmh.mujoco_pos_quat_to_se3(iiwa_pos[:3], iiwa_pos[3:])
+        obj_com_pos = np.ones((4, 1))
+        obj_com_pos[:3] = np.expand_dims(com_pos_service(object_to_grasp).object_position, axis=1)
+        
+        # Get mesh for objects
+        if object_to_grasp in ['shelf', 'table']:
+            (obj_mesh, obj_radii, _) = get_meshes([object_to_grasp], detailed_meshes=True, use_robot_frame=False)
+        else:
+            obj_mesh = np.reshape(mesh_service(object_to_grasp).object_vertices, (-1, 3))
+            obj_radii = np.asarray(mesh_service(object_to_grasp).object_radii)
+    
+
+    # # Waiting for services
+    # rospy.wait_for_service('objComPos')
+    # rospy.wait_for_service('objPos')
+    # rospy.wait_for_service('objMesh')
+    # obj_frame_service = rospy.ServiceProxy('objPos', objPos, persistent=True)
+    # com_pos_service = rospy.ServiceProxy('objComPos', objPos, persistent=True)
+    # mesh_service = rospy.ServiceProxy('objMesh', objMesh, persistent=True)
+
+    # # Getting object positions
+    # iiwa_pos = obj_frame_service('kuka_base').object_position
+    # iiwa_base_pos = llmh.mujoco_pos_quat_to_se3(iiwa_pos[:3], iiwa_pos[3:])
+    # obj_com_pos = np.ones((4, 1))
+    # obj_com_pos[:3] = np.expand_dims(com_pos_service(object_to_grasp).object_position, axis=1)
+
+    # # Here we are doing something cheeky because I am too tired to figure out why the proper way doesn't work. TODO: Do this right
+    # if object_to_grasp in ['shelf', 'table']:
+    #     (obj_mesh, obj_radii, _) = get_meshes([object_to_grasp], detailed_meshes=True, use_robot_frame=False)
+    # else:
+    #     obj_mesh = np.reshape(mesh_service(object_to_grasp).object_vertices, (-1, 3))
+    #     obj_radii = np.asarray(mesh_service(object_to_grasp).object_radii)
 
     base_obj_vec = np.squeeze(obj_com_pos[:3]) - iiwa_base_pos[:3, 3]
     obj_goal = obj_com_pos
@@ -425,7 +462,9 @@ def pick(js_lds, object_to_grasp: str,
             else:
                 break
 
-
+# These action functions expect object names that get resolved to positions
+# Place and drop pass their first argument to approach function
+# So modify approach function
 @robot_action
 def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstacle_clearance: float) -> None:
 

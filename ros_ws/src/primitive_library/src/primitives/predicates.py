@@ -78,28 +78,57 @@ def holding() -> bool:
 
     return is_holding
 
-
+# Modify to handle table positions
 def at_location(object: str, location: str) -> bool:
     from primitives.action_functions import js_lds
+
+    from primitives.execute_task_plan import TaskPlanExecutor #new
 
     if location == "robot":
         if object == js_lds.obj_grasped:
             return holding()
         else:
             return False
-
-    # TODO: Not super accurate description without radius
+        
+    # NEW: Check if location is a table position
+    tpe = TaskPlanExecutor()  # Create instance to access table_positions
+    if location in tpe.object_matching_dict and tpe.object_matching_dict[location] in tpe.table_positions:
+        # Get the table position coordinates
+        table_pos = tpe.table_positions[tpe.object_matching_dict[location]]
+        
+        # Get object position
+        obj_mesh, obj_radii, _ = get_meshes([object], detailed_meshes=True)
+        
+        # Calculate distance to table position
+        distances = np.linalg.norm(obj_mesh - np.array(table_pos), axis=1)
+        min_dst = np.min(distances - obj_radii)
+        
+        return min_dst < 0.15  # Within 15cm of table position
+    
     else:
-
-        # Get meshes
+        # EXISTING CODE for object-to-object distance
         obj_mesh, obj_radii, _ = get_meshes([object], detailed_meshes=True)
         location_mesh, location_radii, _ = get_meshes([location], detailed_meshes=True)
         distances = distance.cdist(obj_mesh, location_mesh)
-
-        # Adjust for radii
+        
         distances = (distances.T - obj_radii).T
         distances = distances - location_radii
-
+        
         min_dst = np.min(distances)
-        return min_dst < 0.75 # TODO: This extension is not super good but ok for now
-        # return min_dst < 0.5 # TODO: This extension is not super good but ok for now
+        return min_dst < 0.75
+
+    # # TODO: Not super accurate description without radius
+    # else:
+
+    #     # Get meshes
+    #     obj_mesh, obj_radii, _ = get_meshes([object], detailed_meshes=True)
+    #     location_mesh, location_radii, _ = get_meshes([location], detailed_meshes=True)
+    #     distances = distance.cdist(obj_mesh, location_mesh)
+
+    #     # Adjust for radii
+    #     distances = (distances.T - obj_radii).T
+    #     distances = distances - location_radii
+
+    #     min_dst = np.min(distances)
+    #     return min_dst < 0.75 # TODO: This extension is not super good but ok for now
+    #     # return min_dst < 0.5 # TODO: This extension is not super good but ok for now
