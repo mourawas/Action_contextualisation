@@ -98,9 +98,9 @@ These were added in the list of locations `locations` in `ros_ws/src/planner/scr
 For this to work, a lot of functions from `experiment_1.py`, `execute_task_plan.py`, `action_functions.py`, and `predicates.py` had to be modified, since these functions expect object names that get resolved to positions.
 
 ### Status
-- **Result**: Working MuJoCo simulation environment with IIWA robot and GPU acceleration
+- **Result**: Working simulation environment with IIWA robot and GPU acceleration
 - **LLM Integration**: Code built and configured with Mistral AI
-- **Known Issue**: Full test scenario with LLM (experiment_1.launch) not yet working due to collision detection with liquid inside glass
+- **Working on**: Making the robot drop the apple from a lower height
 
 ---
 
