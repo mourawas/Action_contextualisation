@@ -105,15 +105,15 @@
 
     <body name="beam_1" pos="0.65 0.1 1.05" quat="1 0 0 0">
         <inertial mass="0.05" pos="0 0 0" fullinertia="0.001 0.001 0.001 0 0 0" />
-        <geom name="beam_1_geom" class="obj" type="box" size="0.15 0.02 0.02" rgba="0.6 0.6 0.6 1"/>
-        <geom name="beam_1_visual" class="visual" type="box" size="0.15 0.02 0.02" rgba="0.6 0.6 0.6 1"/>
+        <geom mesh="beam" class="obj" type="mesh"/>
+        <geom mesh="beam" material="beam" class="visual" type="mesh"/>
         <freejoint/>
     </body>
 
     <!-- <body name="beam_2" pos="0.75 -0.1 1.05" quat="1 0 0 0">
         <inertial mass="0.05" pos="0 0 0" fullinertia="0.001 0.001 0.001 0 0 0" />
-        <geom name="beam_2_geom" class="obj" type="box" size="0.12 0.02 0.02" rgba="0.5 0.5 0.5 1"/>
-        <geom name="beam_2_visual" class="visual" type="box" size="0.12 0.02 0.02" rgba="0.5 0.5 0.5 1"/>
+        <geom mesh="beam" class="obj" type="mesh"/>
+        <geom mesh="beam" material="beam" class="visual" type="mesh"/>
         <freejoint/>
     </body> -->
 

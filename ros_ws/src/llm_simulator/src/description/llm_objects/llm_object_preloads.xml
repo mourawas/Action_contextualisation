@@ -20,6 +20,10 @@
         <!--        lamp -->
         <!-- <mesh file="llm_objects/lamp/lamp_3_m.obj" name="lamp" scale="1.0 1.0 1.0"/> -->
 
+        <!--        beam -->
+        <mesh file="llm_objects/beam/beam.obj" name="beam" />
+        <material name="beam" rgba="0.6 0.6 0.6 1" specular="0.3" shininess="0.3" />
+
     </asset>
 
 </llm>
