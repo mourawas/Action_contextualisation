@@ -41,7 +41,7 @@
 
     <!-- ################ Two apples #############################-->
 
-    <body name="apple_1" pos="0.5 -0.45 1.07" quat="1 1 0 0">
+    <!-- <body name="apple_1" pos="0.5 -0.45 1.07" quat="1 1 0 0">
         <inertial pos="-0.0016480202957852835 -0.002256664593323946 -0.0007355532922551801" mass="0.002" fullinertia="0.00020654858167238498 0.0002167076279555137 0.000209544910164081 1.011183250711457e-06 -6.115403648378643e-07 1.948864069749578e-06" />
         <geom mesh="apple" class="obj" type="mesh"/>
         <geom mesh="apple" material="apple"  class="visual" type="mesh"/>
@@ -53,7 +53,7 @@
         <geom mesh="apple" class="obj" type="mesh"/>
         <geom mesh="apple" material="apple"  class="visual" type="mesh"/>
         <freejoint/>
-    </body>
+    </body> -->
 
     <!-- alter the x and y coordinates -->
     <!-- <body name="eaten_apple" pos="0.8 -0.1 1.07" quat="1 1 0 0">
@@ -100,12 +100,21 @@
         <freejoint/>
     </body> -->
 
+    <!-- ################ Beams #############################-->
 
 
+    <body name="beam_1" pos="0.65 0.1 1.05" quat="1 0 0 0">
+        <inertial mass="0.05" pos="0 0 0" fullinertia="0.001 0.001 0.001 0 0 0" />
+        <geom name="beam_1_geom" class="obj" type="box" size="0.15 0.02 0.02" rgba="0.6 0.6 0.6 1"/>
+        <geom name="beam_1_visual" class="visual" type="box" size="0.15 0.02 0.02" rgba="0.6 0.6 0.6 1"/>
+        <freejoint/>
+    </body>
 
-
-
-
-
+    <!-- <body name="beam_2" pos="0.75 -0.1 1.05" quat="1 0 0 0">
+        <inertial mass="0.05" pos="0 0 0" fullinertia="0.001 0.001 0.001 0 0 0" />
+        <geom name="beam_2_geom" class="obj" type="box" size="0.12 0.02 0.02" rgba="0.5 0.5 0.5 1"/>
+        <geom name="beam_2_visual" class="visual" type="box" size="0.12 0.02 0.02" rgba="0.5 0.5 0.5 1"/>
+        <freejoint/>
+    </body> -->
 
 </llm>

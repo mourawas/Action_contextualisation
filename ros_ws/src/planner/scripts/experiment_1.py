@@ -14,7 +14,7 @@ import numpy as np
 
 scene_description = (
     "The image shows an indoor scene with a white table at the center, scattered with two objects. "
-    "On the table, there are two whole apples "
+    "On the table, there is one rectangular beam, made for example of wood or metal. "
     "The room has a clinical or institutional feel, possibly a break room or a workshop space."
 )
 
@@ -27,8 +27,10 @@ objects = [
     #"crumpled paper ball 3",
     #"crumpled paper ball 4",
     #"crumpled paper ball 5",
-    "apple_1",
-    "apple_2"
+    # "apple_1",
+    # "apple_2",
+    "beam_1"
+    #"beam_2"
     # "half-eaten apple",
     # "empty glass 1",
     #"empty glass 2",
@@ -56,7 +58,7 @@ locations = [
     # "storage shelf"
 ]
 
-obj_to_clear = "apple_1"
+obj_to_clear = "beam_1"
 task = f"Move the {obj_to_clear} efficiently and quickly"
 
 iter = 1

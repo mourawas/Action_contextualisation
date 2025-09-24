@@ -33,6 +33,8 @@ class TaskPlanExecutor:
                                      'crumpled paper ball 5': 'paper_ball_5',
                                      'apple_1': 'apple_1',
                                      'apple_2': 'apple_2',
+                                     'beam_1': 'beam_1',
+                                     'beam_2': 'beam_2',
                                      'half-eaten apple': 'eaten_apple',
                                      'empty glass 1': 'champagne_2',
                                      'empty glass 2': 'champagne_3',
