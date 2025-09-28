@@ -2,6 +2,8 @@
 # Simple rectangular beam with dimensions 0.15 x 0.02 x 0.02 (length x width x height)
 
 # Vertices (8 corners of the box)
+mtllib beam.mtl
+usemtl beam_material
 v -0.075 -0.01 -0.01
 v  0.075 -0.01 -0.01
 v  0.075  0.01 -0.01

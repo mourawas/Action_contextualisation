@@ -1,0 +1,7 @@
+newmtl beam_material
+Ka 0.6 0.6 0.6
+Kd 0.6 0.6 0.6
+Ks 0.3 0.3 0.3
+Ns 30.0
+d 1.0
+map_Kd beam_texture.png
