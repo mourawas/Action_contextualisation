@@ -1,0 +1,4 @@
+<launch>
+    <!-- Test beam node -->
+    <node pkg="primitive_library" type="test_beam.py" name="test_beam" output="screen"></node>
+</launch>
