@@ -1,7 +1,7 @@
 # Beam OBJ file
-# Updated dimensions: 0.5 x 0.06 x 0.06 (length x width x height)
+# Updated dimensions: 0.5 x 0.04 x 0.04 (length x width x height)
 # Square profile beam - elongated cube with square cross-section
-# 6cm x 6cm square sides, 50cm length
+# 4cm x 4cm square sides, 50cm length
 # Fixed face winding order to prevent transparency issues
 
 # Material library reference
@@ -9,14 +9,14 @@ mtllib beam.mtl
 usemtl beam_material
 
 # Vertices (8 corners of the box)
-v -0.25 -0.03 -0.03
-v  0.25 -0.03 -0.03
-v  0.25  0.03 -0.03
-v -0.25  0.03 -0.03
-v -0.25 -0.03  0.03
-v  0.25 -0.03  0.03
-v  0.25  0.03  0.03
-v -0.25  0.03  0.03
+v -0.25 -0.02 -0.02
+v  0.25 -0.02 -0.02
+v  0.25  0.02 -0.02
+v -0.25  0.02 -0.02
+v -0.25 -0.02  0.02
+v  0.25 -0.02  0.02
+v  0.25  0.02  0.02
+v -0.25  0.02  0.02
 
 # Vertex normals (corrected directions)
 vn  0.0  0.0 -1.0  # Bottom face normal
