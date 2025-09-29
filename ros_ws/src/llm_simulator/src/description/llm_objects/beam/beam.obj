@@ -1,23 +1,20 @@
 # Beam OBJ file
-# Updated dimensions: 0.5 x 0.04 x 0.04 (length x width x height)
-# Square profile beam - elongated cube with square cross-section
-# 4cm x 4cm square sides, 50cm length
+# Updated dimensions: 0.35 x 0.05 x 0.05 (length x width x height)
+# Square profile beam - slightly slimmer
+# 5cm x 5cm square sides, 35cm length
 # Fixed face winding order to prevent transparency issues
-
 # Material library reference
 mtllib beam.mtl
 usemtl beam_material
-
 # Vertices (8 corners of the box)
-v -0.25 -0.02 -0.02
-v  0.25 -0.02 -0.02
-v  0.25  0.02 -0.02
-v -0.25  0.02 -0.02
-v -0.25 -0.02  0.02
-v  0.25 -0.02  0.02
-v  0.25  0.02  0.02
-v -0.25  0.02  0.02
-
+v -0.175 -0.025 -0.025
+v  0.175 -0.025 -0.025
+v  0.175  0.025 -0.025
+v -0.175  0.025 -0.025
+v -0.175 -0.025  0.025
+v  0.175 -0.025  0.025
+v  0.175  0.025  0.025
+v -0.175  0.025  0.025
 # Vertex normals (corrected directions)
 vn  0.0  0.0 -1.0  # Bottom face normal
 vn  0.0  0.0  1.0  # Top face normal
@@ -25,30 +22,23 @@ vn  0.0 -1.0  0.0  # Front face normal
 vn  1.0  0.0  0.0  # Right face normal
 vn  0.0  1.0  0.0  # Back face normal
 vn -1.0  0.0  0.0  # Left face normal
-
 # Faces (2 triangles per face, 12 triangles total)
 # Fixed winding order - counter-clockwise when viewed from outside
-
-# Bottom face (z = -0.015)
+# Bottom face (z = -0.025)
 f 3//1 2//1 1//1
 f 4//1 3//1 1//1
-
-# Top face (z = 0.015)
+# Top face (z = 0.025)
 f 5//2 6//2 7//2
 f 5//2 7//2 8//2
-
-# Front face (y = -0.03)
+# Front face (y = -0.025)
 f 6//3 5//3 1//3
 f 2//3 6//3 1//3
-
-# Right face (x = 0.117188)
+# Right face (x = 0.175)
 f 7//4 6//4 2//4
 f 3//4 7//4 2//4
-
-# Back face (y = 0.03)
+# Back face (y = 0.025)
 f 8//5 7//5 3//5
 f 4//5 8//5 3//5
-
-# Left face (x = -0.117188)
+# Left face (x = -0.175)
 f 5//6 8//6 4//6
 f 1//6 5//6 4//6

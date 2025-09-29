@@ -38,22 +38,22 @@
       <joint solimplimit="0.9 0.95 0.001 0.5 2"/>
     </default>
       <default class="fingers">
-      <geom contype="1" conaffinity="1"  rgba="0.7 0 0 0" condim="6" friction=".5 .1 .1"  solimp="1. 1. 0.0001 0.5 1" solref="0.02 1." priority="0"/>
+      <geom contype="1" conaffinity="1"  rgba="0.7 0 0 0" condim="6" friction="2. 1. 1."  solimp="1. 1. 0.0001 0.5 1" solref="0.02 1." priority="0"/>
     </default>
       <default class="visual1">
-      <geom contype="1" conaffinity="1" rgba="0.7 0 0 0" condim="6" friction=".5 .1 .1" solimp="1. 1. 0.0001 0.5 1" solref="0.02 1." priority="0"/>
+      <geom contype="1" conaffinity="1" rgba="0.7 0 0 0" condim="6" friction="2. 1. 1." solimp="1. 1. 0.0001 0.5 1" solref="0.02 1." priority="0"/>
     </default>
         <default class="visual2">
-     <geom contype="1" conaffinity="1" rgba="0.7 0 0 0" condim="6" friction=".5 .1 .1"  solimp="1. 1. 0.0001 0.5 1" solref="0.02 1." priority="0"/>
+     <geom contype="1" conaffinity="1" rgba="0.7 0 0 0" condim="6" friction="2. 1. 1."  solimp="1. 1. 0.0001 0.5 1" solref="0.02 1." priority="0"/>
     </default>
         <default class="visual3">
-     <geom contype="1" conaffinity="1" rgba="0.7 0 0 0" condim="6" friction=".5 .1 .1"  solimp="1. 1. 0.0001 0.5 1" solref="0.02 1." priority="0"/>
+     <geom contype="1" conaffinity="1" rgba="0.7 0 0 0" condim="6" friction="2. 1. 1."  solimp="1. 1. 0.0001 0.5 1" solref="0.02 1." priority="0"/>
     </default>
         <default class="visual4">
-     <geom contype="1" conaffinity="1" rgba="0.7 0 0 0" condim="6" friction=".5 .1 .1"  solimp="1. 1. 0.0001 0.5 1" solref="0.02 1." priority="0"/>
+     <geom contype="1" conaffinity="1" rgba="0.7 0 0 0" condim="6" friction="2. 1. 1."  solimp="1. 1. 0.0001 0.5 1" solref="0.02 1." priority="0"/>
     </default>
         <default class="visual5">
-      <geom contype="1" conaffinity="1" rgba="0.7 0 0 0" condim="6" friction=".5 .1 .1" solimp="1. 1. 0.0001 0.5 1" solref="0.02 1." priority="0"/>
+      <geom contype="1" conaffinity="1" rgba="0.7 0 0 0" condim="6" friction="2. 1. 1." solimp="1. 1. 0.0001 0.5 1" solref="0.02 1." priority="0"/>
     </default>
     <!-- <default class="thumb_test">
       <geom condim="3" contype="1" conaffinity="1" friction="1 0.8 0.8" solimp="0.8 0.95 0.002 0.5 2" solref="0.02 2"/>
