@@ -26,7 +26,7 @@
 
 #### Simulation with the LLM with a launch file:
 ```bash
-cd Documents/projetma3/Action_contextualisation/
+cd Action_contextualisation/
 bash start_docker.sh interactive
 catkin_make
 source devel/setup.bash
@@ -34,19 +34,23 @@ export MISTRAL_API_KEY=YOUR_API_KEY  # Set API key after sourcing
 roslaunch planner experiment_1.launch
 ```
 
-#### If you have no launch file, in a second terminal run like this (no LLM with test_task_plan.py, impossible to complete the task):
+#### If you want to run a specific script, in a first terminal:
 ```bash
-cd Documents/projetma3/Action_contextualisation/
-bash start_docker.sh connect
+cd Action_contextualisation/
+bash start_docker.sh interactive
 catkin_make
 source devel/setup.bash
 export MISTRAL_API_KEY=YOUR_API_KEY  # Set API key after sourcing
-rosrun primitive_library test_task_plan.py
+roslaunch llm_simulator simulator.launch 
 ```
 
-#### If you have a launch file, just run this in the first terminal:
+#### And in a second terminal:
 ```bash
-roslaunch primitive_library test_task_plan.launch
+cd Action_contextualisation/
+bash start_docker.sh connect
+catkin_make
+source devel/setup.bash
+rosrun primitive_library test_beam.py
 ```
 
 ### Modifying Objects on Table
@@ -94,12 +98,16 @@ Three positions were introduced:
 - center (of the table)
 
 These were added in the list of locations `locations` in `ros_ws/src/planner/scripts/experiment_1.py`, and their coordinates are in the `execute_task_plan.py` file in `self.table_positions`, so not linked to any objects from `xml` files.   
+Only input these locations in functions that will use `TaskPlanExecutor` in `execute_task_plan.py`, otherwise just use functions such as `drop()` directly with coordinates, e.g. `drop(object_to_grasp=[0.5, 0.2, 1.01], ...)`.
 
 For this to work, a lot of functions from `experiment_1.py`, `execute_task_plan.py`, `action_functions.py`, and `predicates.py` had to be modified, since these functions expect object names that get resolved to positions.
 
 ## Second adaptation for pick-and-place
 
-The scene is now only the robot, a table, and one beam on the table.
+The scene is now only the robot, a table, and one beam on the table.    
+Needed to modify the controller file `js_lds_oa.py` to deal with collision checking with only one object present.   
+Increased the friction of the fingertips (in `ros_ws/src/llm_simulator/src/description/iiwa7_allegro_llm.xml`) as well as the beam (in `llm_object_bodies.xml`), as it kept slipping out of the robot's hand.   
+
 
 ### Status
 - **Result**: Working simulation environment with IIWA robot and GPU acceleration
@@ -108,7 +116,7 @@ The scene is now only the robot, a table, and one beam on the table.
 
 ---
 
-## Original work
+# Original work
  
 ## Branches
 This project has 2 branches. The sim branch on which you are if you can read this should only be used to run all experiments in simulation. If you want to do some real robot stuff please switch to the realrobot branch.

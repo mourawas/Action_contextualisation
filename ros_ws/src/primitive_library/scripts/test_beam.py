@@ -13,7 +13,7 @@ def main() -> None:
     approach(object_to_grasp=object_to_grasp,
              speed=1.,
              grasp="top", 
-             obstacle_clearance=0.15)
+             obstacle_clearance=0.005)
     print(collision_free())
     
     print("Pick")
@@ -24,7 +24,8 @@ def main() -> None:
     holding()
     
     print("Drop")
-    drop(object_to_grasp="left_side",  orientation=0., speed=1., obstacle_clearance=0.02)
+    drop(object_to_grasp=[0.5, 0.2, 1.01], # table left_side coords
+           orientation=0., speed=1., obstacle_clearance=0.02)
     print(collision_free())
 
     

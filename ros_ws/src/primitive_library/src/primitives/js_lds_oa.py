@@ -170,6 +170,19 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
         # Update proximity history
         self._max_prox = np.max([self._max_prox, np.max(adjusted_distances)])
 
+        # # Disregard collision with grasped object
+        # if self.grasping and len(self.obj_grasped) > 0:
+        #     valid_obstacles_idx = np.where(np.asarray(obstacle_names) != self.obj_grasped)[0]
+        #     min_distances = min_distances[valid_obstacles_idx]
+        #     obstacles = obstacles[valid_obstacles_idx]
+        #     obstacle_names = obstacle_names[valid_obstacles_idx]
+        #     radii = radii[valid_obstacles_idx]
+
+        # # Check for collisions in general
+        # self._proximity_history.append(np.min(min_distances))
+        # is_collided = np.min(min_distances) < self.COLLISION_THRESHOLD
+
+        # NEW WAY TO CHECK FOR COLLISIONS
         # Disregard collision with grasped object
         if self.grasping and len(self.obj_grasped) > 0:
             valid_obstacles_idx = np.where(np.asarray(obstacle_names) != self.obj_grasped)[0]
@@ -179,38 +192,94 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
             radii = radii[valid_obstacles_idx]
 
         # Check for collisions in general
-        self._proximity_history.append(np.min(min_distances))
-        is_collided = np.min(min_distances) < self.COLLISION_THRESHOLD
-        obstacle_collided = ""
-        if is_collided:
-            if len(self.obj_grasped) > 0:
-                non_grasped_obj_idx = (np.asarray(obstacle_names) != self.obj_grasped)
-                new_min_dst = np.min(min_distances[non_grasped_obj_idx])
-                is_collided = np.min(new_min_dst) < self.COLLISION_THRESHOLD
-                if is_collided:
-                    collided_idx = np.argmin(new_min_dst)
-                    potential_collision_names = np.asarray(obstacle_names)[non_grasped_obj_idx]
+        # Handle case when no obstacles remain after filtering
+        if len(min_distances) == 0:
+            self._proximity_history.append(np.inf)
+            is_collided = False
+            obstacle_collided = ""
+        else:
+            self._proximity_history.append(np.min(min_distances))
+            is_collided = np.min(min_distances) < self.COLLISION_THRESHOLD
+
+        # obstacle_collided = ""
+        # if is_collided:
+        #     if len(self.obj_grasped) > 0:
+        #         non_grasped_obj_idx = (np.asarray(obstacle_names) != self.obj_grasped)
+        #         new_min_dst = np.min(min_distances[non_grasped_obj_idx])
+        #         is_collided = np.min(new_min_dst) < self.COLLISION_THRESHOLD
+        #         if is_collided:
+        #             collided_idx = np.argmin(new_min_dst)
+        #             potential_collision_names = np.asarray(obstacle_names)[non_grasped_obj_idx]
+        #             obstacle_collided = potential_collision_names[collided_idx]
+        #     else:
+        #         collided_idx = np.argmin(min_distances)
+        #         potential_collision_names = np.asarray(obstacle_names)
+        #         obstacle_collided = potential_collision_names[collided_idx]
+        # NEW
+        if len(min_distances) > 0:
+            obstacle_collided = ""
+            if is_collided:
+                if len(self.obj_grasped) > 0:
+                    non_grasped_obj_idx = (np.asarray(obstacle_names) != self.obj_grasped)
+                    non_grasped_distances = min_distances[non_grasped_obj_idx]
+                    if len(non_grasped_distances) > 0:
+                        new_min_dst = np.min(non_grasped_distances)
+                        is_collided = new_min_dst < self.COLLISION_THRESHOLD
+                        if is_collided:
+                            collided_idx = np.argmin(non_grasped_distances)
+                            potential_collision_names = np.asarray(obstacle_names)[non_grasped_obj_idx]
+                            obstacle_collided = potential_collision_names[collided_idx]
+                    else:
+                        is_collided = False
+                else:
+                    collided_idx = np.argmin(min_distances)
+                    potential_collision_names = np.asarray(obstacle_names)
                     obstacle_collided = potential_collision_names[collided_idx]
-            else:
-                collided_idx = np.argmin(min_distances)
-                potential_collision_names = np.asarray(obstacle_names)
-                obstacle_collided = potential_collision_names[collided_idx]
-        
-        # TODO: ADD comment here
+        else:
+            obstacle_collided = ""
+
+        # prox_obs = np.copy(min_distances)
+        # if len(self.obj_grasped) > 0:
+        #     non_grasped_obj_idx = (np.asarray(obstacle_names) != self.obj_grasped)
+        #     prox_obs = prox_obs[non_grasped_obj_idx]
+        # self._proximity_history.append(np.min(prox_obs))
+
+        # NEW
+        # Update proximity history excluding grasped object
         prox_obs = np.copy(min_distances)
-        if len(self.obj_grasped) > 0:
+        if len(self.obj_grasped) > 0 and len(prox_obs) > 0:
             non_grasped_obj_idx = (np.asarray(obstacle_names) != self.obj_grasped)
             prox_obs = prox_obs[non_grasped_obj_idx]
-        self._proximity_history.append(np.min(prox_obs))
+        
+        if len(prox_obs) > 0:
+            self._proximity_history.append(np.min(prox_obs))
+        else:
+            self._proximity_history.append(np.inf)
 
         # Postential object to disregard
-        if len(self._obstacle_to_approach) > 0:
+        # if len(self._obstacle_to_approach) > 0:
+        #     valid_obstacles_idx = np.where(np.asarray(obstacle_names) != self._obstacle_to_approach)[0]
+        #     min_distances = min_distances[valid_obstacles_idx]
+        #     obstacles = obstacles[valid_obstacles_idx]
+        #     obstacle_names = obstacle_names[valid_obstacles_idx]
+        #     radii = radii[valid_obstacles_idx]
+
+        
+        # close_idx = np.where(min_distances < self.collision_proximity * 2)[0]
+
+        #NEW
+        # Potential object to disregard
+        if len(self._obstacle_to_approach) > 0 and len(min_distances) > 0:
             valid_obstacles_idx = np.where(np.asarray(obstacle_names) != self._obstacle_to_approach)[0]
             min_distances = min_distances[valid_obstacles_idx]
             obstacles = obstacles[valid_obstacles_idx]
             obstacle_names = obstacle_names[valid_obstacles_idx]
             radii = radii[valid_obstacles_idx]
 
+        # Only proceed with obstacle avoidance if obstacles remain
+        if len(min_distances) == 0:
+            output = (is_collided, obstacle_collided, desired_qd)
+            return output
         
         close_idx = np.where(min_distances < self.collision_proximity * 2)[0]
         # close_idx = np.where(min_distances < np.inf)[0]
