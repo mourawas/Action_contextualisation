@@ -467,8 +467,9 @@ def pick(js_lds, object_to_grasp: str,
 # These action functions expect object names that get resolved to positions
 # Place and drop pass their first argument to approach function
 # So modify approach function
+# removed orientation
 @robot_action
-def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstacle_clearance: float) -> None:
+def place(js_lds, object_to_grasp: str, speed: float, obstacle_clearance: float) -> None:
 
     for vertical_offset in [0.3, 0.2, 0.1]:
         if js_lds._in_collision:
@@ -476,7 +477,6 @@ def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstac
 
         approach(object_to_grasp,
                 speed, grasp="top",
-                orientation=orientation,
                 detailed_obstacles=True,
                 disregard_object_to_grasp=True,
                 vertical_clearance_offset=vertical_offset,
@@ -490,7 +490,6 @@ def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstac
     if not js_lds._in_collision:
         approach(object_to_grasp,
                     speed, grasp="top",
-                    orientation=orientation,
                     detailed_obstacles=True,
                     disregard_object_to_grasp=True,
                     vertical_clearance_offset=0.0,
@@ -519,15 +518,15 @@ def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstac
             js_lds.obj_grasped = ""
 
 
+# removed orientation
 @robot_action
 def drop(js_lds, object_to_grasp: str,
          speed: float = 1.,
-         obstacle_clearance: float = 0.05,
-         orientation: float = 0) -> None:
-    print(orientation)
+         obstacle_clearance: float = 0.05) -> None:
+    
     approach(object_to_grasp,
              speed, grasp="top",
-             orientation=orientation,
+             orientation=0.0,
              detailed_obstacles=True,
              disregard_object_to_grasp=True,
              disregard_table=True,

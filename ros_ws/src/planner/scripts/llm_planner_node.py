@@ -11,6 +11,8 @@ import typing as tp
 import os
 import numpy as np
 
+# removed orientation from both prompts and examples for pick and place
+
 action_plan_ask = """
 The image shows an indoor scene with a white table at the center, scattered with various objects. On the table, there are crumpled paper balls, a whole apple, a half-eaten apple, and two different types of glasses, one of which appear to be empty and one partially filled with a yellowish liquid. To the left, there is a large white sink with a faucet against a tiled wall. A storage shelf is also kept near the table.In the background, there are two doors, one closed and one ajar, and a folded white chair next to the table. On the right side, a large red trash can is visible, filled with discarded items including colorful plastic wrappers. The room has a clinical or institutional feel, possibly a break room or a workshop space.The list of recognised objects is:
 
@@ -27,13 +29,11 @@ The image shows an indoor scene with a white table at the center, scattered with
 
     approach(object_to_grasp: str, speed: float, obstacle_clearance: float, grasp: str) -> None:  # Moves the robot close to "object_to_grasp" so that the object is in robot's reach
 
-    place(location: str, orientation: float, speed: float, obstacle_clearance: float) -> None: #Positions the "grasped_object" on/at/in the "location" and release the grasp. It is not advised to use the approach function directly before this one.
+    place(location: str, speed: float, obstacle_clearance: float) -> None: #Positions the "grasped_object" on/at/in the "location" and release the grasp. It is not advised to use the approach function directly before this one.
 
     pick(object_to_grasp: str, speed: float, obstacle_clearance: float, grasp: str) -> None: # Instructs the robot to pick up the "object_to_grasp", if it is close enough
 
     The "speed" argument for 'approach', 'pick', 'drop' and 'place' functions, assumes value in [0,1] and regulates how fast the robot moves. The closer the the value is to 1 the faster the robot moves. moving with higher speed is faster but might result in a jerky and less precise motion.
-
-    The "orientation" argument for the 'place' and 'drop' function, regulates how crucial it is for the robot to maintain the original orientation of object that the robot is holding. A value closer to 1, instructs the robot to strictly maintain the orientation, but may result in difficulty to avoid external perturbations or obstacles .
 
     The "grasp" argument for 'approach' and 'pick' assumes one of the two values ('top', 'side'), where "top" instructs the robot to approach or pick the object from the top and selecting "side" instructs the robot to approach or pick the object from the side.
 
@@ -685,13 +685,11 @@ if False:
 
     approach(object_to_grasp: str, speed: float, obstacle_clearance: float, grasp: str) -> None:  # Moves the robot close to "object_to_grasp" so that the object is in robot's reach
 
-    place(location: str, orientation: float, speed: float, obstacle_clearance: float) -> None: #Positions the "grasped_object" on/at/in the "location" and release the grasp.
+    place(location: str, speed: float, obstacle_clearance: float) -> None: #Positions the "grasped_object" on/at/in the "location" and release the grasp.
 
-    pick(object_to_grasp: str, orientation: float, speed: float, obstacle_clearance: float, grasp: str) -> None: # Instructs the robot to pick up the "object_to_grasp", if it is close enough
+    pick(object_to_grasp: str, speed: float, obstacle_clearance: float, grasp: str) -> None: # Instructs the robot to pick up the "object_to_grasp", if it is close enough
 
     The "speed" argument for 'approach', 'pick' and 'place' functions, assumes value in [0,1] and regulates how fast the robot moves. The closer the the value is to 1 the faster the robot moves. moving with higher speed is faster but might result in a jerky and less precise motion.
-
-    The "orientation" argument for 'pick', and 'place' functions, regulates how crucial it is for the robot to maintain the original orientation of object that the robot is holding. A value closer to 1, instructs the robot to strictly maintain the orientation, but may result in difficulty to avoid external perturbations or obstacles .
 
     The "grasp" argument for 'approach' and 'pick' assumes one of the two values ('top', 'side'), where "top" instructs the robot to approach or pick the object from the top and selecting "side" instructs the robot to approach or pick the object from the side.
 
@@ -724,26 +722,26 @@ if False:
     ```python
     task_plan = [
         (0, 'approach', ('crumpled paper ball 1', 0.5, 0.05, 'top')), # Approach first paper ball at medium speed with top grasp and reasonable obstacle clearance
-        (1, 'pick', ('crumpled paper ball 1', 0.5, 0.5, 0.05, 'top')), # Pick up the first paper ball, orientation semi-important, at medium speed
+        (1, 'pick', ('crumpled paper ball 1', 0.5, 0.05, 'top')), # Pick up the first paper ball, at medium speed
         (2, 'drop', ('large red trash can', 0.05)), # Drop the first paper ball into the trash can, small clearance to ensure accuracy
         (3, 'approach', ('crumpled paper ball 2', 0.5, 0.05, 'top')), # Repeat approach for second paper ball
-        (4, 'pick', ('crumpled paper ball 2', 0.5, 0.5, 0.05, 'top')), # Repeat pick for second paper ball
+        (4, 'pick', ('crumpled paper ball 2', 0.5, 0.05, 'top')), # Repeat pick for second paper ball
         (5, 'drop', ('large red trash can', 0.05)), # Repeat drop for second paper ball
         (6, 'approach', ('crumpled paper ball 3', 0.5, 0.05, 'top')), # Repeat approach for third paper ball
-        (7, 'pick', ('crumpled paper ball 3', 0.5, 0.5, 0.05, 'top')), # Repeat pick for third paper ball
+        (7, 'pick', ('crumpled paper ball 3', 0.5, 0.05, 'top')), # Repeat pick for third paper ball
         (8, 'drop', ('large red trash can', 0.05)), # Drop the third paper ball into the trash can
         (9, 'approach', ('half-eaten apple', 0.4, 0.05, 'side')), # Approach the half-eaten apple at a careful speed with side grasp
-        (10, 'pick', ('half-eaten apple', 0.8, 0.4, 0.05, 'side')), # Pick up the half-eaten apple, high orientation importance to avoid spillage
+        (10, 'pick', ('half-eaten apple', 0.4, 0.05, 'side')), # Pick up the half-eaten apple
         (11, 'drop', ('large red trash can', 0.05)), # Drop the half-eaten apple into the trash can
         (12, 'approach', ('whole apple', 0.5, 0.05, 'top')), # Approach whole apple at medium speed
-        (13, 'pick', ('whole apple', 0.5, 0.5, 0.05, 'top')), # Pick up whole apple, maintaining orientation moderately
-        (14, 'place', ('storage shelf', 0.5, 0.5, 0.05)), # Place whole apple on the storage shelf, orientation somewhat important
+        (13, 'pick', ('whole apple', 0.5, 0.05, 'top')), # Pick up whole apple
+        (14, 'place', ('storage shelf', 0.5, 0.05)), # Place whole apple on the storage shelf
         (15, 'approach', ('empty glass 1', 0.3, 0.05, 'top')), # Approach empty glass at slower speed to avoid toppling
-        (16, 'pick', ('empty glass 1', 1.0, 0.3, 0.05, 'top')), # Pick empty glass, high orientation importance to prevent spills
-        (17, 'place', ('large white sink', 1.0, 0.3, 0.05)), # Place empty glass in the sink, maintaining orientation strictly
+        (16, 'pick', ('empty glass 1', 0.3, 0.05, 'top')), # Pick empty glass
+        (17, 'place', ('large white sink', 0.3, 0.05)), # Place empty glass in the sink
         (18, 'approach', ('glass with yellowish liquid', 0.3, 0.05, 'top')), # Approach glass with liquid carefully
-        (19, 'pick', ('glass with yellowish liquid', 1.0, 0.3, 0.05, 'top')), # Pick glass with liquid, high orientation importance
-        (20, 'place', ('large white sink', 1.0, 0.3, 0.05)), # Place glass with liquid in the sink, high orientation to avoid spillage
+        (19, 'pick', ('glass with yellowish liquid', 0.3, 0.05, 'top')), # Pick glass with liquid
+        (20, 'place', ('large white sink', 0.3, 0.05)), # Place glass with liquid in the sink
     ]
     ```
 

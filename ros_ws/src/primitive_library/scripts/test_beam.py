@@ -18,17 +18,20 @@ def main() -> None:
     
     print("Pick")
     pick(object_to_grasp=object_to_grasp,
-         speed=0.1, obstacle_clearance=0.002, grasp_orientation="top")
-    time.sleep(4)
+         speed=0.1, obstacle_clearance=0.001, grasp_orientation="top")
+    #time.sleep(4)
     print(collision_free())
     holding()
     
-    print("Drop")
-    drop(object_to_grasp=[0.5, 0.2, 1.01], # table left_side coords
-           orientation=0., speed=1., obstacle_clearance=0.02)
-    print(collision_free())
+    # print("Drop")
+    # drop(object_to_grasp=[0.5, 0.2, 1.01], # table left_side coords
+    #      speed=1., obstacle_clearance=0.02)
+    # print(collision_free())
 
-    
+    print("Place")
+    place(object_to_grasp=[0.5, 0.6, 1.01],
+          speed=1., obstacle_clearance=0.02)
+    print(collision_free())
     rospy.signal_shutdown("Beam test finished")
 
 
