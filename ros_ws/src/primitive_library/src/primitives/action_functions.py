@@ -213,7 +213,7 @@ def update_static_obstacles() -> None:
     if len(static_elements) == 0:
         static_elements = np.asarray(get_meshes(llmu.STATIC_ELEMENTS))
 
-# added placement_angle
+
 @robot_action
 def approach(js_lds, # object_to_grasp: str,
              object_to_grasp: tp.Union[str, list], # Modified to accept direct position
@@ -221,7 +221,6 @@ def approach(js_lds, # object_to_grasp: str,
              obstacle_clearance: tp.Optional[float],
              grasp: str,
              orientation: float = 0.,
-             placement_angle: tp.Optional[float] = None, # new
              disregard_object_to_grasp: bool = False,
              detailed_obstacles: bool = False,
              apply_offsets: bool = True,
@@ -305,7 +304,6 @@ def approach(js_lds, # object_to_grasp: str,
     approach_direction_perp = np.array([-approach_direction[1], approach_direction[0], 0])
 
     # Handle offset for approach
-    # add placement angle
     grasp_orientation = grasp
     if grasp == "side":
         # Compute object radius
@@ -321,13 +319,7 @@ def approach(js_lds, # object_to_grasp: str,
         if apply_offsets:
             obj_goal[:3] -= np.expand_dims(approach_direction_perp * (approach_side_dst+obstacle_clearance), axis=1)
             obj_goal[:3] -= np.expand_dims(approach_direction * approach_ee_offset_side_additional, axis=1)
-        # obj_yaw = np.degrees(np.arctan2(base_obj_vec[1], base_obj_vec[0]))
-
-        # NEW: Use placement angle if provided
-        if placement_angle is not None:
-            obj_yaw = placement_angle
-        else:
-            obj_yaw = np.degrees(np.arctan2(base_obj_vec[1], base_obj_vec[0]))
+        obj_yaw = np.degrees(np.arctan2(base_obj_vec[1], base_obj_vec[0]))
 
         # Adjust altitude if we are over the table
         if obj_goal[2] < table_altitude:
@@ -336,7 +328,6 @@ def approach(js_lds, # object_to_grasp: str,
         if orientation == 0:
             goal_rot = Rotation.from_euler('xyz', [90, 0, 90 + obj_yaw], degrees=True).as_quat()
 
-    # addded placement angle
     elif grasp == "top":
 
         obj_goal[2] = np.max(obj_mesh[:, 2])
@@ -353,13 +344,7 @@ def approach(js_lds, # object_to_grasp: str,
             obj_goal[:3] -= np.expand_dims(approach_direction_perp * (-0.01), axis=1)
             obj_goal[:3] -= np.expand_dims(approach_direction * approach_ee_offset_top, axis=1)
 
-        #obj_yaw = np.degrees(np.arctan2(base_obj_vec[1], base_obj_vec[0]))
-        
-        # NEW: Use placement angle if provided
-        if placement_angle is not None:
-            obj_yaw = placement_angle
-        else:
-            obj_yaw = np.degrees(np.arctan2(base_obj_vec[1], base_obj_vec[0]))
+        obj_yaw = np.degrees(np.arctan2(base_obj_vec[1], base_obj_vec[0]))
 
         if orientation == 0:
             goal_rot = Rotation.from_euler('xyz', [0, 90, obj_yaw], degrees=True).as_quat()
@@ -370,16 +355,8 @@ def approach(js_lds, # object_to_grasp: str,
     else:
         raise ValueError(f"Unknown grasp: {grasp}")
 
-    # if orientation != 0:
-    #     goal_rot = np.array([obj_yaw])
-
-    # handle placement angle
     if orientation != 0:
-        if placement_angle is not None:
-            goal_rot = np.array([placement_angle])
-        else:
-            goal_rot = np.array([obj_yaw])
-
+        goal_rot = np.array([obj_yaw])
 
     # Compute goal position in IIWA frame
     print(obj_goal)
@@ -490,11 +467,8 @@ def pick(js_lds, object_to_grasp: str,
 # These action functions expect object names that get resolved to positions
 # Place and drop pass their first argument to approach function
 # So modify approach function
-# removed orientation
-# added placement_angle
 @robot_action
-def place(js_lds, object_to_grasp: str, speed: float, obstacle_clearance: float,
-          placement_angle: float = 0.0) -> None:
+def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstacle_clearance: float) -> None:
 
     for vertical_offset in [0.3, 0.2, 0.1]:
         if js_lds._in_collision:
@@ -502,7 +476,7 @@ def place(js_lds, object_to_grasp: str, speed: float, obstacle_clearance: float,
 
         approach(object_to_grasp,
                 speed, grasp="top",
-                placement_angle=placement_angle, # new
+                orientation=orientation,
                 detailed_obstacles=True,
                 disregard_object_to_grasp=True,
                 vertical_clearance_offset=vertical_offset,
@@ -516,7 +490,7 @@ def place(js_lds, object_to_grasp: str, speed: float, obstacle_clearance: float,
     if not js_lds._in_collision:
         approach(object_to_grasp,
                     speed, grasp="top",
-                    placement_angle=placement_angle, # new
+                    orientation=orientation,
                     detailed_obstacles=True,
                     disregard_object_to_grasp=True,
                     vertical_clearance_offset=0.0,
@@ -545,15 +519,15 @@ def place(js_lds, object_to_grasp: str, speed: float, obstacle_clearance: float,
             js_lds.obj_grasped = ""
 
 
-# removed orientation
 @robot_action
 def drop(js_lds, object_to_grasp: str,
          speed: float = 1.,
-         obstacle_clearance: float = 0.05) -> None:
-    
+         obstacle_clearance: float = 0.05,
+         orientation: float = 0) -> None:
+    print(orientation)
     approach(object_to_grasp,
              speed, grasp="top",
-             orientation=0.0,
+             orientation=orientation,
              detailed_obstacles=True,
              disregard_object_to_grasp=True,
              disregard_table=True,

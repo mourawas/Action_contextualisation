@@ -9,7 +9,7 @@ from copy import deepcopy
 
 import typing as tp
 
-# Removed orientation
+
 
 def image_description_gen():
     """Generates the prompt to generate the image description
@@ -81,11 +81,13 @@ def task_plan_gen(task: str, prompt0: str, objects: tp.List[str], locations: tp.
 
     approach(object_to_grasp: str, speed: float, obstacle_clearance: float, grasp: str) -> None:  # Moves the robot close to "object_to_grasp" so that the object is in robot's reach
 
-    place(location: str, speed: float, obstacle_clearance: float) -> None: #Positions the "grasped_object" on/at/in the "location" and release the grasp. It is not advised to use the approach function directly before this one.
+    place(location: str, orientation: float, speed: float, obstacle_clearance: float) -> None: #Positions the "grasped_object" on/at/in the "location" and release the grasp. It is not advised to use the approach function directly before this one.
 
     pick(object_to_grasp: str, speed: float, obstacle_clearance: float, grasp: str) -> None: # Instructs the robot to pick up the "object_to_grasp", if it is close enough
 
     The "speed" argument for 'approach', 'pick', 'drop' and 'place' functions, assumes value in [0,1] and regulates how fast the robot moves. The closer the the value is to 1 the faster the robot moves. moving with higher speed is faster but might result in a jerky and less precise motion.
+
+    The "orientation" argument for the 'place' and 'drop' function, regulates how crucial it is for the robot to maintain the original orientation of object that the robot is holding. A value closer to 1, instructs the robot to strictly maintain the orientation, but may result in difficulty to avoid external perturbations or obstacles .
 
     The "grasp" argument for 'approach' and 'pick' is mandatory and assumes one of the two values {"top", "side"}, never use None, where "top" instructs the robot to approach or pick the object from the top and selecting "side" instructs the robot to approach or pick the object from the side.
 
