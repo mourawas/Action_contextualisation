@@ -29,8 +29,8 @@ def main() -> None:
     # print(collision_free())
 
     print("Place")
-    place(object_to_grasp=[0.5, 0.6, 1.01],
-          speed=1., obstacle_clearance=0.02)
+    place(object_to_grasp=[0.8, 0.1, 1.01], # +y goes to the left of the robot, x from 0.5 to 0.8
+          speed=1., obstacle_clearance=0.02, placement_angle=45.0)
     print(collision_free())
     rospy.signal_shutdown("Beam test finished")
 
