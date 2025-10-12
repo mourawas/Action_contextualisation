@@ -221,6 +221,7 @@ def approach(js_lds, # object_to_grasp: str,
              obstacle_clearance: tp.Optional[float],
              grasp: str,
              orientation: float = 0.,
+             placement_angle: float = 0.,
              disregard_object_to_grasp: bool = False,
              detailed_obstacles: bool = False,
              apply_offsets: bool = True,
@@ -319,14 +320,16 @@ def approach(js_lds, # object_to_grasp: str,
         if apply_offsets:
             obj_goal[:3] -= np.expand_dims(approach_direction_perp * (approach_side_dst+obstacle_clearance), axis=1)
             obj_goal[:3] -= np.expand_dims(approach_direction * approach_ee_offset_side_additional, axis=1)
+
         obj_yaw = np.degrees(np.arctan2(base_obj_vec[1], base_obj_vec[0]))
+        target_yaw = placement_angle if placement_angle != 0 else obj_yaw
 
         # Adjust altitude if we are over the table
         if obj_goal[2] < table_altitude:
             obj_goal[2] = table_altitude
 
         if orientation == 0:
-            goal_rot = Rotation.from_euler('xyz', [90, 0, 90 + obj_yaw], degrees=True).as_quat()
+            goal_rot = Rotation.from_euler('xyz', [90, 0, 90 + target_yaw], degrees=True).as_quat()
 
     elif grasp == "top":
 
@@ -345,9 +348,10 @@ def approach(js_lds, # object_to_grasp: str,
             obj_goal[:3] -= np.expand_dims(approach_direction * approach_ee_offset_top, axis=1)
 
         obj_yaw = np.degrees(np.arctan2(base_obj_vec[1], base_obj_vec[0]))
+        target_yaw = placement_angle if placement_angle != 0 else obj_yaw
 
         if orientation == 0:
-            goal_rot = Rotation.from_euler('xyz', [0, 90, obj_yaw], degrees=True).as_quat()
+            goal_rot = Rotation.from_euler('xyz', [0, 90, target_yaw], degrees=True).as_quat()
 
         if force_altitude is not None:
             obj_goal[2] = force_altitude
@@ -356,7 +360,8 @@ def approach(js_lds, # object_to_grasp: str,
         raise ValueError(f"Unknown grasp: {grasp}")
 
     if orientation != 0:
-        goal_rot = np.array([obj_yaw])
+        target_yaw = placement_angle if placement_angle != 0 else obj_yaw
+        goal_rot = np.array([target_yaw])
 
     # Compute goal position in IIWA frame
     print(obj_goal)
@@ -468,7 +473,7 @@ def pick(js_lds, object_to_grasp: str,
 # Place and drop pass their first argument to approach function
 # So modify approach function
 @robot_action
-def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstacle_clearance: float) -> None:
+def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstacle_clearance: float, placement_angle: float = 0.) -> None:
 
     for vertical_offset in [0.3, 0.2, 0.1]:
         if js_lds._in_collision:
@@ -477,6 +482,7 @@ def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstac
         approach(object_to_grasp,
                 speed, grasp="top",
                 orientation=orientation,
+                placement_angle=placement_angle,
                 detailed_obstacles=True,
                 disregard_object_to_grasp=True,
                 vertical_clearance_offset=vertical_offset,
@@ -491,6 +497,7 @@ def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstac
         approach(object_to_grasp,
                     speed, grasp="top",
                     orientation=orientation,
+                    placement_angle=placement_angle,
                     detailed_obstacles=True,
                     disregard_object_to_grasp=True,
                     vertical_clearance_offset=0.0,
@@ -523,11 +530,13 @@ def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstac
 def drop(js_lds, object_to_grasp: str,
          speed: float = 1.,
          obstacle_clearance: float = 0.05,
-         orientation: float = 0) -> None:
+         orientation: float = 0,
+         placement_angle: float = 0.) -> None:
     print(orientation)
     approach(object_to_grasp,
              speed, grasp="top",
              orientation=orientation,
+             placement_angle=placement_angle,
              detailed_obstacles=True,
              disregard_object_to_grasp=True,
              disregard_table=True,

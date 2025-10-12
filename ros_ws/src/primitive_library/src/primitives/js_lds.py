@@ -366,7 +366,7 @@ class JS_LDS(ControllerBase):
         return (torque_cmd_inertia + torque_cmd, time_prev)
 
     def _compute_grasping_torques(self, desired_torques: np.ndarray) -> np.ndarray:
-        grasping_torque = 0.05
+        grasping_torque = 0.1
 
         desired_torques[8] = grasping_torque
         desired_torques[9] = grasping_torque
