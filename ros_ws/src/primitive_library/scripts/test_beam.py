@@ -18,14 +18,14 @@ def main() -> None:
     
     print("Pick")
     pick(object_to_grasp=object_to_grasp,
-         speed=0.1, obstacle_clearance=0.001, grasp_orientation="top")
+         speed=.1, obstacle_clearance=0.001, grasp_orientation="top")
     time.sleep(4)
     print(collision_free())
     holding()
     
     print("Place")
     place(object_to_grasp=[0.6, 0.2, 1.01], # +y goes to the left of the robot, +x goes away from the robot starts at 0.4
-          speed=1., obstacle_clearance=0.02, orientation=0.0, placement_angle=0) # new placement angle
+          speed=1., obstacle_clearance=0.02, orientation=0.0, placement_angle=0)
     print(collision_free())
 
     

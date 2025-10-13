@@ -68,6 +68,9 @@ class JS_LDS(ControllerBase):
     @cartesian_goal.setter
     def cartesian_goal(self, goal):
         # Goal is x, y, z, rx, ry, rz, rw (quaternions for rotation)
+        rospy.loginfo("Goal elements:")
+        for i, element in enumerate(goal):
+            rospy.loginfo(f"  [{i}]: {element}")
 
         if len(goal) == 7:
 
@@ -132,6 +135,8 @@ class JS_LDS(ControllerBase):
         return (iiwa_joint_goal, solution_id >= 0)
 
     def run_controller(self) -> None:
+        
+        print("Running JS_LDS controller")
 
         self.timeout = False
 
