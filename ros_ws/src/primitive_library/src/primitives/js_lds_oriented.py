@@ -33,6 +33,9 @@ class JS_LDS_ORIENTED(JS_LDS):
     @cartesian_goal.setter
     def cartesian_goal(self, goal: np.ndarray) -> None:
 
+        print("JS_LDS_ORIENTED cartesian_goal setter called")
+        print(f"js_lds_oriented goal received: {goal}")
+
         # Get the current rotation at the end effector
         self._new_iiwa_js_event.wait()  # Wait until we are sure we have an accurate joint position
         q_iiwa = self.x_iiwa

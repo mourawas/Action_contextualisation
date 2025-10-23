@@ -68,9 +68,9 @@ class JS_LDS(ControllerBase):
     @cartesian_goal.setter
     def cartesian_goal(self, goal):
         # Goal is x, y, z, rx, ry, rz, rw (quaternions for rotation)
-        rospy.loginfo("Goal elements:")
+        print("Goal elements:")
         for i, element in enumerate(goal):
-            rospy.loginfo(f"  [{i}]: {element}")
+            print(f"  [{i}]: {element}")
 
         if len(goal) == 7:
 

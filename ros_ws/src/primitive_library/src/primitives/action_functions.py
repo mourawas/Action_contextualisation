@@ -427,6 +427,13 @@ def pick(js_lds, object_to_grasp: str,
     if mock_run:
         return
 
+    after_approach_pos = js_lds.hand_position[:3, 3]
+    print(f"Position after approach: {after_approach_pos}")
+    print(f"In collision: {js_lds._in_collision}")
+    print(f"Obstacle collided: {js_lds._obstacle_collided}")
+    print(f"Failed IK: {js_lds._failed_ik}")
+    print(f"Timeout: {js_lds.timeout}")
+
     if not js_lds._in_collision or js_lds._obstacle_collided == object_to_grasp:
         js_lds._in_collision = False
         js_lds._obstacle_collided = ''
@@ -451,6 +458,7 @@ def pick(js_lds, object_to_grasp: str,
         except ValueError as e:
             if not (js_lds._in_collision and js_lds._obstacle_collided == object_to_grasp):
                 raise e
+        print(f"Position after grasp: {js_lds.hand_position[:3, 3]}")
 
     # Flyoff straight up to avoid some collisions
     if not js_lds._in_collision or js_lds._obstacle_collided == object_to_grasp:
@@ -458,7 +466,7 @@ def pick(js_lds, object_to_grasp: str,
         js_lds._obstacle_collided = ''
         # Fly off as high as possible up to 0.4
         current_hand_pos = js_lds.hand_position[:3, 3]
-        print(f"Current hand position: {current_hand_pos}")
+        print(f"Hand position before flyoff: {current_hand_pos}")
         for fly_off_offset in [0.2]:
             hand_pos_goal = np.copy(current_hand_pos)
             hand_pos_goal[2] += fly_off_offset
