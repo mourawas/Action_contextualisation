@@ -68,9 +68,8 @@ class JS_LDS(ControllerBase):
     @cartesian_goal.setter
     def cartesian_goal(self, goal):
         # Goal is x, y, z, rx, ry, rz, rw (quaternions for rotation)
-        print("Goal elements:")
-        for i, element in enumerate(goal):
-            print(f"  [{i}]: {element}")
+        print("JS_LDS cartesian_goal setter called")
+        print(f"js_lds goal received: {goal}")
 
         if len(goal) == 7:
 
@@ -164,6 +163,15 @@ class JS_LDS(ControllerBase):
         else:
             self._joint_goal[7:] = self.qz[self._n_rbt:]
 
+        if self._cartesian_goal is not None:
+            current_hand = self.hand_position[:3, 3]
+            goal = self._cartesian_goal[:3]
+            dist = np.linalg.norm(current_hand - goal)
+            print(f"Start position: {current_hand}")
+            print(f"Goal position: {goal}")
+            print(f"Distance to goal: {dist:.6f} meters")
+
+        printed_once = False
 
         while True:
 
@@ -171,6 +179,7 @@ class JS_LDS(ControllerBase):
             if time.time() - start_time > self.TIMEOUT:
                 self._send_iiwa_torque(np.zeros(self._n_rbt))
                 self.timeout = True
+                print("run_controller timeout")
                 break
 
             # Compute joint state from LDS
@@ -198,9 +207,14 @@ class JS_LDS(ControllerBase):
             self._send_iiwa_torque(torque_cmd[:self._n_rbt])
             self._send_allegro_torque(torque_cmd[self._n_rbt:])
 
+            if not printed_once:
+                print(f"Torque command: {torque_cmd[:3]}")
+                printed_once = True
+
             # Check task space convergence
             ts_converged = self._check_task_space_convergence(q, current_qd, desired_qd, time.time() - start_time)
             if ts_converged:
+                print("JS_LDS controller converged")
                 break
 
         self._send_iiwa_torque(np.zeros(self._n_rbt))
@@ -282,6 +296,14 @@ class JS_LDS(ControllerBase):
             has_converged = False
 
         #print(goal_reached, has_converged, is_locked)
+
+        if  goal_reached or has_converged or is_locked: 
+            print(f"goal_reached={goal_reached}, has_converged={has_converged}, is_locked={is_locked}")
+            print(f"grasping={self.grasping}, let_go={self.let_go}, delta_time={delta_time:.3f}")
+            print(f"  ee_rot_conv = {ee_rot_conv}")
+            print(f"  ee_speed_conv = {ee_speed_conv}")
+            print(f"  ee_omega_conv = {ee_omega_conv}")
+            print(f"  ee_trans_conv = {ee_trans_conv} (distance: {np.linalg.norm(ee_pos_trans - goal_trans):.6f})")
 
         return goal_reached or has_converged or is_locked
 

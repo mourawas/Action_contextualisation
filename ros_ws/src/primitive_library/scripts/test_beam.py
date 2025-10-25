@@ -18,7 +18,7 @@ def main() -> None:
     
     print("Pick")
     pick(object_to_grasp=object_to_grasp,
-         speed=.1, obstacle_clearance=0.001, grasp_orientation="top")
+         speed=.5, obstacle_clearance=0.001, grasp_orientation="top")
     time.sleep(4)
     print(collision_free())
     holding()

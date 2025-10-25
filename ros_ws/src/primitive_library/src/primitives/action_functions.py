@@ -18,7 +18,7 @@ approach_side_dst = 0.05
 approach_ee_offset_side = 0.14
 approach_ee_offset_side_additional = 0.02
 approach_ee_offset_top = 0.18
-approach_top_dst = 0.00
+approach_top_dst = 0.10
 approach_top_dst_offset = 0.15
 table_altitude = 0.00
 
@@ -466,17 +466,20 @@ def pick(js_lds, object_to_grasp: str,
         js_lds._obstacle_collided = ''
         # Fly off as high as possible up to 0.4
         current_hand_pos = js_lds.hand_position[:3, 3]
+
         print(f"Hand position before flyoff: {current_hand_pos}")
+
         for fly_off_offset in [0.2]:
             hand_pos_goal = np.copy(current_hand_pos)
             hand_pos_goal[2] += fly_off_offset
             js_lds.orientation = .9
-            print(f"Hand position goal: {hand_pos_goal}")
+            print(f"Hand position flyoff goal: {hand_pos_goal}")
             js_lds.cartesian_goal = hand_pos_goal
             if not js_lds._failed_ik and not js_lds._in_collision:
                 print(f"Flyoff of pick {fly_off_offset}")
                 js_lds.run_controller()
             else:
+                print(f"Flyoff failed for pick")
                 break
 
 # These action functions expect object names that get resolved to positions
