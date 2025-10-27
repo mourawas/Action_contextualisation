@@ -25,7 +25,7 @@ def main() -> None:
     
     print("Place")
     place(object_to_grasp=[0.6, 0.2, 1.04], # +y goes to the left of the robot, +x goes away from the robot starts at 0.4
-          speed=1., obstacle_clearance=0.02, orientation=0.0, placement_angle=0)
+          speed=0.9, obstacle_clearance=0.02, orientation=0.0, placement_angle=90.0)
     print(collision_free())
 
     

@@ -466,15 +466,25 @@ def pick(js_lds, object_to_grasp: str,
         js_lds._obstacle_collided = ''
         # Fly off as high as possible up to 0.4
         current_hand_pos = js_lds.hand_position[:3, 3]
+        
+        # Get current orientation as quaternion
+        current_hand_matrix = js_lds.hand_position
+        current_rotation = Rotation.from_matrix(current_hand_matrix[:3, :3])
+        current_quat = current_rotation.as_quat()  # [qx, qy, qz, qw]
 
         print(f"Hand position before flyoff: {current_hand_pos}")
 
         for fly_off_offset in [0.2]:
             hand_pos_goal = np.copy(current_hand_pos)
             hand_pos_goal[2] += fly_off_offset
-            js_lds.orientation = .9
+            
+            # Create full 7-element goal with position and orientation
+            full_goal = np.concatenate([hand_pos_goal, current_quat])
+            
+            js_lds.orientation_factor = .1
             print(f"Hand position flyoff goal: {hand_pos_goal}")
-            js_lds.cartesian_goal = hand_pos_goal
+            js_lds.cartesian_goal = full_goal  # Pass 7-element goal
+            
             if not js_lds._failed_ik and not js_lds._in_collision:
                 print(f"Flyoff of pick {fly_off_offset}")
                 js_lds.run_controller()
@@ -488,7 +498,7 @@ def pick(js_lds, object_to_grasp: str,
 @robot_action
 def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstacle_clearance: float, placement_angle: float = 0.) -> None:
 
-    for vertical_offset in [0.5, 0.4, 0.3]:
+    for vertical_offset in [0.3]:
         if js_lds._in_collision:
             break
 
@@ -513,7 +523,7 @@ def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstac
                     placement_angle=placement_angle,
                     detailed_obstacles=True,
                     disregard_object_to_grasp=True,
-                    vertical_clearance_offset=0.0,
+                    vertical_clearance_offset=0.09,
                     disregard_table = False,
                     apply_offsets=False,
                     obstacle_clearance=obstacle_clearance,

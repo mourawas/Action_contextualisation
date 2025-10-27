@@ -281,9 +281,15 @@ class JS_LDS(ControllerBase):
 
         if self.grasping:
             grasping_has_converged = np.all((np.absolute(qd) < self.SPEED_TOL)[self._n_rbt:]) and delta_time >= 10
-            #print(goal_reached, has_converged, is_locked, grasping_has_converged)
             goal_reached = goal_reached and grasping_has_converged
-            has_converged = has_converged and grasping_has_converged
+            
+            # During grasping motions (like flyoff), still require position convergence
+            # Only allow speed-based convergence if we're very close to the goal
+            if not ee_trans_conv:
+                has_converged = False
+            else:
+                has_converged = has_converged and grasping_has_converged
+            
             is_locked = is_locked and grasping_has_converged
 
         if self.let_go:
