@@ -322,7 +322,10 @@ def approach(js_lds, # object_to_grasp: str,
             obj_goal[:3] -= np.expand_dims(approach_direction * approach_ee_offset_side_additional, axis=1)
 
         obj_yaw = np.degrees(np.arctan2(base_obj_vec[1], base_obj_vec[0]))
-        target_yaw = placement_angle if placement_angle is not None else obj_yaw
+        if placement_angle is not None:
+            target_yaw = np.clip(placement_angle, -75, 75)
+        else:
+            target_yaw = obj_yaw
 
         # Adjust altitude if we are over the table
         if obj_goal[2] < table_altitude:
@@ -348,7 +351,10 @@ def approach(js_lds, # object_to_grasp: str,
             obj_goal[:3] -= np.expand_dims(approach_direction * approach_ee_offset_top, axis=1)
 
         obj_yaw = np.degrees(np.arctan2(base_obj_vec[1], base_obj_vec[0]))
-        target_yaw = placement_angle if placement_angle is not None else obj_yaw
+        if placement_angle is not None:
+            target_yaw = np.clip(placement_angle, -75, 75)
+        else:
+            target_yaw = obj_yaw
 
         if orientation == 0:
             goal_rot = Rotation.from_euler('xyz', [0, 90, target_yaw], degrees=True).as_quat()
@@ -360,7 +366,10 @@ def approach(js_lds, # object_to_grasp: str,
         raise ValueError(f"Unknown grasp: {grasp}")
 
     if orientation != 0:
-        target_yaw = placement_angle if placement_angle is not None else obj_yaw
+        if placement_angle is not None:
+            target_yaw = np.clip(placement_angle, -75, 75)
+        else:
+            target_yaw = obj_yaw
         goal_rot = np.array([target_yaw])
 
     # Compute goal position in IIWA frame
@@ -554,7 +563,7 @@ def drop(js_lds, object_to_grasp: str,
          speed: float = 1.,
          obstacle_clearance: float = 0.05,
          orientation: float = 0,
-         placement_angle: float = 0.) -> None:
+         placement_angle: float = None) -> None:
     print(orientation)
     approach(object_to_grasp,
              speed, grasp="top",
