@@ -22,6 +22,9 @@ approach_top_dst = 0.10
 approach_top_dst_offset = 0.15
 table_altitude = 0.00
 
+BEAM_LENGTH = 0.35  # meters
+BEAM_HALF_LENGTH = BEAM_LENGTH / 2  # 0.175 meters
+
 
 def robot_action(func):
     def wrapper_robot_action(*args, **kwargs):
@@ -231,7 +234,8 @@ def approach(js_lds, # object_to_grasp: str,
              mock_run: bool = False,
              disregard_table: bool = False,
              drop_side_offset: bool = False,
-             disregard_object: tp.Optional[str] = None) -> None:
+             disregard_object: tp.Optional[str] = None,
+             vertical: bool = False) -> None:
 
     # Default grasp to top
     if grasp == '':
@@ -340,6 +344,9 @@ def approach(js_lds, # object_to_grasp: str,
         obj_goal[2] += approach_top_dst
         obj_goal[2] += vertical_clearance_offset
 
+        if vertical:
+            obj_goal[2] += BEAM_HALF_LENGTH  # Offset by half beam length
+
         if apply_offsets:
             obj_goal[2] += obstacle_clearance
             obj_goal[2] += approach_top_dst_offset
@@ -357,7 +364,15 @@ def approach(js_lds, # object_to_grasp: str,
             target_yaw = obj_yaw
 
         if orientation == 0:
-            goal_rot = Rotation.from_euler('xyz', [0, 90, target_yaw], degrees=True).as_quat()
+            if vertical:
+                # Vertical: rotate beam to stand upright along Z-axis
+                # [90, 0, target_yaw] rotates the beam from horizontal (X-axis) to vertical (Z-axis)
+                goal_rot = Rotation.from_euler('xyz', [90, 0, target_yaw], degrees=True).as_quat()
+            else:
+                # Horizontal: existing rotation for flat placement
+                goal_rot = Rotation.from_euler('xyz', [0, 90, target_yaw], degrees=True).as_quat()
+        
+
 
         if force_altitude is not None:
             obj_goal[2] = force_altitude
@@ -371,6 +386,13 @@ def approach(js_lds, # object_to_grasp: str,
         else:
             target_yaw = obj_yaw
         goal_rot = np.array([target_yaw])
+
+        if vertical:
+            # For vertical with orientation tracking, need to specify the full rotation
+            goal_rot = Rotation.from_euler('xyz', [90, 0, target_yaw], degrees=True).as_quat()
+        else:
+            # Original behavior: just yaw angle
+            goal_rot = np.array([target_yaw])
 
     # Compute goal position in IIWA frame
     print(obj_goal)
@@ -505,9 +527,12 @@ def pick(js_lds, object_to_grasp: str,
 # Place and drop pass their first argument to approach function
 # So modify approach function
 @robot_action
-def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstacle_clearance: float, placement_angle: float = 0.) -> None:
+def place(js_lds, object_to_grasp: str, orientation: float, 
+          speed: float, obstacle_clearance: float, 
+          placement_angle: float = 0.,
+          vertical: bool = False) -> None:
 
-    for vertical_offset in [0.3]:
+    for vertical_offset in [0.1]:
         if js_lds._in_collision:
             break
 
@@ -521,7 +546,8 @@ def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstac
                 disregard_table = False,
                 apply_offsets=False,
                 obstacle_clearance=obstacle_clearance,
-                drop_side_offset=True)
+                drop_side_offset=True,
+                vertical=vertical)
         if not js_lds._failed_ik:
             break
 
@@ -536,7 +562,8 @@ def place(js_lds, object_to_grasp: str, orientation: float, speed: float, obstac
                     disregard_table = False,
                     apply_offsets=False,
                     obstacle_clearance=obstacle_clearance,
-                    drop_side_offset=True)
+                    drop_side_offset=True,
+                    vertical=vertical)
 
     if not js_lds._in_collision:
         # Drop the object

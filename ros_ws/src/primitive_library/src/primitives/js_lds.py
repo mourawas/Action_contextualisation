@@ -136,6 +136,7 @@ class JS_LDS(ControllerBase):
     def run_controller(self) -> None:
         
         print("Running JS_LDS controller")
+        print(f"DEBUG run_controller: self._cartesian_goal = {self._cartesian_goal}")
 
         self.timeout = False
 
