@@ -11,7 +11,7 @@ def main() -> None:
     
     print("Approach")
     approach(object_to_grasp=object_to_grasp,
-             speed=0.9,
+             speed=0.7,
              grasp="top", 
              obstacle_clearance=0.005)
     print(collision_free())

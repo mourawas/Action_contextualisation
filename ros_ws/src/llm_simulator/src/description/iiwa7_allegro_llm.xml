@@ -154,11 +154,6 @@
       <include file="llm_objects/static_env.xml"/>
     </worldbody>
 
-    <equality>
-      <weld name="beam_grasp_weld" active="false" 
-          site1="index_site" site2="beam_1_site" 
-          solref="0.02 1" solimp="0.9 0.95 0.001"/>
-    </equality>
 
   <actuator>
       <motor name="iiwa_joint_1" ctrllimited="true" ctrlrange="-300.0 300.0" joint="iiwa_joint_1"/>
