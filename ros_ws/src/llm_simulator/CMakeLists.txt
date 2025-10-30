@@ -63,6 +63,7 @@ add_service_files(
   inertia.srv
   objPos.srv
   objMesh.srv
+  weldControl.srv
 )
 
 ## Generate actions in the 'action' folder

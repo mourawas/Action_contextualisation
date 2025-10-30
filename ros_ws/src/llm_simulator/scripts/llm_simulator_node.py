@@ -7,10 +7,12 @@ from controller_utils import controller_utils
 from llm_simulator.srv import inertia, inertiaResponse, inertiaRequest
 from llm_simulator.srv import objPos, objPosResponse, objPosRequest
 from llm_simulator.srv import objMesh, objMeshResponse, objMeshRequest
+from llm_simulator.srv import weldControl, weldControlResponse, weldControlRequest
 from llm_common import utils as llmu
 import mujoco
 from mujoco import viewer
 import numpy as np
+from scipy.spatial.transform import Rotation
 
 import rospy
 from std_msgs.msg import Float64MultiArray, Header, Bool
@@ -55,6 +57,7 @@ class LLMSimulator:
         self._obj_pos_srv = rospy.Service('objPos', objPos, self._obj_pos_srv_cb)
         self._obj_cop_pos_srv = rospy.Service('objComPos', objPos, self._obj_com_pos_srv_cb)
         self._obj_mesh_srv = rospy.Service('objMesh', objMesh, self._obj_mesh_srv_cb)
+        self._weld_control_srv = rospy.Service('weldControl', weldControl, self._weld_control_srv_cb)
 
         # Secondary threads
         self._publisher_thread = threading.Thread(target=self._publisher_thread_cb)
@@ -325,7 +328,36 @@ class LLMSimulator:
         reply.object_vertices = obj_vertices.flatten().tolist()
         reply.object_radii = obj_radii.flatten().tolist()
         return reply
-
+    
+    def _weld_control_srv_cb(self, req: weldControlRequest) -> weldControlResponse:
+        self._controller_lock.acquire()
+        
+        try:
+            weld_id = mujoco.mj_name2id(self._model, mujoco.mjtObj.mjOBJ_EQUALITY, 'beam_grasp_weld')
+            
+            if weld_id == -1:
+                raise ValueError("Weld constraint 'beam_grasp_weld' not found in model")
+            
+            # Simply activate/deactivate - site-based welds handle current config automatically
+            self._data.eq_active[weld_id] = 1 if req.activate else 0
+            
+            if req.activate:
+                rospy.loginfo("Beam weld ACTIVATED at current configuration")
+            else:
+                rospy.loginfo("Beam weld DEACTIVATED")
+            
+            response = weldControlResponse()
+            response.success = True
+        except Exception as e:
+            rospy.logerr(f"Weld control failed: {e}")
+            import traceback
+            rospy.logerr(traceback.format_exc())
+            response = weldControlResponse()
+            response.success = False
+        finally:
+            self._controller_lock.release()
+        
+        return response
 
 def main():
     rospy.init_node("llm_simulator")

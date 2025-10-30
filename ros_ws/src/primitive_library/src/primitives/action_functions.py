@@ -9,6 +9,7 @@ from primitives.js_lds_oa import JS_LDS_OA
 from llm_common import utils as llmu
 from llm_common import helpers as llmh
 from llm_simulator.srv import objPos, objMesh
+from llm_simulator.srv import weldControl
 
 
 static_elements = []
@@ -25,6 +26,31 @@ table_altitude = 0.00
 BEAM_LENGTH = 0.35  # meters
 BEAM_HALF_LENGTH = BEAM_LENGTH / 2  # 0.175 meters
 
+def _activate_weld():
+    """Activate the beam weld constraint."""
+    try:
+        rospy.wait_for_service('weldControl', timeout=1.0)
+        weld_service = rospy.ServiceProxy('weldControl', weldControl)
+        response = weld_service(activate=True)
+        if response.success:
+            print("Weld activated - beam locked to gripper")
+        else:
+            print("Weld activation failed")
+    except Exception as e:
+        print(f"Weld service error: {e}")
+
+def _deactivate_weld():
+    """Deactivate the beam weld constraint."""
+    try:
+        rospy.wait_for_service('weldControl', timeout=1.0)
+        weld_service = rospy.ServiceProxy('weldControl', weldControl)
+        response = weld_service(activate=False)
+        if response.success:
+            print("Weld deactivated - beam released from gripper")
+        else:
+            print("Weld deactivation failed")
+    except Exception as e:
+        print(f"Weld service error: {e}")
 
 def robot_action(func):
     def wrapper_robot_action(*args, **kwargs):
@@ -491,6 +517,8 @@ def pick(js_lds, object_to_grasp: str,
                 raise e
         print(f"Position after grasp: {js_lds.hand_position[:3, 3]}")
 
+        _activate_weld()
+
     # Flyoff straight up to avoid some collisions
     if not js_lds._in_collision or js_lds._obstacle_collided == object_to_grasp:
         js_lds._in_collision = False
@@ -567,6 +595,8 @@ def place(js_lds, object_to_grasp: str, orientation: float,
 
     if not js_lds._in_collision:
         # Drop the object
+        _deactivate_weld()
+
         js_lds.let_go = True
         js_lds.run_controller()
         js_lds.grasping = False

@@ -197,8 +197,8 @@ class JS_LDS(ControllerBase):
             (torque_cmd, time_prev) = self._compute_torque_from_js(time_prev, desired_qdd, desired_qdd_prev)
             desired_qdd_prev = desired_qdd
 
-            if self.grasping:
-                torque_cmd = self._compute_grasping_torques(torque_cmd)
+            # if self.grasping:
+            #     torque_cmd = self._compute_grasping_torques(torque_cmd)
 
             # Apply high outwards torque for letting go
             if self.let_go and 5 < (time.time() - start_time) < 7:
