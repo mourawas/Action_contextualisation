@@ -197,8 +197,8 @@ class JS_LDS(ControllerBase):
             (torque_cmd, time_prev) = self._compute_torque_from_js(time_prev, desired_qdd, desired_qdd_prev)
             desired_qdd_prev = desired_qdd
 
-            # if self.grasping:
-            #     torque_cmd = self._compute_grasping_torques(torque_cmd)
+            if self.grasping:
+                torque_cmd = self._compute_grasping_torques(torque_cmd)
 
             # Apply high outwards torque for letting go
             if self.let_go and 5 < (time.time() - start_time) < 7:
@@ -251,8 +251,20 @@ class JS_LDS(ControllerBase):
             else:
                 raise ValueError("Unknown rotation representation in catesian goal")
 
-            rot_diff = (ee_rot.inv() * goal_rot)
-            ee_rot_conv = np.all(np.absolute(np.rad2deg(rot_diff.magnitude())) <= self.TASK_SPACE_ANGLE_TOL)
+            # Check if vertical placement (fixes gimbal lock)
+            goal_euler = goal_rot.as_euler('xyz', degrees=True)
+            ee_euler = ee_rot.as_euler('xyz', degrees=True)
+
+            if np.abs(goal_euler[0] - 90) < 10:  # Vertical placement
+                euler_diff = np.abs(goal_euler - ee_euler)
+                euler_diff[2] = min(euler_diff[2], 360 - euler_diff[2])  # Wrap yaw
+                ee_rot_conv = (euler_diff[0] <= 5.0 and euler_diff[1] <= 5.0 and euler_diff[2] <= 15.0)
+                
+                #print(f"[VERTICAL CHECK] Goal: {goal_euler}, Current: {ee_euler}, Diff: {euler_diff}, Pass: {ee_rot_conv}")
+            else:
+                rot_diff = (ee_rot.inv() * goal_rot)
+                ee_rot_conv = np.all(np.absolute(np.rad2deg(rot_diff.magnitude())) <= self.TASK_SPACE_ANGLE_TOL)
+
         else:
             ee_rot_conv = True
 
@@ -400,23 +412,27 @@ class JS_LDS(ControllerBase):
         return (torque_cmd_inertia + torque_cmd, time_prev)
 
     def _compute_grasping_torques(self, desired_torques: np.ndarray) -> np.ndarray:
-        grasping_torque = 0.1
+        grasping_torque = 0.01
 
-        desired_torques[8] = grasping_torque
-        desired_torques[9] = grasping_torque
-        #desired_torques[10] = grasping_torque
+        # index finger
+        desired_torques[8] = grasping_torque #knuckle
+        desired_torques[9] = grasping_torque #middle
+        desired_torques[10] = grasping_torque #tip
 
-        desired_torques[12] = grasping_torque
-        desired_torques[13] = grasping_torque
-        #desired_torques[14] = grasping_torque
+        # middle finger
+        desired_torques[12] = grasping_torque #knuckle
+        desired_torques[13] = grasping_torque #middle
+        desired_torques[14] = grasping_torque #tip
 
-        desired_torques[16] = grasping_torque
-        desired_torques[17] = grasping_torque
-        #desired_torques[18] = grasping_torque
+        # ring finger
+        desired_torques[16] = grasping_torque #knuckle
+        desired_torques[17] = grasping_torque #middle
+        desired_torques[18] = grasping_torque #tip
 
-        #desired_torques[20] = grasping_torque
-        desired_torques[21] = grasping_torque
-        desired_torques[22] = grasping_torque
+        # thumb
+        #desired_torques[20] = grasping_torque #knuckle
+        desired_torques[21] = grasping_torque #middle
+        desired_torques[22] = grasping_torque #tip
 
         return desired_torques
 

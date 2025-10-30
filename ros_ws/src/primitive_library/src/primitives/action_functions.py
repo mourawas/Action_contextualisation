@@ -451,7 +451,7 @@ def pick(js_lds, object_to_grasp: str,
                 detailed_obstacles=True,
                 apply_offsets=False,
                 obstacle_ik=True,
-                vertical_clearance_offset=0.,
+                vertical_clearance_offset=0.01,
                 mock_run=mock_run,
                 disregard_table=False, # Was initially False
                 disregard_object=object_to_grasp)
