@@ -96,7 +96,7 @@
             <joint name="thumb_joint_0" pos="0 0 0" axis="1 0 0" limited="true" range="0.263 1.396" />
             <geom class="visual1" name="hand_mat12" quat="8.94897e-10 1 0 0" type="mesh"  group="1" contype="0" conaffinity="0" rgba="0.2 0.2 0.2 1" mesh="link_12.0_left" material="hand_mat"/>
 <!--            <geom size="0.0179 0.017 0.02275" pos="-0.0179 -0.009 0.0145" type="box" rgba="0.2 0.2 0.2 1" />-->
-            <body name="link_13" pos="-0.027 -0.005 0.0399">
+                <body name="link_13" pos="-0.027 -0.005 0.0399">
                 <inertial pos="0 0 0.00885" quat="0.5 0.5 -0.5 0.5" mass="0.0095403" diaginertia="9.06654e-07 8.50311e-07 5.5449e-07" />
                 <joint name="thumb_joint_1" pos="0 0 0" axis="0 0 -1" limited="true" range="0.105 1." />
                 <geom class="visual2" name="hand_mat13" type="mesh"  group="1" rgba="0.2 0.2 0.2 1" mesh="link_13.0" material="hand_mat"/>

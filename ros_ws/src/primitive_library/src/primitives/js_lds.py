@@ -344,6 +344,10 @@ class JS_LDS(ControllerBase):
             (q_attractor[self._n_rbt:] - q[self._n_rbt:]) / \
             (self.qlim[1][self._n_rbt:]-self.qlim[0][self._n_rbt:]).max() \
             * self.ALLEGRO_MAX_ANGLE_SPEED * 1
+        
+        # Slow down thumb only during grasping (thumb is joints 19-22)
+        if self.grasping:
+            scaled_speeds[19:23] *= 0.5
 
         return scaled_speeds
 
@@ -412,20 +416,26 @@ class JS_LDS(ControllerBase):
         return (torque_cmd_inertia + torque_cmd, time_prev)
 
     def _compute_grasping_torques(self, desired_torques: np.ndarray) -> np.ndarray:
+
+        from scipy.spatial.transform import Rotation
+        hand_rot_matrix = self.hand_position[:3, :3]
+        hand_euler = Rotation.from_matrix(hand_rot_matrix).as_euler('xyz', degrees=True)
+        #print(f"[GRASP] EE Orientation (deg): Roll={hand_euler[0]:.2f}, Pitch={hand_euler[1]:.2f}, Yaw={hand_euler[2]:.2f}")
+        
         grasping_torque = 0.01
 
         # index finger
-        desired_torques[8] = grasping_torque #knuckle
+        desired_torques[8] = 0.5*grasping_torque #knuckle
         desired_torques[9] = grasping_torque #middle
         desired_torques[10] = grasping_torque #tip
 
         # middle finger
-        desired_torques[12] = grasping_torque #knuckle
+        desired_torques[12] = 0.5*grasping_torque #knuckle
         desired_torques[13] = grasping_torque #middle
         desired_torques[14] = grasping_torque #tip
 
         # ring finger
-        desired_torques[16] = grasping_torque #knuckle
+        desired_torques[16] = 0.5*grasping_torque #knuckle
         desired_torques[17] = grasping_torque #middle
         desired_torques[18] = grasping_torque #tip
 

@@ -104,7 +104,7 @@
 
 
     <body name="beam_1" pos="0.65 0.1 1.05" quat="0.707 0 0 0.707">
-        <inertial mass="0.01" pos="0 0 0" fullinertia="0.00001 0.00001 0.00001 0 0 0" />
+        <inertial mass="0.00001" pos="0 0 0" fullinertia="0.00001 0.00001 0.00001 0 0 0" />
         <geom mesh="beam" class="obj" type="mesh" friction="10. 10. 10."/>
         <geom mesh="beam" material="beam" class="visual" type="mesh" friction="10. 10. 10."/>
         <freejoint/>
