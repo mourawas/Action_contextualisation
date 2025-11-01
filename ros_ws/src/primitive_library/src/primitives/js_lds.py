@@ -14,7 +14,7 @@ class JS_LDS(ControllerBase):
                    200, 150, 150, 150,   # Index
                    200, 150, 150, 150,   # Middle
                    200, 150, 150, 150,   # Ring
-                   100, 150, 150, 150]) * 0.1 # Thumb
+                   100, 150, 150, 150]) * 0.15 # Thumb
     Kd = np.array([5., 5., 5., 5., 5., 5., 5.,   # IIWA
                    3.0, 5.0, 5.0, 5.0,   # Index
                    3.0, 5.0, 5.0, 5.0,   # Middle
@@ -25,7 +25,7 @@ class JS_LDS(ControllerBase):
                    .0, .0, .0, .0,   # Index
                    .0, .0, .0, .0,   # Middle
                    .0, .0, .0, .0,   # Ring
-                   .0, .0, .0, .0]) * 0. # Thumb
+                   .0, .0, .0, .0]) * 0.1 # Thumb
 
     # TODO: Build these arrays better
     JOINT_TOL = np.array([0.01] * 7 + [0.1] * 16)
@@ -197,8 +197,8 @@ class JS_LDS(ControllerBase):
             (torque_cmd, time_prev) = self._compute_torque_from_js(time_prev, desired_qdd, desired_qdd_prev)
             desired_qdd_prev = desired_qdd
 
-            # if self.grasping:
-            #     torque_cmd = self._compute_grasping_torques(torque_cmd)
+            if self.grasping:
+                torque_cmd = self._compute_grasping_torques(torque_cmd)
 
             # Apply high outwards torque for letting go
             if self.let_go and 5 < (time.time() - start_time) < 7:
@@ -425,24 +425,24 @@ class JS_LDS(ControllerBase):
         grasping_torque = 0.01
 
         # index finger
-        desired_torques[8] = 0.5*grasping_torque #knuckle
+        desired_torques[8] = grasping_torque #knuckle
         desired_torques[9] = grasping_torque #middle
         desired_torques[10] = grasping_torque #tip
 
         # middle finger
-        desired_torques[12] = 0.5*grasping_torque #knuckle
+        desired_torques[12] = 1.2*grasping_torque #knuckle
         desired_torques[13] = grasping_torque #middle
-        desired_torques[14] = grasping_torque #tip
+        desired_torques[14] = 0.7*grasping_torque #tip
 
         # ring finger
-        desired_torques[16] = 0.5*grasping_torque #knuckle
+        desired_torques[16] = 1.5*grasping_torque #knuckle
         desired_torques[17] = grasping_torque #middle
-        desired_torques[18] = grasping_torque #tip
+        desired_torques[18] = 0.7*grasping_torque #tip
 
         # thumb
         #desired_torques[20] = grasping_torque #knuckle
-        desired_torques[21] = grasping_torque #middle
-        desired_torques[22] = grasping_torque #tip
+        desired_torques[21] = 0.5*grasping_torque #middle
+        desired_torques[22] = 0.7*grasping_torque #tip
 
         return desired_torques
 

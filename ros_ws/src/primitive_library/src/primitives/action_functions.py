@@ -354,7 +354,8 @@ def approach(js_lds, # object_to_grasp: str,
         if drop_side_offset:
             obj_goal[:3] -= np.expand_dims(approach_direction * 0.09, axis=1)
         else:
-            obj_goal[:3] -= np.expand_dims(approach_direction_perp * (-0.01), axis=1)
+            # + goes to the right of the robot
+            obj_goal[:3] -= np.expand_dims(approach_direction_perp * (-0.01), axis=1) 
             obj_goal[:3] -= np.expand_dims(approach_direction * approach_ee_offset_top, axis=1)
 
         obj_yaw = np.degrees(np.arctan2(base_obj_vec[1], base_obj_vec[0]))
@@ -512,7 +513,7 @@ def pick(js_lds, object_to_grasp: str,
             # Create full 7-element goal with position and orientation
             full_goal = np.concatenate([hand_pos_goal, current_quat])
             
-            js_lds.orientation_factor = .1
+            js_lds.orientation_factor = .9
             print(f"Hand position flyoff goal: {hand_pos_goal}")
             js_lds.cartesian_goal = full_goal  # Pass 7-element goal
             
