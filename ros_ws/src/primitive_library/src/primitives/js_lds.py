@@ -7,6 +7,7 @@ import rospy
 from scipy.spatial.transform import Rotation
 
 from llm_common import helpers as llmh
+from llm_simulator.srv import objPos
 
 
 class JS_LDS(ControllerBase):
@@ -172,6 +173,21 @@ class JS_LDS(ControllerBase):
             print(f"Goal position: {goal}")
             print(f"Distance to goal: {dist:.6f} meters")
 
+            ee_rot = Rotation.from_matrix(self.hand_position[:3, :3])
+            ee_rpy = ee_rot.as_euler('xyz', degrees=True)
+            print(f"EE orientation (RPY): [{ee_rpy[0]:.2f}°, {ee_rpy[1]:.2f}°, {ee_rpy[2]:.2f}°]")
+
+            if self.obj_grasped:
+                rospy.wait_for_service('objPos')
+                obj_pos_service = rospy.ServiceProxy('objPos', objPos, persistent=True)
+                beam_data = obj_pos_service(self.obj_grasped).object_position
+                beam_pos = beam_data[:3]
+                beam_quat = beam_data[3:7]
+                beam_rot = Rotation.from_quat(beam_quat)
+                beam_rpy = beam_rot.as_euler('xyz', degrees=True)
+                print(f"Beam position: {beam_pos}")
+                print(f"Beam orientation (RPY): [{beam_rpy[0]:.2f}°, {beam_rpy[1]:.2f}°, {beam_rpy[2]:.2f}°]")
+            
         printed_once = False
 
         while True:
