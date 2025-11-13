@@ -355,7 +355,7 @@ def approach(js_lds, # object_to_grasp: str,
             obj_goal[:3] -= np.expand_dims(approach_direction * 0.09, axis=1)
         else:
             # + goes to the right of the robot
-            obj_goal[:3] -= np.expand_dims(approach_direction_perp * (-0.01), axis=1) 
+            obj_goal[:3] -= np.expand_dims(approach_direction_perp * (-0.04), axis=1) 
             obj_goal[:3] -= np.expand_dims(approach_direction * approach_ee_offset_top, axis=1)
 
         obj_yaw = np.degrees(np.arctan2(base_obj_vec[1], base_obj_vec[0]))
@@ -390,7 +390,7 @@ def approach(js_lds, # object_to_grasp: str,
 
         if vertical:
             # For vertical with orientation tracking, need to specify the full rotation
-            goal_rot = Rotation.from_euler('xyz', [90, 0, target_yaw], degrees=True).as_quat()
+            goal_rot = Rotation.from_euler('xyz', [100, 0, target_yaw], degrees=True).as_quat()
         else:
             # Original behavior: just yaw angle
             goal_rot = np.array([target_yaw])
@@ -536,7 +536,8 @@ def place(js_lds, object_to_grasp: str, orientation: float,
     for vertical_offset in [0.1]:
         if js_lds._in_collision:
             break
-
+        
+        print("First place approach")
         approach(object_to_grasp,
                 speed, grasp="top",
                 orientation=orientation,
@@ -552,14 +553,18 @@ def place(js_lds, object_to_grasp: str, orientation: float,
         if not js_lds._failed_ik:
             break
 
+    # call to correct based on beam
+    # just need to make vertical = None possible
+    # and give object to grasp the current x y position (?) or not
     if not js_lds._in_collision:
+        print("Second place approach")
         approach(object_to_grasp,
                     speed, grasp="top",
                     orientation=orientation,
                     placement_angle=placement_angle,
                     detailed_obstacles=True,
                     disregard_object_to_grasp=True,
-                    vertical_clearance_offset=0.09,
+                    vertical_clearance_offset=0.03,
                     disregard_table = False,
                     apply_offsets=False,
                     obstacle_clearance=obstacle_clearance,

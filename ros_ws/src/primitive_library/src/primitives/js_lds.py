@@ -156,9 +156,23 @@ class JS_LDS(ControllerBase):
             self._joint_goal[19] = self.qz[19]
         elif self.grasping:
             self._joint_goal[7:] = self.qlim[1][7:]
-            self._joint_goal[7] = 0
-            self._joint_goal[11] = 0
-            self._joint_goal[15] = 0
+            
+            # Index finger - CLOSE (keep as is, will close)
+            self._joint_goal[7] = 0  # base joint
+            
+            # Middle finger - KEEP OPEN
+            self._joint_goal[11] = self.qz[11]  # base
+            self._joint_goal[12] = self.qz[12]  # middle
+            self._joint_goal[13] = self.qz[13]  # tip knuckle
+            self._joint_goal[14] = self.qz[14]  # tip
+            
+            # Ring finger - KEEP OPEN
+            self._joint_goal[15] = self.qz[15]  # base
+            self._joint_goal[16] = self.qz[16]  # middle
+            self._joint_goal[17] = self.qz[17]  # tip knuckle
+            self._joint_goal[18] = self.qz[18]  # tip
+            
+            # Thumb - CLOSE (keep as is, will close)
             self._joint_goal[19] = self.qz[19]
             self._joint_goal[20] = self.qz[20]
 
@@ -309,7 +323,8 @@ class JS_LDS(ControllerBase):
         is_locked = delta_time >=30 and ee_speed_conv and ee_omega_conv
 
         if self.grasping:
-            grasping_has_converged = np.all((np.absolute(qd) < self.SPEED_TOL)[self._n_rbt:]) and delta_time >= 10
+            # time for grasp
+            grasping_has_converged = np.all((np.absolute(qd) < self.SPEED_TOL)[self._n_rbt:]) and delta_time >= 15
             goal_reached = goal_reached and grasping_has_converged
             
             # During grasping motions (like flyoff), still require position convergence
@@ -445,15 +460,15 @@ class JS_LDS(ControllerBase):
         desired_torques[9] = grasping_torque #middle
         desired_torques[10] = grasping_torque #tip
 
-        # middle finger
-        desired_torques[12] = 1.2*grasping_torque #knuckle
-        desired_torques[13] = grasping_torque #middle
-        desired_torques[14] = 0.7*grasping_torque #tip
+        # # middle finger
+        # desired_torques[12] = 1.2*grasping_torque #knuckle
+        # desired_torques[13] = grasping_torque #middle
+        # desired_torques[14] = 0.7*grasping_torque #tip
 
-        # ring finger
-        desired_torques[16] = 1.5*grasping_torque #knuckle
-        desired_torques[17] = grasping_torque #middle
-        desired_torques[18] = 0.7*grasping_torque #tip
+        # # ring finger
+        # desired_torques[16] = 1.5*grasping_torque #knuckle
+        # desired_torques[17] = grasping_torque #middle
+        # desired_torques[18] = 0.7*grasping_torque #tip
 
         # thumb
         #desired_torques[20] = grasping_torque #knuckle
@@ -482,6 +497,5 @@ class JS_LDS(ControllerBase):
         desired_torques[22] = grasping_torque
 
         return desired_torques
-
 
 

@@ -4,7 +4,7 @@
     <compiler angle="radian" meshdir="" eulerseq="XYZ" />
     <size njmax="500" nconmax="1000" />
 
-    <option solver="Newton" noslip_iterations="3" cone="elliptic" impratio="50">
+    <option solver="Newton" noslip_iterations="10" cone="elliptic" impratio="100">
         <flag gravity="enable"/>
     </option>
 
