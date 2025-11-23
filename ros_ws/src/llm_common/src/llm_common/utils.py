@@ -30,7 +30,7 @@ ALLEGRO_URDF_FOLDER = WS_PATH / "primitive_library/descriptions/allegro"
 ALLEGRO_URDF_PATH = ALLEGRO_URDF_FOLDER / "allegro_hand_description/allegro_hand_description_left.urdf"
 
 # TODO: This is not super effective. Think of a better way # HERE: Add new object names here
-SIM_OBJECT_LIST = ["beam_1"] # "beam_2", "apple_1", "apple_2"
+SIM_OBJECT_LIST = ["beam_1", "beam_2"] # "beam_2", "apple_1", "apple_2"
 
 # These objects can be approximated by a sphere (during approach)
 ROUND_OBJECTS = [] #"apple_1", "apple_2"
