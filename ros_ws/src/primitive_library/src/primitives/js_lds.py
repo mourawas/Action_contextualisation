@@ -33,7 +33,7 @@ class JS_LDS(ControllerBase):
     SPEED_TOL = np.array([0.01] * 7 + [0.1] * 16)
     CONTROLLER_SLEEP_PRD = 0.001
 
-    TASK_SPACE_TRANS_TOL = 0.0025   # m
+    TASK_SPACE_TRANS_TOL = 0.03   # m
     TASK_SPACE_ANGLE_TOL = 1       # deg
     TASK_SPACE_SPEED_TOL = 0.001   # m/s
     TASK_SPACE_OMEGA_TOL = 0.1      # deg/s
