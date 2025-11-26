@@ -113,7 +113,7 @@
     </body>
 
     <!-- beam2 is aligned with X -->
-    <body name="beam_2" pos="0.8 0.3 1.05" quat="0.707 0.707 0 0">
+    <body name="beam_2" pos="0.6 0.3 1.05" quat="0.707 0.707 0 0">
         <inertial mass="0.001" pos="0 0 0" fullinertia="0.00001 0.00001 0.00001 0 0 0" />
         <geom mesh="beam" class="obj" type="mesh"/>
         <geom mesh="beam" material="beam" class="visual" type="mesh"/>

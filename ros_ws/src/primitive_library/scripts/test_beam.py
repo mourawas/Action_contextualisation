@@ -24,11 +24,11 @@ def main() -> None:
     holding()
     
     print("Place")
-    place(object_to_grasp=[0.8, 0.3, 1.12], # +y goes to the left of the robot, +x goes away from the robot starts at 0.4
-          speed=0.8, obstacle_clearance=0.02, orientation=0.0, placement_angle=None, vertical=True)
+    place(object_to_grasp=[0.6, 0.3, 1.08], # +y goes to the left of the robot, +x goes away from the robot starts at 0.4
+          speed=0.4, obstacle_clearance=0.02, orientation=0.0, placement_angle=None, vertical=False)
     print(collision_free())
 
-    
+    # check if the offsets are correct
     rospy.signal_shutdown("Beam test finished")
 
 

@@ -22,8 +22,8 @@ approach_top_dst = 0.10
 approach_top_dst_offset = 0.15
 table_altitude = 0.00
 
-BEAM_LENGTH = 0.35  # meters
-BEAM_HALF_LENGTH = BEAM_LENGTH / 2  # 0.175 meters
+BEAM_LENGTH = 0.3  # meters
+BEAM_HALF_LENGTH = BEAM_LENGTH / 2  # meters
 
 
 def robot_action(func):
@@ -432,8 +432,12 @@ def approach(js_lds, # object_to_grasp: str,
     js_lds.set_obstacles(meshes, radii, names)
     js_lds._obstacle_ik = obstacle_ik
     js_lds.cartesian_goal = obj_pos_in_iiwa
+    print(f"APPROACH DEBUG: _failed_ik={js_lds._failed_ik}, _in_collision={js_lds._in_collision}, mock_run={mock_run}")
+    print(f"APPROACH DEBUG: Will call run_controller? {not js_lds._failed_ik and not mock_run}")
     if not js_lds._failed_ik and not mock_run:
         js_lds.run_controller()
+    else:
+        print(f"APPROACH DEBUG: Skipping run_controller!")
 
 
 @robot_action
@@ -550,6 +554,7 @@ def place(js_lds, object_to_grasp: str, orientation: float,
                 obstacle_clearance=obstacle_clearance,
                 drop_side_offset=True,
                 vertical=vertical)
+        print(f"After first approach: _failed_ik={js_lds._failed_ik}, _in_collision={js_lds._in_collision}")
         if not js_lds._failed_ik:
             break
 
@@ -570,6 +575,7 @@ def place(js_lds, object_to_grasp: str, orientation: float,
                     obstacle_clearance=obstacle_clearance,
                     drop_side_offset=True,
                     vertical=vertical)
+        print(f"After second approach: _failed_ik={js_lds._failed_ik}, _in_collision={js_lds._in_collision}")
 
     if not js_lds._in_collision:
         # Drop the object
