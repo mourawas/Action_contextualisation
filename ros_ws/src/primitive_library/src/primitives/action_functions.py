@@ -318,8 +318,12 @@ def approach(js_lds, # object_to_grasp: str,
         obj_radius_parl = -np.min(obj_radii_parl - obj_radii)
 
         # Adjust goal position to object
-        obj_goal[:3] -= np.expand_dims(approach_direction_perp * (obj_radius_perp), axis=1)
-        obj_goal[:3] -= np.expand_dims(approach_direction * (obj_radius_parl + approach_ee_offset_side), axis=1)
+        # tangential offset
+        obj_goal[:3] -= np.expand_dims(approach_direction_perp * (obj_radius_perp +0.1), axis=1)
+        # radial offset
+        obj_goal[:3] -= np.expand_dims(approach_direction * (obj_radius_parl + approach_ee_offset_side +0.01), axis=1)
+
+        obj_goal[2] += vertical_clearance_offset
 
         if apply_offsets:
             obj_goal[:3] -= np.expand_dims(approach_direction_perp * (approach_side_dst+obstacle_clearance), axis=1)
@@ -330,6 +334,9 @@ def approach(js_lds, # object_to_grasp: str,
             target_yaw = np.clip(placement_angle, -75, 75)
         else:
             target_yaw = obj_yaw
+
+        if vertical:
+            obj_goal[2] += BEAM_HALF_LENGTH  # Offset by half beam length
 
         # Adjust altitude if we are over the table
         if obj_goal[2] < table_altitude:
@@ -355,7 +362,7 @@ def approach(js_lds, # object_to_grasp: str,
             obj_goal[:3] -= np.expand_dims(approach_direction * 0.09, axis=1)
         else:
             # + goes to the right of the robot
-            obj_goal[:3] -= np.expand_dims(approach_direction_perp * (-0.04), axis=1) 
+            obj_goal[:3] -= np.expand_dims(approach_direction_perp * (-0.01), axis=1) 
             obj_goal[:3] -= np.expand_dims(approach_direction * approach_ee_offset_top, axis=1)
 
         obj_yaw = np.degrees(np.arctan2(base_obj_vec[1], base_obj_vec[0]))
@@ -388,6 +395,7 @@ def approach(js_lds, # object_to_grasp: str,
             target_yaw = obj_yaw
         goal_rot = np.array([target_yaw])
 
+        # when vertical, palm always faces towards +y (left of robot from robot pov)
         if vertical:
             # For vertical with orientation tracking, need to specify the full rotation
             goal_rot = Rotation.from_euler('xyz', [100, 0, target_yaw], degrees=True).as_quat()
@@ -537,13 +545,17 @@ def place(js_lds, object_to_grasp: str, orientation: float,
           placement_angle: float = 0.,
           vertical: bool = False) -> None:
 
-    for vertical_offset in [0.1]:
+    for vertical_offset in [0.2]:
+        print(f"Trying place with vertical offset: {vertical_offset}")
         if js_lds._in_collision:
+            print("Place entered break")
             break
+
+        place_grasp = "side" if vertical else "top"
         
         print("First place approach")
         approach(object_to_grasp,
-                speed, grasp="top",
+                speed, grasp=place_grasp,
                 orientation=orientation,
                 placement_angle=placement_angle,
                 detailed_obstacles=True,
@@ -564,7 +576,7 @@ def place(js_lds, object_to_grasp: str, orientation: float,
     if not js_lds._in_collision:
         print("Second place approach")
         approach(object_to_grasp,
-                    speed, grasp="top",
+                    speed, grasp=place_grasp,
                     orientation=orientation,
                     placement_angle=placement_angle,
                     detailed_obstacles=True,
@@ -591,7 +603,8 @@ def place(js_lds, object_to_grasp: str, orientation: float,
         hand_pos_goal[2] += 0.3
         js_lds.orientation = 1.
         js_lds.cartesian_goal = hand_pos_goal
-
+        
+        print(f"Before running place flyoff: _failed_ik={js_lds._failed_ik}")
         if not js_lds._failed_ik:
             js_lds.run_controller()
             js_lds.obj_grasped = ""

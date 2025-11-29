@@ -68,6 +68,7 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
             (self._in_collision, self._obstacle_collided, desired_qd) = \
                 self._modulate_ds_with_obstacle(q, desired_qd)
             if self._in_collision:
+                print(f"Collision: torques to 0. Collision with '{self._obstacle_collided}'")
                 self._send_iiwa_torque(np.zeros(self._n_rbt))
 
         jacob = self.jacobe(q, end=self._robot_ee_link)
@@ -317,6 +318,9 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
             desired_qd = mod_mat @ desired_qd
 
         output = (is_collided, obstacle_collided, desired_qd)
+
+        if is_collided:
+            print(f"[COLLISION DETECTED] Obstacle: '{obstacle_collided}', Min distance: {np.min(min_distances):.6f}m")
 
         return output
 
