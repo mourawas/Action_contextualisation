@@ -318,10 +318,17 @@ def approach(js_lds, # object_to_grasp: str,
         obj_radius_parl = -np.min(obj_radii_parl - obj_radii)
 
         # Adjust goal position to object
-        # tangential offset
-        obj_goal[:3] -= np.expand_dims(approach_direction_perp * (obj_radius_perp +0.1), axis=1)
-        # radial offset
-        obj_goal[:3] -= np.expand_dims(approach_direction * (obj_radius_parl + approach_ee_offset_side +0.01), axis=1)
+        # best : +0.1, +0.01
+        if js_lds.grasping :
+            # tangential offset
+            obj_goal[:3] -= np.expand_dims(approach_direction_perp * (obj_radius_perp +0.1), axis=1)
+            # radial offset
+            obj_goal[:3] -= np.expand_dims(approach_direction * (obj_radius_parl + approach_ee_offset_side + 0.01), axis=1)
+        else:
+            # more to the left, closer 
+            obj_goal[:3] -= np.expand_dims(approach_direction_perp * (obj_radius_perp +0.05), axis=1)
+
+            obj_goal[:3] -= np.expand_dims(approach_direction * (obj_radius_parl + approach_ee_offset_side +0.01), axis=1)
 
         obj_goal[2] += vertical_clearance_offset
 
@@ -592,12 +599,14 @@ def place(js_lds, object_to_grasp: str, orientation: float,
     if not js_lds._in_collision:
         # Drop the object
         js_lds.let_go = True
-        js_lds.run_controller()
         js_lds.grasping = False
+        js_lds.run_controller()
+        #js_lds.grasping = False
         js_lds.let_go = False
 
     if not js_lds._in_collision:
         # Flyoff
+        # Try to enable obstacle avoidance here
         print("Flyoff of place")
         hand_pos_goal = js_lds.hand_position[:3, 3]
         hand_pos_goal[2] += 0.3

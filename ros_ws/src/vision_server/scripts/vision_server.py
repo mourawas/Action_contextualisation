@@ -10,6 +10,8 @@ from llm_simulator.srv import inertia, inertiaResponse, inertiaRequest
 from iiwa_tools.srv import GetMassMatrix, GetMassMatrixRequest
 import llm_common.helpers as llmh
 
+#Add beam mesh definitions for real scenario
+
 class VisionServer:
     VRPN_TOPICS_NAMES = [
         "/vrpn_client_node/apple/pose",

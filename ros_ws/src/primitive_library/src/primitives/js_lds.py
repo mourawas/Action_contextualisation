@@ -156,25 +156,37 @@ class JS_LDS(ControllerBase):
             self._joint_goal[19] = self.qz[19]
         elif self.grasping:
             self._joint_goal[7:] = self.qlim[1][7:]
-            
-            # Index finger - CLOSE (keep as is, will close)
-            self._joint_goal[7] = 0  # base joint
-            
-            # Middle finger - KEEP OPEN
-            self._joint_goal[11] = self.qz[11]  # base
-            self._joint_goal[12] = self.qz[12]  # middle
-            self._joint_goal[13] = self.qz[13]  # tip knuckle
-            self._joint_goal[14] = self.qz[14]  # tip
-            
-            # Ring finger - KEEP OPEN
-            self._joint_goal[15] = self.qz[15]  # base
-            self._joint_goal[16] = self.qz[16]  # middle
-            self._joint_goal[17] = self.qz[17]  # tip knuckle
-            self._joint_goal[18] = self.qz[18]  # tip
-            
-            # Thumb - CLOSE (keep as is, will close)
+
+            # To grasp with all fingers:
+            # Index finger base joint
+            self._joint_goal[7] = 0
+            # Middle finger base joint
+            self._joint_goal[11] = 0
+            # Ring finger base joint
+            self._joint_goal[15] = 0
+            # Thumb base joint (keep current position)
             self._joint_goal[19] = self.qz[19]
             self._joint_goal[20] = self.qz[20]
+            
+            # To grasp only with index and thumb:
+            # # Index finger - CLOSE
+            # self._joint_goal[7] = 0  # base joint
+            
+            # # Middle finger - KEEP OPEN
+            # self._joint_goal[11] = self.qz[11]  # base
+            # self._joint_goal[12] = self.qz[12]  # middle
+            # self._joint_goal[13] = self.qz[13]  # tip knuckle
+            # self._joint_goal[14] = self.qz[14]  # tip
+            
+            # # Ring finger - KEEP OPEN
+            # self._joint_goal[15] = self.qz[15]  # base
+            # self._joint_goal[16] = self.qz[16]  # middle
+            # self._joint_goal[17] = self.qz[17]  # tip knuckle
+            # self._joint_goal[18] = self.qz[18]  # tip
+            
+            # # Thumb - CLOSE
+            # self._joint_goal[19] = self.qz[19]
+            # self._joint_goal[20] = self.qz[20]
 
         else:
             self._joint_goal[7:] = self.qz[self._n_rbt:]
@@ -227,8 +239,9 @@ class JS_LDS(ControllerBase):
             (torque_cmd, time_prev) = self._compute_torque_from_js(time_prev, desired_qdd, desired_qdd_prev)
             desired_qdd_prev = desired_qdd
 
-            if self.grasping:
-                torque_cmd = self._compute_grasping_torques(torque_cmd)
+            # FOR STRONG GRASP:
+            # if self.grasping:
+            #     torque_cmd = self._compute_grasping_torques(torque_cmd)
 
             # Apply high outwards torque for letting go
             if self.let_go and 5 < (time.time() - start_time) < 7:

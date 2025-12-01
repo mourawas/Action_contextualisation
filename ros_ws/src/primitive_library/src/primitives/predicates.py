@@ -89,7 +89,7 @@ def holding() -> bool:
 
     return is_holding
 
-# Modify to handle table positions
+# Modify to handle positions directly
 def at_location(object: str, location: str) -> bool:
     from primitives.action_functions import js_lds
 
