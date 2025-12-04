@@ -24,6 +24,9 @@ table_altitude = 0.00
 
 BEAM_LENGTH = 0.3  # meters
 BEAM_HALF_LENGTH = BEAM_LENGTH / 2  # meters
+BEAM_WIDTH = 0.07 # meters
+TABLE_HEIGHT = 1.01  # meters
+
 
 
 def robot_action(func):
@@ -547,10 +550,46 @@ def pick(js_lds, object_to_grasp: str,
 # Place and drop pass their first argument to approach function
 # So modify approach function
 @robot_action
-def place(js_lds, object_to_grasp: str, orientation: float, 
+def place(js_lds, object_to_grasp: tp.Union[str, list], orientation: float, 
           speed: float, obstacle_clearance: float, 
           placement_angle: float = 0.,
           vertical: bool = False) -> None:
+
+    # Parse relative placement (e.g., "beam_2_end1")
+    if isinstance(object_to_grasp, str) and '_end' in object_to_grasp:
+        import re
+        match = re.match(r'(beam_\d+)_end([12])', object_to_grasp)
+        if match:
+            beam_name = match.group(1)
+            end_num = int(match.group(2))
+            
+            # Get beam position and quaternion
+            rospy.wait_for_service('objPos')
+            obj_frame_service = rospy.ServiceProxy('objPos', objPos, persistent=True)
+            beam_data = obj_frame_service(beam_name).object_position
+            beam_pos = np.array(beam_data[:3])
+            beam_quat = np.array(beam_data[3:7])  # [w, x, y, z]
+            
+            # Convert quaternion to rotation matrix
+            from scipy.spatial.transform import Rotation
+            rot = Rotation.from_quat([beam_quat[1], beam_quat[2], beam_quat[3], beam_quat[0]])  # scipy uses [x,y,z,w]
+            rot_matrix = rot.as_matrix()
+            
+            # Beam's local x-axis in world frame (along length)
+            beam_x_axis = rot_matrix[:, 0]
+            
+            # Calculate end position
+            if end_num == 1:
+                end_pos = beam_pos - ((BEAM_LENGTH / 2) - 0.05) * beam_x_axis
+            else:  # end_num == 2
+                end_pos = beam_pos + ((BEAM_LENGTH / 2) - 0.05) * beam_x_axis
+            
+            # Set z to table height + beam width + offset
+            end_pos[2] = TABLE_HEIGHT + BEAM_WIDTH + 0.01 
+            
+            # Convert to list for placement
+            object_to_grasp = end_pos.tolist()
+            print(f"Placing at {beam_name}_end{end_num}: {object_to_grasp}")
 
     for vertical_offset in [0.2]:
         print(f"Trying place with vertical offset: {vertical_offset}")
@@ -615,6 +654,9 @@ def place(js_lds, object_to_grasp: str, orientation: float,
         
         print(f"Before running place flyoff: _failed_ik={js_lds._failed_ik}")
         if not js_lds._failed_ik:
+
+            js_lds.collision_proximity = 0.05 # to change obstacle clearance
+            js_lds._obstacle_ik = True # to enable obstacle avoidance, the same as passed
             js_lds.run_controller()
             js_lds.obj_grasped = ""
 

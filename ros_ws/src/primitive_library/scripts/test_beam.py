@@ -31,24 +31,24 @@ def main() -> None:
     # print(collision_free())
 
     # next beam
-    object_to_grasp = "beam_3"
+    object_to_grasp = "beam_1"
 
     print("Approach")
     approach(object_to_grasp=object_to_grasp,
-             speed=0.2,
-             grasp="side", 
+             speed=0.8,
+             grasp="top", 
              obstacle_clearance=0.05)
     print(collision_free())
 
     print("Pick")
     pick(object_to_grasp=object_to_grasp,
-         speed=0.8, obstacle_clearance=0.001, grasp_orientation="side")
+         speed=0.8, obstacle_clearance=0.001, grasp_orientation="top")
     time.sleep(4)
     print(collision_free())
     holding()
 
     print("Place")
-    place(object_to_grasp=[0.5, 0.3, 1.08],
+    place(object_to_grasp="beam_2_end2",
           speed=0.4, obstacle_clearance=0.02, orientation=0.0, placement_angle=None, vertical=True)
     print(collision_free())
 
