@@ -648,15 +648,23 @@ def place(js_lds, object_to_grasp: tp.Union[str, list], orientation: float,
         # Try to enable obstacle avoidance here
         print("Flyoff of place")
         hand_pos_goal = js_lds.hand_position[:3, 3]
-        hand_pos_goal[2] += 0.3
-        js_lds.orientation = 1.
+
+        if vertical:
+            hand_pos_goal[2] += 0.2     # z
+            # hand_pos_goal[1] -= 0.1   # y
+        else:
+            hand_pos_goal[2] += 0.3
+
+        # js_lds.orientation = 1.
+
+        js_lds.collision_proximity = 0.05 # to change obstacle clearance
+        js_lds._obstacle_ik = True # to enable obstacle avoidance
+
         js_lds.cartesian_goal = hand_pos_goal
         
         print(f"Before running place flyoff: _failed_ik={js_lds._failed_ik}")
         if not js_lds._failed_ik:
 
-            js_lds.collision_proximity = 0.05 # to change obstacle clearance
-            js_lds._obstacle_ik = True # to enable obstacle avoidance, the same as passed
             js_lds.run_controller()
             js_lds.obj_grasped = ""
 

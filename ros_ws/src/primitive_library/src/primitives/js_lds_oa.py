@@ -329,6 +329,7 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
                         verbose: bool = True) -> np.ndarray:
         print("IN IK")
         if not self._obstacle_ik or True:
+        # if not self._obstacle_ik:
             return super().compute_ik_iiwa(goal, q, verbose)
 
         x_eval = None
