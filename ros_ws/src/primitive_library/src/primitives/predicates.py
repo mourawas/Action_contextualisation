@@ -1,4 +1,5 @@
 import numpy as np
+import typing as tp
 from scipy.spatial import distance
 
 import rospy
@@ -90,7 +91,7 @@ def holding() -> bool:
     return is_holding
 
 # Modify to handle positions directly
-def at_location(object: str, location: str) -> bool:
+def at_location(object: str, location: tp.Union[str, list]) -> bool:
     from primitives.action_functions import js_lds
 
     from primitives.execute_task_plan import TaskPlanExecutor #new
@@ -101,6 +102,17 @@ def at_location(object: str, location: str) -> bool:
         else:
             return False
         
+    # Check if location is a coordinate list [x, y, z]
+    if isinstance(location, list):
+        target_pos = np.array(location)
+        obj_mesh, obj_radii, _ = get_meshes([object], detailed_meshes=True)
+        
+        # Only check x-y distance (horizontal plane)
+        xy_distances = np.linalg.norm(obj_mesh[:, :2] - target_pos[:2], axis=1)
+        min_dst = np.min(xy_distances - obj_radii)
+        
+        return min_dst < 0.05  # 5cm tolerance in horizontal plane
+
     # NEW: Check if location is a table position
     tpe = TaskPlanExecutor()  # Create instance to access table_positions
     if location in tpe.table_positions:
@@ -127,6 +139,73 @@ def at_location(object: str, location: str) -> bool:
         
         min_dst = np.min(distances)
         return min_dst < 0.75
+    
+def beam_contact(beam1: str, beam2: str, tolerance: float = 0.01) -> bool:
+    # Check if two beams are touching within tolerance.
+    beam1_mesh, beam1_radii, _ = get_meshes([beam1], detailed_meshes=True)
+    beam2_mesh, beam2_radii, _ = get_meshes([beam2], detailed_meshes=True)
+    
+    distances = distance.cdist(beam1_mesh, beam2_mesh)
+    distances = (distances.T - beam1_radii).T
+    distances = distances - beam2_radii
+    
+    min_dst = np.min(distances)
+    return min_dst < tolerance  # 1cm default
+
+def beam_angle(beam1: str, beam2: str, target_angle: float = 90.0, 
+               tolerance: float = 10.0) -> bool:
+    from scipy.spatial.transform import Rotation
+    
+    # Get beam orientations from vision service
+    rospy.wait_for_service('objPos')
+    obj_frame_service = rospy.ServiceProxy('objPos', objPos, persistent=True)
+    
+    beam1_data = obj_frame_service(beam1).object_position
+    beam2_data = obj_frame_service(beam2).object_position
+    
+    # Extract quaternions [w, x, y, z]
+    beam1_quat = np.array(beam1_data[3:7])
+    beam2_quat = np.array(beam2_data[3:7])
+    
+    # Convert to rotation matrices
+    # Note: scipy uses [x, y, z, w] format
+    rot1 = Rotation.from_quat([beam1_quat[1], beam1_quat[2], 
+                               beam1_quat[3], beam1_quat[0]])
+    rot2 = Rotation.from_quat([beam2_quat[1], beam2_quat[2], 
+                               beam2_quat[3], beam2_quat[0]])
+    
+    # Get beam length directions (local x-axis in world frame)
+    axis1 = rot1.as_matrix()[:, 0]
+    axis2 = rot2.as_matrix()[:, 0]
+    
+    # Calculate angle between axes using dot product
+    dot_product = np.clip(np.dot(axis1, axis2), -1.0, 1.0)
+    
+    # Use abs() to map angles to [0°, 90°] range
+    # This treats parallel beams the same regardless of direction
+    angle_rad = np.arccos(np.abs(dot_product))
+    angle_deg = np.degrees(angle_rad)
+    
+    # Check if within tolerance
+    return np.abs(angle_deg - target_angle) < tolerance
+
+def beam_parallel(beam1: str, beam2: str, tolerance: float = 5.0) -> bool:
+    """
+    Check if two beams are parallel (convenience function).
+    
+    Args:
+        beam1: Name of first beam
+        beam2: Name of second beam
+        tolerance: Acceptable deviation in degrees (default ±10°)
+    
+    Returns:
+        True if beams are parallel within tolerance
+        
+    Example:
+        # U-shape: check if two vertical beams are parallel
+        beam_parallel("beam_left", "beam_right", tolerance=10.0)
+    """
+    return beam_angle(beam1, beam2, target_angle=0.0, tolerance=tolerance)
 
     # # TODO: Not super accurate description without radius
     # else:

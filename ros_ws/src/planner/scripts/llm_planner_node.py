@@ -128,6 +128,12 @@ eval_plan_ask = """
 
     can_reach(goal: str, grasp: str) -> bool: # Returns True if it is feasible for the robot to reach the "goal" object or location from the current state from the side determined by the grasp argument "side" or "top". Objects that are out of the workspace will always return false.
 
+    beam_contact(beam1: str, beam2: str, tolerance: float = 0.05) -> bool: # Returns True if two beams are touching within the given tolerance (in meters). Default tolerance is 5cm.
+
+    beam_angle(beam1: str, beam2: str, target_angle: float = 90.0, tolerance: float = 5.0) -> bool: # Returns True if the angle between two beams matches the target angle within tolerance (in degrees). Use target_angle=90.0 for L-shape perpendicular beams. Default tolerance is ±10°.
+
+    beam_parallel(beam1: str, beam2: str, tolerance: float = 5.0) -> bool: # Returns True if two beams are parallel within tolerance (in degrees). Equivalent to beam_angle with target_angle=0.0. Use for U-shape vertical beams. Default tolerance is ±10°.
+
     The grasp argument is the same as the one in the "approach" and "pick" functions. It assumes one of the two values {"top", "side"}
 
     Using the checking_functions, locations and objects, define an evaluation plan (named 'evaluation_plan') to verify the succesful execution of each action. Additionally, for each action verify without fail:

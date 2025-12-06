@@ -1,5 +1,5 @@
 from primitives.action_functions import pick, place, drop, approach, throw, reset_controller
-from primitives.predicates import at_location, can_grasp, holding, collision_free, timeout, check_motion_health, get_motion_health, can_reach
+from primitives.predicates import at_location, can_grasp, holding, collision_free, timeout, check_motion_health, get_motion_health, can_reach, beam_contact, beam_angle, beam_parallel
 import contextlib
 import roslaunch
 import time
@@ -58,7 +58,11 @@ class TaskPlanExecutor:
                                         'collision_free': collision_free,
                                         'timeout': timeout,
                                         'check_motion_health': check_motion_health,
-                                        'can_reach': can_reach}
+                                        'can_reach': can_reach,
+                                        #new
+                                        'beam_contact': beam_contact,
+                                        'beam_angle': beam_angle,
+                                        'beam_parallel': beam_parallel}
 
         # Starting simulator
         print("About to start simulator")
@@ -151,18 +155,24 @@ class TaskPlanExecutor:
 
             object_to_approach = action_arguments[0]
 
-            # Check if it's a table position first
-            if object_to_approach in self.table_positions:
+            # Check if it's already a list (coordinates) - use directly
+            if isinstance(object_to_approach, list):
+                # It's already coordinates, keep as is
+                pass
+
+            # Check if it's a table position string
+            elif isinstance(object_to_approach, str) and object_to_approach in self.table_positions:
                 # For table positions pass the position directly
                 object_to_approach = self.table_positions[object_to_approach]
 
-            elif object_to_approach in self.object_matching_dict:
+            elif isinstance(object_to_approach, str) and object_to_approach in self.object_matching_dict:
                 # Existing object matching
                 object_to_approach = self.object_matching_dict[object_to_approach]
 
             else:
-                # Unknown location/object
-                print(f"Warning: Unknown location/object: {object_to_approach}")
+                # Unknown location/object (but could be coordinates, so don't warn if it's a list)
+                if not isinstance(object_to_approach, list):
+                    print(f"Warning: Unknown location/object: {object_to_approach}")
 
             # Execute and time action
             print(action_function_name, object_to_approach, action_arguments[1:])
