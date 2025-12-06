@@ -196,37 +196,34 @@ class TaskPlanExecutor:
             if action_function_name in ['drop', 'place']:
                 time.sleep(7)  # Give a bit of time for things in the simulator to settle
             evaluation_id = evaluation[0]
-            evaluation_predicates = evaluation[1]
+            evaluation_predicates = evaluation[1]  # Now a list of tuples
             evaluation_expected = evaluation[2]
             predicate_results = []
 
-            for key, values in evaluation_predicates.items():
-
-                evaluation_function = self.predicate_matching_dict[key]
-
+            for predicate_name, predicate_args in evaluation_predicates:
+                evaluation_function = self.predicate_matching_dict[predicate_name]
                 corrected_arguments = []
-
-                for val in values:
+                
+                for val in predicate_args:
                     if isinstance(val, str) and val not in ["top", "side"]:
                         # NEW: Check table_positions first
                         if val in self.table_positions:
-                            corrected_arguments.append(val)  # Keep as string for predicates
+                            corrected_arguments.append(val)
                         elif val in self.object_matching_dict:
                             corrected_arguments.append(self.object_matching_dict[val])
                         else:
-                            # If not found in either, keep original (might be needed for some predicates)
                             corrected_arguments.append(val)
                     else:
                         corrected_arguments.append(val)
-
+                
                 predicate_results.append(evaluation_function(*corrected_arguments))
 
             print(f"Predicate_check {evaluation_id}:")
             predicate_result = []
 
             predicate_ok = True
-            for result, expected, predicate in zip(predicate_results, evaluation_expected, evaluation_predicates.keys()):
-
+            predicate_names = [pred_name for pred_name, _ in evaluation_predicates]
+            for result, expected, predicate in zip(predicate_results, evaluation_expected, predicate_names):
                 # Revert obstacle name for LLM to understand output
                 if predicate == 'collision_free':
                     result = self.inv_obj_matching_dict[result]

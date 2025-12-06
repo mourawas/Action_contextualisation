@@ -651,7 +651,7 @@ def place(js_lds, object_to_grasp: tp.Union[str, list], orientation: float,
 
         if vertical:
             hand_pos_goal[2] += 0.2     # z
-            # hand_pos_goal[1] -= 0.1   # y
+            hand_pos_goal[1] -= 0.05   # y
         else:
             hand_pos_goal[2] += 0.3
 

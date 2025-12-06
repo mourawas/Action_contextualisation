@@ -20,26 +20,36 @@ def main() -> None:
     
     # Define evaluation plan
     evaluation_plan = [
-        (0, {'can_grasp': ('beam_1', 'top'), 'collision_free': (), 'timeout': ()}, 
-            (True, '', True)),
-        (1, {'holding': (), 'collision_free': (), 'timeout': ()}, 
-            (True, '', True)),
-        (2, {'at_location': ('beam_1', 'beam_2_end2'), 'collision_free': (), 'timeout': ()}, 
-            (True, '', True)),
-        (3, {'can_grasp': ('beam_3', 'top'), 'collision_free': (), 'timeout': ()}, 
-            (True, '', True)),
-        (4, {'holding': (), 'collision_free': (), 'timeout': ()}, 
-            (True, '', True)),
-        (5, {'at_location': ('beam_1', 'beam_2_end2'),
-             'at_location': ('beam_3', 'beam_2_end1'),
-             'beam_contact': ('beam_1', 'beam_2', 0.05),
-             'beam_contact': ('beam_3', 'beam_2', 0.05),
-             'beam_angle': ('beam_1', 'beam_2', 90.0, 5.0),
-             'beam_angle': ('beam_3', 'beam_2', 90.0, 5.0),
-             'beam_parallel': ('beam_1', 'beam_3', 5.0),
-             'collision_free': (), 
-             'timeout': ()}, 
-            (True, True, True, '', True)),
+    (0, [('can_grasp', ('beam_1', 'top')), 
+         ('collision_free', ()), 
+         ('timeout', ())], 
+        (True, '', True)),
+    (1, [('holding', ()), 
+         ('collision_free', ()), 
+         ('timeout', ())], 
+        (True, '', True)),
+    (2, [('at_location', ('beam_1', 'beam_2_end2')), 
+         ('collision_free', ()), 
+         ('timeout', ())], 
+        (True, '', True)),
+    (3, [('can_grasp', ('beam_3', 'top')), 
+         ('collision_free', ()), 
+         ('timeout', ())], 
+        (True, '', True)),
+    (4, [('holding', ()), 
+         ('collision_free', ()), 
+         ('timeout', ())], 
+        (True, '', True)),
+    (5, [('at_location', ('beam_1', 'beam_2_end2')),
+         ('at_location', ('beam_3', 'beam_2_end1')),
+         ('beam_contact', ('beam_1', 'beam_2', 0.05)),
+         ('beam_contact', ('beam_3', 'beam_2', 0.05)),
+         ('beam_angle', ('beam_1', 'beam_2', 90.0, 5.0)),
+         ('beam_angle', ('beam_3', 'beam_2', 90.0, 5.0)),
+         ('beam_parallel', ('beam_1', 'beam_3', 5.0)),
+         ('collision_free', ()), 
+         ('timeout', ())], 
+        (True, True, True, True, True, True, True, '', True)),
     ]
     
     print("\n" + "="*60)
@@ -57,9 +67,9 @@ def main() -> None:
     print(f"Failure ID: {failure_id}")
     
     if success:
-        print("\n✓ L-SHAPE ASSEMBLY SUCCESSFUL!")
+        print("\n✓ U-SHAPE ASSEMBLY SUCCESSFUL!")
     else:
-        print(f"\n✗ L-shape assembly failed at action {failure_id}")
+        print(f"\n✗ U-shape assembly failed at action {failure_id}")
     
     rospy.signal_shutdown("Beam predicate test finished")
 

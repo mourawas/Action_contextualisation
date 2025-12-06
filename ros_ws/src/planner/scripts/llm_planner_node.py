@@ -141,7 +141,7 @@ eval_plan_ask = """
     - timely motion
     - motion health
 
-    Output this plan as a Python list of tuples, where each tuple is of the form (action number int, dictionary with check_function names as keys and a tuple of arguments as value, tuple of expected outputs). Do not assume any other object or location, beyond those in object_labels.
+    Output this plan as a Python list of tuples, where each tuple is of the form (action number int, list of (predicate_name, args) tuples, tuple of expected outputs). Each predicate is a tuple of (predicate_name_string, arguments_tuple).
 
     Each tuple is meant to be checked after the acton with the corresponding number.
 
@@ -150,144 +150,59 @@ eval_plan_ask = """
 
 """
 
+# eval plan answer as tuple instead of dict
 eval_plan_answer = """
 ```python
 evaluation_plan = [
     # Check after approaching the first crumpled paper ball
-    (0, {'can_grasp': ('crumpled paper ball 1', 'top'),
-         'collision_free': (),
-         'timeout': (),
-         'check_motion_health': (),
-         'can_reach': ('crumpled paper ball 1', 'top')},
+    (0, [('can_grasp', ('crumpled paper ball 1', 'top')),
+         ('collision_free', ()),
+         ('timeout', ()),
+         ('check_motion_health', ()),
+         ('can_reach', ('crumpled paper ball 1', 'top'))],
          (True, '', True, True, True)),
 
     # Check after picking the first crumpled paper ball
-    (1, {'holding': (),
-         'collision_free': (),
-         'timeout': (),
-         'check_motion_health': ()},
+    (1, [('holding', ()),
+         ('collision_free', ()),
+         ('timeout', ()),
+         ('check_motion_health', ())],
          (True, '', True, True)),
 
     # Check after dropping the first crumpled paper ball into the trash can
-    (2, {'at_location': ('crumpled paper ball 1', 'large red trash can'),
-         'collision_free': (),
-         'timeout': (),
-         'check_motion_health': ()},
+    (2, [('at_location', ('crumpled paper ball 1', 'large red trash can')),
+         ('collision_free', ()),
+         ('timeout', ()),
+         ('check_motion_health', ())],
          (True, '', True, True)),
 
     # Check after approaching the second crumpled paper ball
-    (3, {'can_grasp': ('crumpled paper ball 2', 'top'),
-         'collision_free': (),
-         'timeout': (),
-         'check_motion_health': (),
-         'can_reach': ('crumpled paper ball 2', 'top')},
+    (3, [('can_grasp', ('crumpled paper ball 2', 'top')),
+         ('collision_free', ()),
+         ('timeout', ()),
+         ('check_motion_health', ()),
+         ('can_reach', ('crumpled paper ball 2', 'top'))],
          (True, '', True, True, True)),
 
     # Check after picking the second crumpled paper ball
-    (4, {'holding': (),
-         'collision_free': (),
-         'timeout': (),
-         'check_motion_health': ()},
+    (4, [('holding', ()),
+         ('collision_free', ()),
+         ('timeout', ()),
+         ('check_motion_health', ())],
          (True, '', True, True)),
 
     # Check after dropping the second crumpled paper ball into the trash can
-    (5, {'at_location': ('crumpled paper ball 2', 'large red trash can'),
-         'collision_free': (),
-         'timeout': (),
-         'check_motion_health': ()},
+    (5, [('at_location', ('crumpled paper ball 2', 'large red trash can')),
+         ('collision_free', ()),
+         ('timeout', ()),
+         ('check_motion_health', ())],
          (True, '', True, True)),
-
-    # Check after approaching the half-eaten apple
-    (6, {'can_grasp': ('half-eaten apple', 'top'),
-         'collision_free': (),
-         'timeout': (),
-         'check_motion_health': (),
-         'can_reach': ('half-eaten apple', 'top')},
-         (True, '', True, True, True)),
-
-    # Check after picking the half-eaten apple
-    (7, {'holding': (),
-         'collision_free': (),
-         'timeout': (),
-         'check_motion_health': ()},
-         (True, '', True, True)),
-
-    # Check after dropping the half-eaten apple into the trash can
-    (8, {'at_location': ('half-eaten apple', 'large red trash can'),
-         'collision_free': (),
-         'timeout': (),
-         'check_motion_health': ()},
-         (True, '', True, True)),
-
-    # Check after approaching the whole apple
-    (9, {'can_grasp': ('whole apple', 'top'),
-         'collision_free': (),
-         'timeout': (),
-         'check_motion_health': (),
-         'can_reach': ('whole apple', 'top')},
-         (True, '', True, True, True)),
-
-    # Check after picking the whole apple
-    (10, {'holding': (),
-          'collision_free': (),
-          'timeout': (),
-          'check_motion_health': ()},
-          (True, '', True, True)),
-
-    # Check after placing the whole apple on the storage shelf
-    (11, {'at_location': ('whole apple', 'storage shelf'),
-          'collision_free': (),
-          'timeout': (),
-          'check_motion_health': ()},
-          (True, '', True, True)),
-
-    # Check after approaching the empty glass
-    (12, {'can_grasp': ('empty glass 1', 'side'),
-          'collision_free': (),
-          'timeout': (),
-          'check_motion_health': (),
-          'can_reach': ('empty glass 1', 'side')},
-          (True, '', True, True, True)),
-
-    # Check after picking the empty glass
-    (13, {'holding': (),
-          'collision_free': (),
-          'timeout': (),
-          'check_motion_health': ()},
-          (True, '', True, True)),
-
-    # Check after placing the empty glass in the sink
-    (14, {'at_location': ('empty glass 1', 'large white sink'),
-          'collision_free': (),
-          'timeout': (),
-          'check_motion_health': ()},
-          (True, '', True, True)),
-
-    # Check after approaching the glass with yellowish liquid
-    (15, {'can_grasp': ('glass with yellowish liquid', 'side'),
-          'collision_free': (),
-          'timeout': (),
-          'check_motion_health': (),
-          'can_reach': ('glass with yellowish liquid', 'side')},
-          (True, '', True, True, True)),
-
-    # Check after picking the glass with yellowish liquid
-    (16, {'holding': (),
-          'collision_free': (),
-          'timeout': (),
-          'check_motion_health': ()},
-          (True, '', True, True)),
-
-    # Check after placing the glass with yellowish liquid in the sink
-    (17, {'at_location': ('glass with yellowish liquid', 'large white sink'),
-          'collision_free': (),
-          'timeout': (),
-          'check_motion_health': ()},
-          (True, '', True, True))
 ]
+
 ```
 
 """
+
 
 warm_start_history = [action_plan_ask, action_plan_answer, eval_plan_ask, eval_plan_answer]
 
@@ -779,8 +694,8 @@ if False:
     - timely motion
     - motion health
 
-    Output this plan as a Python list of tuples, where each tuple is of the form (action number int, dictionary with check_function names as keys and a tuple of arguments as value, tuple of expected outputs). Do not assume any other object or location, beyond those in object_labels.
-
+    Output this plan as a Python list of tuples, where each tuple is of the form (action number int, list of (predicate_name, args) tuples, tuple of expected outputs). Each predicate is a tuple of (predicate_name_string, arguments_tuple).
+    
     Generate the entire plan. No reasoning, direct output.
     """
 

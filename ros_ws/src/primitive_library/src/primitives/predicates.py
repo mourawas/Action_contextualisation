@@ -1,5 +1,6 @@
 import numpy as np
 import typing as tp
+import re
 from scipy.spatial import distance
 
 import rospy
@@ -8,6 +9,10 @@ from llm_common import helpers as llmh
 from llm_simulator.srv import objPos, objMesh
 from primitives.action_functions import pick, get_meshes, get_table_mesh, get_shelf_mesh
 
+# Constants from action_functions.py
+BEAM_LENGTH = 0.3  # meters
+BEAM_WIDTH = 0.07  # meters
+TABLE_HEIGHT = 1.01  # meters
 
 def can_grasp(object_to_grasp: str, grasp_side: str) -> bool:
     from primitives.action_functions import js_lds
@@ -92,9 +97,24 @@ def holding() -> bool:
 
 # Modify to handle positions directly
 def at_location(object: str, location: tp.Union[str, list]) -> bool:
+    """
+    Check if object is at location.
+    
+    Args:
+        object: Name of the object to check
+        location: Can be:
+            - "robot": Check if object is held by robot
+            - [x, y, z]: 3D coordinates
+            - "beam_X_endY": Beam end location (e.g., "beam_2_end1", "beam_2_end2")
+            - table position string (e.g., "left_side", "center", "right_side")
+            - object name: Check proximity to another object
+    
+    Returns:
+        True if object is at the specified location
+    """
     from primitives.action_functions import js_lds
-
-    from primitives.execute_task_plan import TaskPlanExecutor #new
+    from primitives.execute_task_plan import TaskPlanExecutor
+    from scipy.spatial.transform import Rotation
 
     if location == "robot":
         if object == js_lds.obj_grasped:
@@ -113,8 +133,45 @@ def at_location(object: str, location: tp.Union[str, list]) -> bool:
         
         return min_dst < 0.05  # 5cm tolerance in horizontal plane
 
-    # NEW: Check if location is a table position
-    tpe = TaskPlanExecutor()  # Create instance to access table_positions
+    # NEW: Parse beam end locations (e.g., "beam_2_end1", "beam_2_end2")
+    if isinstance(location, str) and '_end' in location:
+        match = re.match(r'(beam_\d+)_end([12])', location)
+        if match:
+            beam_name = match.group(1)
+            end_num = int(match.group(2))
+            
+            # Get beam position and quaternion from vision service
+            rospy.wait_for_service('objPos')
+            obj_frame_service = rospy.ServiceProxy('objPos', objPos, persistent=True)
+            beam_data = obj_frame_service(beam_name).object_position
+            beam_pos = np.array(beam_data[:3])
+            beam_quat = np.array(beam_data[3:7])
+            
+            # Convert quaternion to rotation matrix
+            from scipy.spatial.transform import Rotation
+            rot = Rotation.from_quat([beam_quat[1], beam_quat[2], beam_quat[3], beam_quat[0]])
+            rot_matrix = rot.as_matrix()
+            
+            # Beam's local x-axis in world frame (along length)
+            beam_x_axis = rot_matrix[:, 0]
+            
+            # Calculate end position
+            if end_num == 1:
+                target_pos = beam_pos - ((BEAM_LENGTH / 2) - 0.05) * beam_x_axis
+            else:  # end_num == 2
+                target_pos = beam_pos + ((BEAM_LENGTH / 2) - 0.05) * beam_x_axis
+            
+            # Get object mesh and check distance
+            obj_mesh, obj_radii, _ = get_meshes([object], detailed_meshes=True)
+            
+            # Only check x-y distance (horizontal plane) - SAME AS COORDINATE LISTS
+            xy_distances = np.linalg.norm(obj_mesh[:, :2] - target_pos[:2], axis=1)
+            min_dst = np.min(xy_distances - obj_radii)
+            
+            return min_dst < 0.08  # 8cm tolerance in horizontal plane
+
+    # Check if location is a table position
+    tpe = TaskPlanExecutor()
     if location in tpe.table_positions:
         # Get the table position coordinates
         table_pos = tpe.table_positions[location]
