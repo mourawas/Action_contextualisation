@@ -101,6 +101,7 @@
     </body> -->
 
     <!-- ################ Beams #############################-->
+    <!-- BEAMS TO PICK MUST ALWAYS BE ALIGNED WITH Y -->
 
     <!-- 0.07m x 0.07m square sides, 0.35m length -->
     <!-- +x devant robot, +y gauche robot -->

@@ -35,6 +35,7 @@ class TaskPlanExecutor:
                                      'apple_2': 'apple_2',
                                      'beam_1': 'beam_1',
                                      'beam_2': 'beam_2',
+                                     'beam_3': 'beam_3',
                                      'half-eaten apple': 'eaten_apple',
                                      'empty glass 1': 'champagne_2',
                                      'empty glass 2': 'champagne_3',
@@ -48,9 +49,9 @@ class TaskPlanExecutor:
         
         # Table positions
         # Table is at pos="0.4 -0.4 0" with surface at z=1.01
-        self.table_positions = {'left_side': [0.5, 0.2, 1.01],
-                                'center': [0.7, 0.1, 1.01],
-                                'right_side': [0.9, 0.0, 1.01]}
+        self.table_positions = {'left_side': [0.6, 0.5, 1.01],
+                                'center': [0.6, 0.1, 1.01],
+                                'right_side': [0.6, -0.3, 1.01]}
 
         self.predicate_matching_dict = {'at_location': at_location,
                                         'can_grasp': can_grasp,

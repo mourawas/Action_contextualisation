@@ -4,11 +4,11 @@ from llm_planner.utils import create_experiment_log
 import os
 
 def main() -> None:
-    print("Starting beam predicate test")
-    rospy.init_node("test_beam_predicates")
+    print("Starting beam U test")
+    rospy.init_node("test_beam_U")
     print("Node initialized")
     
-    # Define task plan for L-shape assembly
+    # Define task plan for U-shape assembly
     task_plan = [
         (0, 'approach', ('beam_1', 0.8, 0.05, 'top')),
         (1, 'pick', ('beam_1', 0.8, 0.001, 'top')),
@@ -71,7 +71,7 @@ def main() -> None:
     else:
         print(f"\n✗ U-shape assembly failed at action {failure_id}")
     
-    rospy.signal_shutdown("Beam predicate test finished")
+    rospy.signal_shutdown("Beam U test finished")
 
 
 if __name__ == "__main__":
