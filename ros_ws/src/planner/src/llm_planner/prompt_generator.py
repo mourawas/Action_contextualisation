@@ -92,7 +92,13 @@ def task_plan_gen(task: str, prompt0: str, objects: tp.List[str], locations: tp.
     The "vertical" argument for the 'place' function is a boolean that indicates whether the robot should place the beam standing up in a vertical orientation (True) or laying down in a horizontal orientation (False). If vertical=True, the robot will orient the beam such that its main axis is aligned with the vertical axis of the world frame during placement. If vertical=False, the robot will orient the beam such that its main axis is aligned with the horizontal plane of the world frame during placement.
 
     The "placement_angle" argument for the 'place' function defines the yaw angle in degrees at which the robot should place the beam down. The yaw describes an orientation within the horizontal plane, and is clipped between -75 and 75 degrees, with zero being straight ahead, and positive values are counter-clockwise when viewed from above. If vertical=True, this argument should be ignored.
-    
+
+    L (with 2 beams) or U-shape (with 3 beams) assembly tasks can be requested. To do so, one beam should be laying flat on the table and serve as a base for the other beam(s) to be placed vertically (standing up) on top of the base beam, on its ends. The base beam could already be laying down without needing any action to it, or it could be placed down by the robot as part of the task.
+    In the "place" function:
+    - If you want to place down the base beam: use location='left_side', 'center', or 'right_side'
+    - For beam assembly/stacking: use location='beam_X_end1' or 'beam_X_end2' where X is the beam number.
+    Example: place('beam_1_end1', ...) places the held beam at end 1 of beam_1
+
     The actions described in these functions are the only motions known to the robot. The task for the robot is: "{task}". First explain how you are going to solve the task, why each step is executed and how it makes sense to a human that you do it this way.
 
     Then, using the actions functions, 'objects' and 'locations', define a task plan as a Python list of tuples (named 'task_plan'), for the robot to follow. The action_functions from the task_plan will be directly run on the robot. Each element of the list is a tuple of the form (action number, action function name string, (arguments)). For each action, use object and task specific arguments.

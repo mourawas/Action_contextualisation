@@ -29,8 +29,9 @@ objects = [
     #"crumpled paper ball 5",
     # "apple_1",
     # "apple_2",
-    "beam_1"
-    #"beam_2"
+    "beam_1",
+    "beam_2",
+    "beam_3"
     # "half-eaten apple",
     # "empty glass 1",
     #"empty glass 2",
@@ -42,7 +43,6 @@ objects = [
 ]
 
 # Labels that are considered locations
-# TODO: Introduce relative locations
 locations = [
     "left_side",
     "center", 
@@ -54,10 +54,11 @@ locations = [
     # "closed door",
     # "ajar door",
     # "folded white chair",
-    "clinical room"
+    # "clinical room"
     # "storage shelf"
 ]
 
+# obj to clear is only used here and optional, can give construction task instead
 obj_to_clear = "beam_1"
 task = f"Move the {obj_to_clear} efficiently and quickly"
 

@@ -11,110 +11,93 @@ import typing as tp
 import os
 import numpy as np
 
+
+# used only when warm_start=True, to SKIP the llm
 action_plan_ask = """
-The image shows an indoor scene with a white table at the center, scattered with various objects. On the table, there are crumpled paper balls, a whole apple, a half-eaten apple, and two different types of glasses, one of which appear to be empty and one partially filled with a yellowish liquid. To the left, there is a large white sink with a faucet against a tiled wall. A storage shelf is also kept near the table.In the background, there are two doors, one closed and one ajar, and a folded white chair next to the table. On the right side, a large red trash can is visible, filled with discarded items including colorful plastic wrappers. The room has a clinical or institutional feel, possibly a break room or a workshop space.The list of recognised objects is:
+The image shows an indoor scene with a white table at the center, and a few identical rectangular beams either laying down flat on the table, or standing up vertically. The list of recognised objects is:
 
-    objects = ['white table', 'crumpled paper ball 1', 'crumpled paper ball 2', 'whole apple', 'half-eaten apple', 'empty glass 1', 'glass with yellowish liquid', 'large red trash can']
+    objects = ['white table', 'beam_1', 'beam_2', 'beam_3']
 
-    The list of recognised locations is:
+    The list of recognised locations, which are designated areas on the table, is:
 
-    locations = ['large white sink', 'faucet', 'tiled wall', 'closed door', 'ajar door', 'folded white chair', 'clinical room', 'storage shelf']
+    locations = ['left_side', 'center', 'right_side']
 
+    There is a robot, labeled 'robot', that can only manipulate ONE beam at a time. It is here to do beam assembly tasks. The robot accepts commands in the form 'action functions' written in python. These action functions, which can be imported from the 'action_functions' library are:
 
-    There is a robot, labeled 'robot', that can only manipulate ONE object at a time. The robot accepts commands in the form 'action functions' written in python. These action functions, which can be imported from the 'action_functions' library are:
-
-    drop(location: str, speed: float, obstacle_clearance: float) -> None: # Goes to "loaction" and drops the grasped object over it. It is not advised to use the approach function directly before this one.
-
-    approach(object_to_grasp: str, speed: float, obstacle_clearance: float, grasp: str) -> None:  # Moves the robot close to "object_to_grasp" so that the object is in robot's reach
-
-    place(location: str, orientation: float, speed: float, obstacle_clearance: float) -> None: #Positions the "grasped_object" on/at/in the "location" and release the grasp. It is not advised to use the approach function directly before this one.
+    approach(object_to_grasp: str, speed: float, obstacle_clearance: float, grasp: str) -> None:  # Moves the robot close to "object_to_grasp" so that the beam is in the robot's reach
 
     pick(object_to_grasp: str, speed: float, obstacle_clearance: float, grasp: str) -> None: # Instructs the robot to pick up the "object_to_grasp", if it is close enough
 
+    place(location: str, speed: float, obstacle_clearance: float, placement_angle: float = 0., vertical: bool = False) -> None: # Positions the "grasped_object" on/at/in the "location" and release the grasp. It is not advised to use the approach function directly before this one.
+
     The "speed" argument for 'approach', 'pick', 'drop' and 'place' functions, assumes value in [0,1] and regulates how fast the robot moves. The closer the the value is to 1 the faster the robot moves. moving with higher speed is faster but might result in a jerky and less precise motion.
 
-    The "orientation" argument for the 'place' and 'drop' function, regulates how crucial it is for the robot to maintain the original orientation of object that the robot is holding. A value closer to 1, instructs the robot to strictly maintain the orientation, but may result in difficulty to avoid external perturbations or obstacles .
+    The "grasp" argument for 'approach' and 'pick' is mandatory and assumes one of the two values {"top", "side"}, never use None, where "top" instructs the robot to approach or pick the beam from the top and selecting "side" instructs the robot to approach or pick the beam from the side.
 
-    The "grasp" argument for 'approach' and 'pick' assumes one of the two values ('top', 'side'), where "top" instructs the robot to approach or pick the object from the top and selecting "side" instructs the robot to approach or pick the object from the side.
+    The "obstacle_clearance" for 'approach', 'pick' and 'place' functions defines how close the robot can get to a beam (including the one it is trying to grasp in the pick action) before starting to avoid it. The distance is in meter. Small values allow the robot to get closer to obstacles and usually give a better chance of reaching the beam, picking it and holding it. Typically values are between 0.005 and 0.05 although values out of this range are possible.
 
-    The "obstacle_clearance" for 'drop', 'approach', 'place' and 'pick' functions defines how close the robot can get from an object (including the one it is trying to grasp in the pick action) before starting to avoid it. The distance is in meter. Small values allow the robot to get closer to obstacles and usually give a better chance of reaching the object, picking it and holding it. Typically values are between 0.01 and 0.1 although values out of this range are possible.
+    The "vertical" argument for the 'place' function is a boolean that indicates whether the robot should place the beam standing up in a vertical orientation (True) or laying down in a horizontal orientation (False). If vertical=True, the robot will orient the beam such that its main axis is aligned with the vertical axis of the world frame during placement. If vertical=False, the robot will orient the beam such that its main axis is aligned with the horizontal plane of the world frame during placement.
 
-    The actions described in these functions are the only motions known to the robot. The task for the robot is: "clear the table efficiently". First explain how you are going to solve the task, why each step is executed and how it makes sense to a human that you do it this way.
+    The "placement_angle" argument for the 'place' function defines the yaw angle in degrees at which the robot should place the beam down. The yaw describes an orientation within the horizontal plane, and is clipped between -75 and 75 degrees, with zero being straight ahead, and positive values are counter-clockwise when viewed from above. If vertical=True, this argument should be ignored.
+
+    L (with 2 beams) or U-shape (with 3 beams) assembly tasks can be requested. To do so, one beam should be laying flat on the table and serve as a base for the other beam(s) to be placed vertically (standing up) on top of the base beam, on its ends. The base beam could already be laying down without needing any action to it, or it could be placed down by the robot as part of the task.
+    In the "place" function:
+    - If you want to place down the base beam: use location='left_side', 'center', or 'right_side'
+    - For beam assembly/stacking: use location='beam_X_end1' or 'beam_X_end2' where X is the beam number.
+    Example: place('beam_1_end1', ...) places the held beam at end 1 of beam_1
+
+    The actions described in these functions are the only motions known to the robot. The task for the robot is: "{task}". First explain how you are going to solve the task, why each step is executed and how it makes sense to a human that you do it this way.
 
     Then, using the actions functions, 'objects' and 'locations', define a task plan as a Python list of tuples (named 'task_plan'), for the robot to follow. The action_functions from the task_plan will be directly run on the robot. Each element of the list is a tuple of the form (action number, action function name string, (arguments)). For each action, use object and task specific arguments.
 
     The first index of the plan should be 0.
-
-    Take into account that some locations might be outside of the robot reach and you might only be able to use "drop" to put an object there.
 
     Do not make any assumptions. For the task plan, output a single code block. With each action include as the comment the reasoning behind the action and its parameters.
 
     Assume the necessary modules containing action functions have already been loaded. Write only a single assignment statement creating the full 'task_plan'
 
     Do not abbreviate anything in the code you are writing. No matter how long it is, write it in full.
+
 """
 
+# used only when warm_start=True, to SKIP the llm -> must be for our exact task
 action_plan_answer = """
- To efficiently clear the table, we should follow a plan that minimizes the amount of robot movement and sorts objects by type to facilitate future actions (like recycling or disposal). The steps should be:
+To efficiently assemble the beams in a U shape, we should follow a plan that minimizes the amount of robot movement and takes in account the spacial positions the beams in order to order the placements correctly.
 
-1. **Pick up crumpled paper balls**: They are likely lightweight and can be picked and placed into the trash can together if the robot can hold multiple after each approach without moving the base. Otherwise, do one at a time.
-2. **Pick up the apple remains**: The half-eaten apple should be discarded as waste, while the whole apple might be placed elsewhere like a storage shelf if it's to be kept.
-3. **Handle the glasses**: The empty glass should be placed in the sink, assuming it needs to be washed, and the glass with liquid could be poured out, then placed in the sink.
+1. **Notice the base beam**: Identify which beam will serve as the base for the assembly. This beam could already be placed down on the table, or should be placed first on the table, either at the left_side, center, or right_side location.
+2. **Pick and place the first beam**: Choose between the remaining beams which to pick up first. It should then be placed vertically on one of the base beam's ends.
+3. **Pick and place the second beam**: Finally, pick up the last beam and place it vertically on the other end of the base beam.
 
-While choosing grasp types, keep in mind that items like paper balls and apples can be picked from the top, whereas glasses may require a side grasp. Use moderate speed to ensure precision and minimize collision risks. Here is the detailed task plan represented as a Python list of tuples named `task_plan`:
+While choosing grasp types, keep in mind that beams that are laying down should be picked from the top, whereas beams standing up should be picked up from the side. Use moderate speed to ensure precision and minimize collision risks. Here is the detailed task plan represented as a Python list of tuples named `task_plan`:
 
 ```python
 task_plan = [
-    # Pick up the first crumpled paper ball and drop it in the large red trash can
-    (0, 'approach', ('crumpled paper ball 1', 0.5, 0.05, 'top')),
-    (1, 'pick', ('crumpled paper ball 1', 0.5, 0.05, 'top')),
-    # assuming the robot can move to the trash can without dropping the object
-    (2, 'drop', ('large red trash can', 0.5, 0.05)),
-
-    # Pick up the second crumpled paper ball and drop it in the trash can
-    (3, 'approach', ('crumpled paper ball 2', 0.5, 0.05, 'top')),
-    (4, 'pick', ('crumpled paper ball 2', 0.5, 0.05, 'top')),
-    (5, 'drop', ('large red trash can', 0.5, 0.05)),
-
-    # Pick up the half-eaten apple and drop it in the trash can
-    (6, 'approach', ('half-eaten apple', 0.5, 0.05, 'top')),
-    (7, 'pick', ('half-eaten apple', 0.5, 0.05, 'top')),
-    (8, 'drop', ('large red trash can', 0.5, 0.05)),
-
-    # Pick up the whole apple and place it on the storage shelf
-    (9, 'approach', ('whole apple', 0.5, 0.05, 'top')),
-    (10, 'pick', ('whole apple', 0.5, 0.05, 'top')),
-    (11, 'place', ('storage shelf', 0.5, 0.5, 0.05)),
-
-    # Approach the empty glass and pick it from the side, then place it in the sink
-    (12, 'approach', ('empty glass 1', 0.5, 0.05, 'side')),
-    (13, 'pick', ('empty glass 1', 0.5, 0.05, 'side')),
-    (14, 'place', ('large white sink', 0.5, 0.5, 0.05)),
-
-    # Approach the glass with yellowish liquid, pick it, and pour it out before placing in the sink
-    # Assuming pouring action is a part of the 'place' function before releasing the grasp
-    (15, 'approach', ('glass with yellowish liquid', 0.5, 0.05, 'side')),
-    (16, 'pick', ('glass with yellowish liquid', 0.5, 0.05, 'side')),
-    (17, 'place', ('large white sink', 0.5, 0.5, 0.05))
-]
+        (0, 'approach', ('beam_1', 0.8, 0.05, 'top')),
+        (1, 'pick', ('beam_1', 0.8, 0.001, 'top')),
+        (2, 'place', ('beam_2_end2', 0.0, 0.4, 0.02, 0.0, True)),
+        (3, 'approach', ('beam_3', 0.8, 0.05, 'side')),
+        (4, 'pick', ('beam_3', 0.8, 0.001, 'top')),
+        (5, 'place', ('beam_2_end1', 0.0, 0.4, 0.02, 0.0, True)),
+    ]
 ```
 
 This task plan assumes that:
-- The 'pick' function allows the robot to hold the object until the 'drop' or 'place' function is executed.
-- The 'place' function can also involve actions like pouring out the contents of a glass before placing it.
-- Objects like apples are placed on a storage shelf if they are to be kept, while waste is put in the trash can.
-- After executing a 'pick', the robot does not necessarily have to execute an 'approach' again before 'drop' or 'place' if the object is already held.
+- The 'pick' function allows the robot to hold the object until the 'place' function is executed.
+- The 'place' function can place objects either vertically or horizontally based on the 'vertical' argument, and place the beams with yaws (set to 0 degrees when placing vertically).
+- After executing a 'pick', the robot does not have to execute an 'approach' again before 'place' if the object is already held.
 
-The task plan aims for both efficiency in motion and proper handling of the objects in accordance with their disposability or reusability.
+The task plan aims for both efficiency in motion and proper handling of the objects.
 
 """
 
+# used only when warm_start=True, to SKIP the llm -> must be for our exact task
 eval_plan_ask = """
- The robot may not be able to execute an action function, or encounter object collision during execution. Thus, it is required to check for completion of each action function after they have been performed.
+
+    The robot may not be able to execute an action function, or encounter object collision during execution. Thus, it is required to check for completion of each action function after they have been performed.
 
     For this, we define some 'checking functions' written in python. These checking functions, which can be imported from the 'checking_functions' library are:
 
-    can_grasp(object_to_grasp: str, grasp: str) -> bool: # Returns True if robot is close-enough to the "object_to_grasp" to securley grasp it with the determined grasp "side" or "top"
+    can_grasp(object_to_grasp: str, grasp: str) -> bool: # Returns True if robot is close-enough to the "object_to_grasp" to securely grasp it with the determined grasp "side" or "top"
 
     holding() -> bool # Returns True if the robot is holding an object
 
@@ -126,13 +109,13 @@ eval_plan_ask = """
 
     check_motion_health() ->  bool: # Returns True if the robot's motion during the preceding action was safe for its hardware
 
-    can_reach(goal: str, grasp: str) -> bool: # Returns True if it is feasible for the robot to reach the "goal" object or location from the current state from the side determined by the grasp argument "side" or "top". Objects that are out of the workspace will always return false.
+    can_reach(goal: str, grasp: str) -> bool: # Returns True if it is feasible for the robot to reach the "goal" object or location from the current state from the side determined by the grasp argument "side" or "top". Objects that are out of the workspace will always return False.
 
     beam_contact(beam1: str, beam2: str, tolerance: float = 0.05) -> bool: # Returns True if two beams are touching within the given tolerance (in meters). Default tolerance is 5cm.
 
-    beam_angle(beam1: str, beam2: str, target_angle: float = 90.0, tolerance: float = 5.0) -> bool: # Returns True if the angle between two beams matches the target angle within tolerance (in degrees). Use target_angle=90.0 for L-shape perpendicular beams. Default tolerance is ±10°.
+    beam_angle(beam1: str, beam2: str, target_angle: float = 90.0, tolerance: float = 5.0) -> bool: # Returns True if the angle between two beams matches the target angle within tolerance (in degrees). Use target_angle=90.0 for perpendicular beams such as in an L or U shape. Default tolerance is ±5°.
 
-    beam_parallel(beam1: str, beam2: str, tolerance: float = 5.0) -> bool: # Returns True if two beams are parallel within tolerance (in degrees). Equivalent to beam_angle with target_angle=0.0. Use for U-shape vertical beams. Default tolerance is ±10°.
+    beam_parallel(beam1: str, beam2: str, tolerance: float = 5.0) -> bool: # Returns True if two beams are parallel within tolerance (in degrees). Equivalent to beam_angle with target_angle=0.0. Use for the two vertical beams in a U-shape assembly. Default tolerance is ±5°.
 
     The grasp argument is the same as the one in the "approach" and "pick" functions. It assumes one of the two values {"top", "side"}
 
@@ -141,62 +124,61 @@ eval_plan_ask = """
     - timely motion
     - motion health
 
-    Output this plan as a Python list of tuples, where each tuple is of the form (action number int, list of (predicate_name, args) tuples, tuple of expected outputs). Each predicate is a tuple of (predicate_name_string, arguments_tuple).
+    Important guidelines for our construction tasks:
+    - Multiple checks of the same type can be included in a single action's evaluation (e.g., check contact with multiple beams)
+    - Structural checks (beam_contact, beam_angle, beam_parallel) should typically only be verified AFTER the complete structure is assembled
+    - Intermediate actions should verify basic predicates: can_grasp, holding, collision_free, timeout, check_motion_health
+    - The final action should verify both basic predicates AND all structural requirements (contact, angles, parallelism)
+
+    Each tuple is meant to be checked after the action with the corresponding number.
+
+    Output this plan as a Python list of tuples, where each tuple is of the form (action number int, dictionary with check_function names as keys and a tuple of arguments as value, tuple of expected outputs). Do not assume any other object or location, beyond those in object_labels.
+    
+    For functions that take no arguments (collision_free, timeout, check_motion_health, holding), use empty tuples () as the value. For functions that take arguments, use a tuple containing the arguments.
 
     Each tuple is meant to be checked after the acton with the corresponding number.
 
     Generate the entire plan. No reasoning, direct output.
 
-
-"""
+    """
 
 # eval plan answer as tuple instead of dict
 eval_plan_answer = """
 ```python
+# Example evaluation plan for a U-shape beam assembly task
 evaluation_plan = [
-    # Check after approaching the first crumpled paper ball
-    (0, [('can_grasp', ('crumpled paper ball 1', 'top')),
-         ('collision_free', ()),
-         ('timeout', ()),
-         ('check_motion_health', ()),
-         ('can_reach', ('crumpled paper ball 1', 'top'))],
-         (True, '', True, True, True)),
+    # Check after approaching beam_1
+    (0, [('can_grasp', ('beam_1', 'top')), ('collision_free', ()), ('timeout', ()), ('check_motion_health', ())], 
+        (True, '', True, True)),
 
-    # Check after picking the first crumpled paper ball
-    (1, [('holding', ()),
+    # Check after picking beam_1
+    (1, [('holding', ()), ('collision_free', ()), ('timeout', ()), ('check_motion_health', ())], 
+        (True, '', True, True)),
+
+    # Check after placing beam_1 at beam_2_end2
+    (2, [('at_location', ('beam_1', 'beam_2_end2')), ('collision_free', ()), ('timeout', ()), ('check_motion_health', ())], 
+        (True, '', True, True)),
+
+    # Check after approaching beam_3
+    (3, [('can_grasp', ('beam_3', 'top')), ('collision_free', ()), ('timeout', ()), ('check_motion_health', ())], 
+        (True, '', True, True)),
+
+    # Check after picking beam_3
+    (4, [('holding', ()), ('collision_free', ()), ('timeout', ()), ('check_motion_health', ())], 
+        (True, '', True, True)),
+
+    # Final assembly check after placing beam_3 at beam_2_end1
+    (5, [('at_location', ('beam_1', 'beam_2_end2')),
+         ('at_location', ('beam_3', 'beam_2_end1')),
+         ('beam_contact', ('beam_1', 'beam_2', 0.05)),
+         ('beam_contact', ('beam_3', 'beam_2', 0.05)),
+         ('beam_angle', ('beam_1', 'beam_2', 90.0, 5.0)),
+         ('beam_angle', ('beam_3', 'beam_2', 90.0, 5.0)),
+         ('beam_parallel', ('beam_1', 'beam_3', 5.0)),
          ('collision_free', ()),
          ('timeout', ()),
          ('check_motion_health', ())],
-         (True, '', True, True)),
-
-    # Check after dropping the first crumpled paper ball into the trash can
-    (2, [('at_location', ('crumpled paper ball 1', 'large red trash can')),
-         ('collision_free', ()),
-         ('timeout', ()),
-         ('check_motion_health', ())],
-         (True, '', True, True)),
-
-    # Check after approaching the second crumpled paper ball
-    (3, [('can_grasp', ('crumpled paper ball 2', 'top')),
-         ('collision_free', ()),
-         ('timeout', ()),
-         ('check_motion_health', ()),
-         ('can_reach', ('crumpled paper ball 2', 'top'))],
-         (True, '', True, True, True)),
-
-    # Check after picking the second crumpled paper ball
-    (4, [('holding', ()),
-         ('collision_free', ()),
-         ('timeout', ()),
-         ('check_motion_health', ())],
-         (True, '', True, True)),
-
-    # Check after dropping the second crumpled paper ball into the trash can
-    (5, [('at_location', ('crumpled paper ball 2', 'large red trash can')),
-         ('collision_free', ()),
-         ('timeout', ()),
-         ('check_motion_health', ())],
-         (True, '', True, True)),
+        (True, True, True, True, True, True, True, '', True, True)),
 ]
 
 ```
@@ -208,30 +190,28 @@ warm_start_history = [action_plan_ask, action_plan_answer, eval_plan_ask, eval_p
 
 
 scene_description = (
-    "The image shows an indoor scene with a white table at the center, scattered with various objects. "
-    "On the table, there are crumpled paper balls, a whole apple, a half-eaten apple, and two different types of glasses, "
-    "one of which appear to be empty and one partially filled with a yellowish liquid. "
-    "To the left, there is a large white sink with a faucet against a tiled wall. A storage shelf is also kept near the table."
-    "In the background, there are two doors, one closed and one ajar, and a folded white chair next to the table. "
-    "On the right side, a large red trash can is visible, filled with discarded items including colorful plastic wrappers. "
-    "The room has a clinical or institutional feel, possibly a break room or a workshop space."
+    "The image shows an indoor scene with a white table at the center. "
+    "On the table, there are a few identical rectangular beams. They are either laying flat or standing upright. "
 )
 
 
 # Labels that are considered objects which a robot may interact with
 objects = [
     "white table",
-    "crumpled paper ball 1",
-    "crumpled paper ball 2",
+    "beam_1",
+    "beam_2",
+    "beam_3"
+    # "crumpled paper ball 1",
+    # "crumpled paper ball 2",
     #"crumpled paper ball 3",
     #"crumpled paper ball 4",
     #"crumpled paper ball 5",
-    "whole apple",
-    "half-eaten apple",
-    "empty glass 1",
-    #"empty glass 2",
-    "glass with yellowish liquid",
-    "large red trash can",
+    # "whole apple",
+    # "half-eaten apple",
+    # "empty glass 1",
+    # #"empty glass 2",
+    # "glass with yellowish liquid",
+    # "large red trash can",
     # "discarded plastic wrapper 1",
     # "discarded plastic wrapper 2",
     # "discarded plastic wrapper 3",
@@ -239,17 +219,12 @@ objects = [
 
 # Labels that are considered locations
 locations = [
-    "large white sink",
-    "faucet",
-    "tiled wall",
-    "closed door",
-    "ajar door",
-    "folded white chair",
-    "clinical room",
-    "storage shelf"
+    "left_side",
+    "center",
+    "right_side",
 ]
 
-task = "clear the table efficiently"
+task = "Make a U shape structure using the beams on the table"
 
 iter = 1 # do not touch
 retuned_iter = 1 # do not touch
