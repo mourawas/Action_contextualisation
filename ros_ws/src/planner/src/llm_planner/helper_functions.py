@@ -102,16 +102,12 @@ def performance_logger(evaluation_log, evaluation_plan):
         print(expected_output)
 
         for output_index in range(len(check_outputs)):
-            try:
-                if check_outputs[output_index] != expected_output[output_index]:
-                    action_successful = False
-                    function_name = list(functions_and_arguments.keys())[output_index]
-                    arguments = functions_and_arguments[function_name]
-                    # (function_name, arguments) = functions_and_arguments[output_index]
-                    failed_checks.append((function_name, arguments, check_outputs[output_index], expected_output[output_index]))
-            except:
-                breakpoint()
-
+            if check_outputs[output_index] != expected_output[output_index]:
+                action_successful = False
+                function_name, arguments = functions_and_arguments[output_index]
+                failed_checks.append((function_name, arguments, check_outputs[output_index], expected_output[output_index]))
+            # old breakpoint here in try: else:
+            
         # Determine the success phrase
         if action_successful:
             success_phrase = "Action was successful."

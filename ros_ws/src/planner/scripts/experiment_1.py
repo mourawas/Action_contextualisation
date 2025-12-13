@@ -12,7 +12,8 @@ import os
 
 import numpy as np
 
-# The llm sometimes generates eval plan as dicts. make a check to ensure that it's list of tuples
+# Does the llm have knowledge about how the beams are placed ?
+# Tell the llm that he has to use the same grasp type for the approach and pick of the same object.
 
 scene_description = (
     "The image shows an indoor scene with a white table at the center, scattered with two objects. "
@@ -118,6 +119,29 @@ def extract_plan(full_answer: str) -> tp.Tuple[bool, str, tp.List]:
 
     return len(error_message) == 0, error_message, plan
 
+def check_eval_plan_structure(plan):
+    """Check if evaluation plan uses lists of tuples instead of dicts"""
+    for i, item in enumerate(plan):
+        # Check tuple has 3 elements
+        if len(item) != 3:
+            return False, f"Evaluation plan item {i} must have exactly 3 elements (action_num, predicates, expected_results)"
+        
+        # Check second element is not a dict
+        if isinstance(item[1], dict):
+            return False, "ERROR: evaluation_plan uses dictionaries for predicates. Must use lists of tuples instead. Format: (action_num, [('predicate_name', (args,)), ('predicate_name2', (args,))], (expected1, expected2)). Please regenerate your evaluation_plan using lists of tuples, NOT dictionaries."
+        
+        # Check second element is a list
+        if not isinstance(item[1], list):
+            return False, f"Evaluation plan item {i}: second element must be a list of tuples, not {type(item[1]).__name__}"
+        
+        # Check each element in the list is a tuple
+        for j, pred in enumerate(item[1]):
+            if not isinstance(pred, tuple):
+                return False, f"Evaluation plan item {i}, predicate {j}: must be a tuple (predicate_name, args), not {type(pred).__name__}"
+            if len(pred) != 2:
+                return False, f"Evaluation plan item {i}, predicate {j}: must be (predicate_name, args) with 2 elements"
+    
+    return True, ""
 
 def extract_retune_action(full_retune_answer: str,
                           previous_task_plan: tp.List) -> tp.Tuple[bool, str, tp.List]:
@@ -216,13 +240,26 @@ def ask_for_evaluation_plan(llm_bot: GptChatBot):
         plan_is_correct, error_message, eval_plan = extract_plan(eval_plan_answer)
 
         if plan_is_correct:
-            break
+            # Additional check for evaluation plan structure
+            struct_ok, struct_error = check_eval_plan_structure(eval_plan)
+            if not struct_ok:
+                plan_is_correct = False
+                error_message = struct_error
+                print("Asking: ", error_message)
+                eval_plan_answer = llm_bot.ask(error_message, show_output=True)
+            else:
+                break
         else:
             print("Asking: ", error_message)
             eval_plan_answer = llm_bot.ask(error_message, show_output=True)
 
     plan_is_correct, error_message, eval_plan = extract_plan(eval_plan_answer)
-    if not plan_is_correct:
+    if plan_is_correct:
+        # Final structure check
+        struct_ok, struct_error = check_eval_plan_structure(eval_plan)
+        if not struct_ok:
+            raise Exception(f"Unable to generate valid evaluation plan from LLM. The latest error message was {struct_error}")
+    elif not plan_is_correct:
         raise Exception(f"Unable to generate valid evaluation plan from LLM. The latest error message was {error_message}")
 
     with open(os.path.join(log_folder, 'evaluation_plan' + str(iter) + '.pkl'), 'wb') as file:
