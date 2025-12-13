@@ -12,6 +12,8 @@ import os
 
 import numpy as np
 
+# The llm sometimes generates eval plan as dicts. make a check to ensure that it's list of tuples
+
 scene_description = (
     "The image shows an indoor scene with a white table at the center, scattered with two objects. "
     "On the table, there is one rectangular beam, made for example of wood or metal. "
