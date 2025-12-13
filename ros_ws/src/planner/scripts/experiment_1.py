@@ -15,7 +15,6 @@ import numpy as np
 scene_description = (
     "The image shows an indoor scene with a white table at the center, scattered with two objects. "
     "On the table, there is one rectangular beam, made for example of wood or metal. "
-    "The room has a clinical or institutional feel, possibly a break room or a workshop space."
 )
 
 
@@ -59,8 +58,7 @@ locations = [
 ]
 
 # obj to clear is only used here and optional, can give construction task instead
-obj_to_clear = "beam_1"
-task = f"Move the {obj_to_clear} efficiently and quickly"
+task = f"Assembly the three beams into a vertical U shape efficiently and quickly"
 
 iter = 1
 retune_count = 3
