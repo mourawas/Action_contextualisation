@@ -58,7 +58,8 @@ locations = [
 ]
 
 # obj to clear is only used here and optional, can give construction task instead
-task = f"Assembly the three beams into a vertical U shape efficiently and quickly"
+#obj_to_clear = "assembly"
+task = f"Assemble the three beams into a vertical U shape efficiently and quickly"
 
 iter = 1
 retune_count = 3
@@ -311,7 +312,7 @@ def execute_and_log_plans(task_plan: tp.List, evaluation_plan: tp.List, tpu: Tas
 
 def plan_and_retune(parameter_history, domain_history, warm_start=False):
     global log_folder
-    log_folder = create_experiment_log(obj_to_clear)
+    log_folder = create_experiment_log("U_shape")
     chat_log_file = os.path.join(log_folder, 'chat_log.pckl')
     task_plan_meta_data_file = os.path.join(log_folder, 'task_plan_log.pkl')
     llm_bot = GptChatBot(auto_save_file_name=chat_log_file)
