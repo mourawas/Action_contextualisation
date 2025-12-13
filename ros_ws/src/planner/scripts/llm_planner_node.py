@@ -14,9 +14,11 @@ import numpy as np
 
 # used only when warm_start=True, to SKIP the llm
 action_plan_ask = """
-The image shows an indoor scene with a white table at the center, and a few identical rectangular beams either laying down flat on the table, or standing up vertically. The list of recognised objects is:
+    The image shows an indoor scene with a white table at the center, and a few identical rectangular beams either laying down flat on the table, or standing up vertically. The list of recognised objects is:
 
     objects = ['white table', 'beam_1', 'beam_2', 'beam_3']
+
+    beam_1 is laying flat horizontally on the table. beam_2 higher on the table than beam_1 and is laying flat horizontally on the table. beam_3 is on the right side of beam_1, and is standing up vertically on the table
 
     The list of recognised locations, which are designated areas on the table, is:
 
@@ -32,7 +34,7 @@ The image shows an indoor scene with a white table at the center, and a few iden
 
     The "speed" argument for 'approach', 'pick', 'drop' and 'place' functions, assumes value in [0,1] and regulates how fast the robot moves. The closer the the value is to 1 the faster the robot moves. moving with higher speed is faster but might result in a jerky and less precise motion.
 
-    The "grasp" argument for 'approach' and 'pick' is mandatory and assumes one of the two values {"top", "side"}, never use None, where "top" instructs the robot to approach or pick the beam from the top and selecting "side" instructs the robot to approach or pick the beam from the side.
+    The "grasp" argument for 'approach' and 'pick' is mandatory and assumes one of the two values {"top", "side"}, never use None, where "top" instructs the robot to approach or pick the beam from the top and selecting "side" instructs the robot to approach or pick the beam from the side. For the same object, you must use the same grasp for both 'approach' and 'pick' functions.
 
     The "obstacle_clearance" for 'approach', 'pick' and 'place' functions defines how close the robot can get to a beam (including the one it is trying to grasp in the pick action) before starting to avoid it. The distance is in meter. Small values allow the robot to get closer to obstacles and usually give a better chance of reaching the beam, picking it and holding it. Typically values are between 0.005 and 0.05 although values out of this range are possible.
 
@@ -192,6 +194,7 @@ warm_start_history = [action_plan_ask, action_plan_answer, eval_plan_ask, eval_p
 scene_description = (
     "The image shows an indoor scene with a white table at the center. "
     "On the table, there are a few identical rectangular beams. They are either laying flat or standing upright. "
+    "beam_1 is laying flat horizontally on the table. beam_2 higher on the table than beam_1 and is laying flat horizontally on the table. beam_3 is on the right side of beam_1, and is standing up vertically on the table"
 )
 
 

@@ -13,13 +13,13 @@ import os
 import numpy as np
 
 # Does the llm have knowledge about how the beams are placed ?
-# Tell the llm that he has to use the same grasp type for the approach and pick of the same object.
+# I depicted the wrong beam as the base beam ?
 
 scene_description = (
-    "The image shows an indoor scene with a white table at the center, scattered with two objects. "
-    "On the table, there is one rectangular beam, made for example of wood or metal. "
+    "The image shows an indoor scene with a white table at the center. "
+    "On the table, there are a few identical rectangular beams. They are either laying flat or standing upright. "
+    "beam_1 is laying flat horizontally on the table. beam_2 higher on the table than beam_1 and is laying flat horizontally on the table. beam_3 is on the right side of beam_1, and is standing up vertically on the table"
 )
-
 
 # Labels that are considered objects which a robot may interact with
 objects = [
