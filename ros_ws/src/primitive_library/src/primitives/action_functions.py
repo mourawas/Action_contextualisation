@@ -226,7 +226,7 @@ def approach(js_lds, # object_to_grasp: str,
              speed: float,
              obstacle_clearance: tp.Optional[float],
              grasp: str,
-             orientation: float = 0.,
+             # orientation used to be here
              placement_angle: float = None,
              disregard_object_to_grasp: bool = False,
              detailed_obstacles: bool = False,
@@ -238,7 +238,8 @@ def approach(js_lds, # object_to_grasp: str,
              disregard_table: bool = False,
              drop_side_offset: bool = False,
              disregard_object: tp.Optional[str] = None,
-             vertical: bool = False) -> None:
+             vertical: bool = False,
+             orientation: float = 0.) -> None:
 
     # Default grasp to top
     if grasp == '':
@@ -469,7 +470,7 @@ def pick(js_lds, object_to_grasp: str,
 
     # Fine-tuned approach
     approach(object_to_grasp, speed, obstacle_clearance,
-                grasp_orientation, 0.,
+                grasp_orientation,
                 disregard_object_to_grasp=False,
                 detailed_obstacles=True,
                 apply_offsets=False,
@@ -549,8 +550,9 @@ def pick(js_lds, object_to_grasp: str,
 # These action functions expect object names that get resolved to positions
 # Place and drop pass their first argument to approach function
 # So modify approach function
+# remove orientation
 @robot_action
-def place(js_lds, object_to_grasp: tp.Union[str, list], orientation: float, 
+def place(js_lds, object_to_grasp: tp.Union[str, list],
           speed: float, obstacle_clearance: float, 
           placement_angle: float = 0.,
           vertical: bool = False) -> None:
@@ -602,7 +604,6 @@ def place(js_lds, object_to_grasp: tp.Union[str, list], orientation: float,
         print("First place approach")
         approach(object_to_grasp,
                 speed, grasp=place_grasp,
-                orientation=orientation,
                 placement_angle=placement_angle,
                 detailed_obstacles=True,
                 disregard_object_to_grasp=True,
@@ -623,7 +624,6 @@ def place(js_lds, object_to_grasp: tp.Union[str, list], orientation: float,
         print("Second place approach")
         approach(object_to_grasp,
                     speed, grasp=place_grasp,
-                    orientation=orientation,
                     placement_angle=placement_angle,
                     detailed_obstacles=True,
                     disregard_object_to_grasp=True,

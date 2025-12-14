@@ -134,7 +134,7 @@ eval_plan_ask = """
 
     Each tuple is meant to be checked after the action with the corresponding number.
 
-    Output this plan as a Python list of tuples, where each tuple is of the form (action number int, dictionary with check_function names as keys and a tuple of arguments as value, tuple of expected outputs). Do not assume any other object or location, beyond those in object_labels.
+    Output this plan as a Python list of tuples, where each tuple is of the form (action_num, [('predicate_name', (args,)), ...], (expected_results,)). Do not assume any other object or location, beyond those in object_labels.
     
     For functions that take no arguments (collision_free, timeout, check_motion_health, holding), use empty tuples () as the value. For functions that take arguments, use a tuple containing the arguments.
 
