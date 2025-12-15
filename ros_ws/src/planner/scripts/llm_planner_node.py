@@ -18,7 +18,7 @@ action_plan_ask = """
 
     objects = ['white table', 'beam_1', 'beam_2', 'beam_3']
 
-    beam_1 is laying flat horizontally on the table. beam_2 higher on the table than beam_1 and is laying flat horizontally on the table. beam_3 is on the right side of beam_1, and is standing up vertically on the table
+    beam_1 is laying flat horizontally on the table. beam_2 to the left of beam_1 and is laying flat horizontally on the table. beam_3 is to the right of beam_1 and is standing up vertically on the table. 
 
     The list of recognised locations, which are designated areas on the table, is:
 
@@ -47,6 +47,8 @@ action_plan_ask = """
     - If you want to place down the base beam: use location='left_side', 'center', or 'right_side'
     - For beam assembly/stacking: use location='beam_X_end1' or 'beam_X_end2' where X is the beam number.
     Example: place('beam_1_end1', ...) places the held beam at end 1 of beam_1
+
+    end2 is the left end, end1 is the right end. Pick and place beams from left to right for efficient motion (left beam to end2, right beam to end1). 
 
     The actions described in these functions are the only motions known to the robot. The task for the robot is: "{task}". First explain how you are going to solve the task, why each step is executed and how it makes sense to a human that you do it this way.
 

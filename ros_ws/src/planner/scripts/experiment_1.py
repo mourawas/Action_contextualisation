@@ -12,12 +12,13 @@ import os
 
 import numpy as np
 
-# Maybe make the LLM have info about order of placement for U shape assembly.
+# Collision returns True vs ''
+# not detecting contact properly
 
 scene_description = (
     "The image shows an indoor scene with a white table at the center. "
     "On the table, there are a few identical rectangular beams. They are either laying flat or standing upright. "
-    "beam_1 is laying flat horizontally on the table. beam_2 higher on the table than beam_1 and is laying flat horizontally on the table. beam_3 is on the right side of beam_1, and is standing up vertically on the table"
+    "beam_1 is laying flat horizontally on the table. beam_2 to the left of beam_1 and is laying flat horizontally on the table. beam_3 is to the right of beam_1 and is standing up vertically on the table"
 )
 
 # Labels that are considered objects which a robot may interact with

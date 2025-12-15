@@ -99,6 +99,8 @@ def task_plan_gen(task: str, prompt0: str, objects: tp.List[str], locations: tp.
     - For beam assembly/stacking: use location='beam_X_end1' or 'beam_X_end2' where X is the beam number.
     Example: place('beam_1_end1', ...) places the held beam at end 1 of beam_1
 
+    end2 is the left end, end1 is the right end. Pick and place beams from left to right for efficient motion (left beam to end2, right beam to end1).
+
     The actions described in these functions are the only motions known to the robot. The task for the robot is: "{task}". First explain how you are going to solve the task, why each step is executed and how it makes sense to a human that you do it this way.
 
     Then, using the actions functions, 'objects' and 'locations', define a task plan as a Python list of tuples (named 'task_plan'), for the robot to follow. The action_functions from the task_plan will be directly run on the robot. Each element of the list is a tuple of the form (action number, action function name string, (arguments)). For each action, use object and task specific arguments.
