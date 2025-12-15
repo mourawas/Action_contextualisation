@@ -34,7 +34,7 @@ action_plan_ask = """
 
     The "speed" argument for 'approach', 'pick', 'drop' and 'place' functions, assumes value in [0,1] and regulates how fast the robot moves. The closer the the value is to 1 the faster the robot moves. moving with higher speed is faster but might result in a jerky and less precise motion.
 
-    The "grasp" argument for 'approach' and 'pick' is mandatory and assumes one of the two values {"top", "side"}, never use None, where "top" instructs the robot to approach or pick the beam from the top and selecting "side" instructs the robot to approach or pick the beam from the side. For the same object, you must use the same grasp for both 'approach' and 'pick' functions.
+    The "grasp" argument for 'approach' and 'pick' is mandatory and assumes one of the two values {"top", "side"}, never use None, where "top" instructs the robot to approach or pick the beam from the top and selecting "side" instructs the robot to approach or pick the beam from the side. For the same object, you must use the same grasp for both 'approach' and 'pick' functions. "top" should be used for beams that are laying down, "side" should be used for beams that are standing up.
 
     The "obstacle_clearance" for 'approach', 'pick' and 'place' functions defines how close the robot can get to a beam (including the one it is trying to grasp in the pick action) before starting to avoid it. The distance is in meter. Small values allow the robot to get closer to obstacles and usually give a better chance of reaching the beam, picking it and holding it. Typically values are between 0.005 and 0.05 although values out of this range are possible.
 
@@ -63,14 +63,13 @@ action_plan_ask = """
 """
 
 # used only when warm_start=True, to SKIP the llm -> must be for our exact task
+# I did this wrong. it's supposed to roleplay as the llm
 action_plan_answer = """
 To efficiently assemble the beams in a U shape, we should follow a plan that minimizes the amount of robot movement and takes in account the spacial positions the beams in order to order the placements correctly.
 
 1. **Notice the base beam**: Identify which beam will serve as the base for the assembly. This beam could already be placed down on the table, or should be placed first on the table, either at the left_side, center, or right_side location.
 2. **Pick and place the first beam**: Choose between the remaining beams which to pick up first. It should then be placed vertically on one of the base beam's ends.
 3. **Pick and place the second beam**: Finally, pick up the last beam and place it vertically on the other end of the base beam.
-
-While choosing grasp types, keep in mind that beams that are laying down should be picked from the top, whereas beams standing up should be picked up from the side. Use moderate speed to ensure precision and minimize collision risks. Here is the detailed task plan represented as a Python list of tuples named `task_plan`:
 
 ```python
 task_plan = [

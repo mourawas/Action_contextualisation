@@ -390,8 +390,6 @@ def approach(js_lds, # object_to_grasp: str,
             else:
                 # Horizontal: existing rotation for flat placement
                 goal_rot = Rotation.from_euler('xyz', [0, 90, target_yaw], degrees=True).as_quat()
-        
-
 
         if force_altitude is not None:
             obj_goal[2] = force_altitude

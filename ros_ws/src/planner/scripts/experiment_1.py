@@ -12,8 +12,7 @@ import os
 
 import numpy as np
 
-# Does the llm have knowledge about how the beams are placed ?
-# Make which grasp type for which beam more explicit
+# Maybe make the LLM have info about order of placement for U shape assembly.
 
 scene_description = (
     "The image shows an indoor scene with a white table at the center. "
