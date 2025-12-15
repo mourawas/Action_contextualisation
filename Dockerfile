@@ -69,32 +69,29 @@ RUN if [ "${USE_SIMD}" = "ON" ] ; \
     then export CMAKE_CXX_FLAGS="-march=native -faligned-new" ; fi
 
 ### Install all dependencies of IIWA ROS
-# Clone KUKA FRI (need to be root to clone private repo)
-#WORKDIR /tmp
-#USER root
-#RUN mkdir -p -m 0775 /root/.ssh && ssh-keyscan github.com >> /root/.ssh/known_hosts
+# Clone KUKA FRI from public repo (no need for root since it's public)
+WORKDIR /tmp
+RUN git clone https://github.com/mourawas/kuka_fri.git
+WORKDIR /tmp/kuka_fri
+RUN if [ "${USE_SIMD}" != "ON" ] ; \
+    then wget https://gist.githubusercontent.com/matthias-mayr/0f947982474c1865aab825bd084e7a92/raw/244f1193bd30051ae625c8f29ed241855a59ee38/0001-Config-Disables-SIMD-march-native-by-default.patch \
+    ; fi
+RUN if [ "${USE_SIMD}" != "ON" ] ; \
+    then git am 0001-Config-Disables-SIMD-march-native-by-default.patch ; fi
 
-#RUN --mount=type=ssh git clone git@github.com:epfl-lasa/kuka_fri.git
-#WORKDIR /tmp/kuka_fri
-#RUN if [ "${USE_SMID}" != "ON" ] ; \
-#    then wget https://gist.githubusercontent.com/matthias-mayr/0f947982474c1865aab825bd084e7a92/raw/244f1193bd30051ae625c8f29ed241855a59ee38/0001-Config-Disables-SIMD-march-native-by-default.patch \
-#    ; fi
-#RUN --mount=type=ssh  if [ "${USE_SMID}" != "ON" ] ; \
-#    then git am 0001-Config-Disables-SIMD-march-native-by-default.patch ; fi
-#
-# Transfer repo back to original user after root clone
-#WORKDIR /tmp
-#RUN chown -R ${USER}:${HOST_GID} kuka_fri
-
-# Install kuka Fri as USER
-#USER ${USER}
-#RUN cd kuka_fri && ./waf configure && ./waf && sudo ./waf install
+# Install kuka Fri as USER (already ${USER} at this point in Dockerfile)
+RUN chmod +x waf && ./waf configure && ./waf && sudo ./waf install
 
 # Install SpaceVecAlg
 RUN git clone --recursive https://github.com/jrl-umi3218/SpaceVecAlg.git
 RUN cd SpaceVecAlg && mkdir build && cd build \
     && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDING=OFF .. \
     && make -j && sudo make install
+
+# Upgrade CMake
+RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+RUN sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'
+RUN sudo apt update && sudo apt install -y cmake
 
 # Install RBDyn
 RUN git clone --recursive https://github.com/jrl-umi3218/RBDyn.git
@@ -103,20 +100,20 @@ RUN cd RBDyn && mkdir build && cd build \
     && make -j && sudo make install
 
 # Install mc_rbdyn_urdf
-RUN git clone --recursive -b v1.1.0 https://github.com/jrl-umi3218/mc_rbdyn_urdf.git
+RUN git clone --recursive https://github.com/jrl-umi3218/mc_rbdyn_urdf.git
 RUN cd mc_rbdyn_urdf && mkdir build && cd build \
-    && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDING=OFF .. \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDING=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 .. \
     && make -j && sudo make install
 
 # Install corrade
 RUN git clone https://github.com/mosra/corrade.git
 RUN cd corrade && git checkout 0d149ee9f26a6e35c30b1b44f281b272397842f5 \
-    && mkdir build && cd build && cmake .. && make -j && sudo make install
+    && mkdir build && cd build && cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 .. && make -j && sudo make install
 
 # Install robot_controller
 RUN git clone https://github.com/epfl-lasa/robot_controllers.git
 RUN cd robot_controllers && mkdir build && cd build \
-    && cmake .. && make -j && sudo make install
+    && cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 .. && make -j && sudo make install
 
 # Remove temporary files
 RUN sudo ldconfig
@@ -127,7 +124,7 @@ RUN sudo rm -rf /tmp/*
 WORKDIR /home/${USER}/ros_ws/src
 RUN git clone https://github.com/epfl-lasa/iiwa_ros.git && \
 	cd iiwa_ros && \
-	rm -rf iiwa_driver iiwa_moveit iiwa_gazebo
+	rm -rf iiwa_gazebo
 
 ### Add environement variables to bashrc
 WORKDIR /home/${USER}
@@ -151,7 +148,7 @@ RUN pip install mujoco \
                 open3d \
                 scikit-image \
                 pyembree \
-                openai \
+                openai==1.12.0 \
                 pddl \
                 pyVHACD \
                 mistralai
