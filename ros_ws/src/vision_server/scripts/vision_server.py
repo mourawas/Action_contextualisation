@@ -25,7 +25,10 @@ class VisionServer:
         "/vrpn_client_node/shelf/pose",
         "/vrpn_client_node/sink/pose",
         "/vrpn_client_node/table/pose",
-        "/vrpn_client_node/trash_bin/pose"
+        "/vrpn_client_node/trash_bin/pose",
+        "/vrpn_client_node/beam_1/pose",
+        "/vrpn_client_node/beam_2/pose",
+        "/vrpn_client_node/beam_3/pose",
         "/vrpn_client_node/iiwa_base7/pose"
         ]
     
@@ -41,6 +44,9 @@ class VisionServer:
         'sink': 0,
         'table': 0,
         'trash_bin': 0,
+        'beam_1': 0,
+        'beam_2': 0,
+        'beam_3': 0
     }
 
     IIWA_BASE_IN_IIWA_MARKER = [-3.222253154994657309e-02,
@@ -173,6 +179,20 @@ class VisionServer:
         radii = np.array([.3, .3, .3])
 
         return mesh, radii
+    
+    def get_beam_mesh(self):
+        # Beam is modeled as elongated rectangular prism
+        # Adjust BEAM_LENGTH based on your actual beams (in meters)
+        BEAM_LENGTH = 0.30  # e.g., 30cm beams
+        BEAM_WIDTH = 0.03   # 3cm width
+        
+        # Define points along beam length at center, with radii
+        num_points = 10
+        positions = np.linspace(-BEAM_LENGTH/2, BEAM_LENGTH/2, num_points)
+        mesh = np.array([[x, 0., 0.] for x in positions])
+        radii = np.ones(num_points) * (BEAM_WIDTH/2)
+        
+        return mesh, radii
 
     def get_mesh(self, mesh_name):
 
@@ -192,6 +212,8 @@ class VisionServer:
             mesh, radii = self.get_eaten_apple_mesh()
         elif mesh_name in ['champagne_1', 'champagne_2']:
             mesh, radii = self.get_champagne_mesh()
+        elif mesh_name in ['beam_1', 'beam_2', 'beam_3']:
+            mesh, radii = self.get_beam_mesh()
         else:
             raise ValueError(f"Mesh {mesh_name} not found")
 
