@@ -45,7 +45,7 @@
 ```bash
 cd Action_contextualisation/
 bash start_docker.sh interactive
-catkin_make
+catkin_make -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 source devel/setup.bash
 export MISTRAL_API_KEY=YOUR_API_KEY  # Set API key after sourcing
 roslaunch planner experiment_1.launch
@@ -55,7 +55,7 @@ roslaunch planner experiment_1.launch
 ```bash
 cd Action_contextualisation/
 bash start_docker.sh interactive
-catkin_make
+catkin_make -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 source devel/setup.bash
 export MISTRAL_API_KEY=YOUR_API_KEY  # Set API key after sourcing
 roslaunch llm_simulator simulator.launch 
@@ -65,7 +65,7 @@ roslaunch llm_simulator simulator.launch
 ```bash
 cd Action_contextualisation/
 bash start_docker.sh connect
-catkin_make
+catkin_make -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 source devel/setup.bash
 rosrun primitive_library test_beam.py
 ```
