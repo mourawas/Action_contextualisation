@@ -1,6 +1,6 @@
 # LLM robotics with ROS integration
 
-## Mouhamad's work
+## Mouhamad's work, for construction
 
 ## Setup issues and fixes
 
@@ -131,9 +131,13 @@ Increased the friction of the fingertips (in `ros_ws/src/llm_simulator/src/descr
 - **LLM Integration**: Code built and configured with Mistral AI
 - **Working on**: Implementing controllers with physical parameters relevant to construction
 
+### Real robot status
+Now in robotics room with KUKA iiwa 14 instead of 7. Nothing changes except the name and the max torque.  
+Made a highlevel launch file that launches all necessary stuff.
+Sadly, even with the help of the engineers, the communication between the Allegro hand and the computer was not working, therefore only some demos of the arm moving were possible. 
 ---
 
-# Original work
+# Original work, for table-clearing
  
 ## Branches
 This project has 2 branches. The sim branch on which you are if you can read this should only be used to run all experiments in simulation. If you want to do some real robot stuff please switch to the realrobot branch.
