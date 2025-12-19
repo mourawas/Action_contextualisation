@@ -135,6 +135,7 @@ Increased the friction of the fingertips (in `ros_ws/src/llm_simulator/src/descr
 Now in robotics room with KUKA iiwa 14 instead of 7. Nothing changes except the name and the max torque.  
 Made a highlevel launch file that launches all necessary stuff.
 Sadly, even with the help of the engineers, the communication between the Allegro hand and the computer was not working, therefore only some demos of the arm moving were possible. 
+
 ---
 
 # Original work, for table-clearing
