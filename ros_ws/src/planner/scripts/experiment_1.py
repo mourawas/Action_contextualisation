@@ -24,24 +24,9 @@ scene_description = (
 # Labels that are considered objects which a robot may interact with
 objects = [
     "white table",
-    # "crumpled paper ball 1",
-    # "crumpled paper ball 2",
-    #"crumpled paper ball 3",
-    #"crumpled paper ball 4",
-    #"crumpled paper ball 5",
-    # "apple_1",
-    # "apple_2",
     "beam_1",
     "beam_2",
     "beam_3"
-    # "half-eaten apple",
-    # "empty glass 1",
-    #"empty glass 2",
-    # "glass with yellowish liquid",
-    # "large red trash can",
-    # "discarded plastic wrapper 1",
-    # "discarded plastic wrapper 2",
-    # "discarded plastic wrapper 3",
 ]
 
 # Labels that are considered locations
@@ -49,15 +34,6 @@ locations = [
     "left_side",
     "center", 
     "right_side",
-    # "next_to_apple_2",  # for relative positioning
-    # "large white sink",
-    # "faucet",
-    # "tiled wall",
-    # "closed door",
-    # "ajar door",
-    # "folded white chair",
-    # "clinical room"
-    # "storage shelf"
 ]
 
 # obj to clear is only used here and optional, can give construction task instead
