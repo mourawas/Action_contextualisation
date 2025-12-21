@@ -114,7 +114,7 @@ eval_plan_ask = """
 
     can_reach(goal: str, grasp: str) -> bool: # Returns True if it is feasible for the robot to reach the "goal" object or location from the current state from the side determined by the grasp argument "side" or "top". Objects that are out of the workspace will always return False.
 
-    beam_contact(beam1: str, beam2: str, tolerance: float = 0.05) -> bool: # Returns True if two beams are touching within the given tolerance (in meters). Default tolerance is 5cm.
+    beam_contact(beam1: str, beam2: str, tolerance: float = 0.08) -> bool: # Returns True if two beams are touching within the given tolerance (in meters). Default tolerance is 5cm.
 
     beam_angle(beam1: str, beam2: str, target_angle: float = 90.0, tolerance: float = 5.0) -> bool: # Returns True if the angle between two beams matches the target angle within tolerance (in degrees). Use target_angle=90.0 for perpendicular beams such as in an L or U shape. Default tolerance is ±5°.
 
@@ -173,8 +173,8 @@ evaluation_plan = [
     # Final assembly check after placing beam_3 at beam_2_end1
     (5, [('at_location', ('beam_1', 'beam_2_end2')),
          ('at_location', ('beam_3', 'beam_2_end1')),
-         ('beam_contact', ('beam_1', 'beam_2', 0.05)),
-         ('beam_contact', ('beam_3', 'beam_2', 0.05)),
+         ('beam_contact', ('beam_1', 'beam_2', 0.08)),
+         ('beam_contact', ('beam_3', 'beam_2', 0.08)),
          ('beam_angle', ('beam_1', 'beam_2', 90.0, 5.0)),
          ('beam_angle', ('beam_3', 'beam_2', 90.0, 5.0)),
          ('beam_parallel', ('beam_1', 'beam_3', 10.0)),

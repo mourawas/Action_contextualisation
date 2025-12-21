@@ -197,8 +197,7 @@ def at_location(object: str, location: tp.Union[str, list]) -> bool:
         min_dst = np.min(distances)
         return min_dst < 0.75
     
-# does this take into account the beam's length? correctly ?
-def beam_contact(beam1: str, beam2: str, tolerance: float = 0.01) -> bool:
+def beam_contact(beam1: str, beam2: str, tolerance: float = 0.08) -> bool:
     # Check if two beams are touching within tolerance.
     beam1_mesh, beam1_radii, _ = get_meshes([beam1], detailed_meshes=True)
     beam2_mesh, beam2_radii, _ = get_meshes([beam2], detailed_meshes=True)

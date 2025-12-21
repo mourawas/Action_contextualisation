@@ -184,7 +184,7 @@ class VisionServer:
         # Beam is modeled as elongated rectangular prism
         # Adjust BEAM_LENGTH based on your actual beams (in meters)
         BEAM_LENGTH = 0.30  # e.g., 30cm beams
-        BEAM_WIDTH = 0.03   # 3cm width
+        BEAM_WIDTH = 0.07   # 7cm width
         
         # Define points along beam length at center, with radii
         num_points = 10
