@@ -11,8 +11,8 @@ from mistralai import Mistral
 
 class GptChatBot:
     # Change
-    # API_KEY_ENV_VAR = "GPT_API_KEY" 
-    API_KEY_ENV_VAR = "MISTRAL_API_KEY"
+    API_KEY_ENV_VAR = "GPT_API_KEY" 
+    #API_KEY_ENV_VAR = "MISTRAL_API_KEY"
     # API_KEY_ENV_VAR = "LLAMA_API_KEY"
     
     DFLT_SYSTEM_MSG = "You are a robotics and machine learning expert. You reply using markdown format"
@@ -31,9 +31,8 @@ class GptChatBot:
                  auto_save_file_name: tp.Optional[str] = None) -> None:
 
         ## Change
-        # self.client = OpenAI(api_key=os.getenv(self.API_KEY_ENV_VAR)) # GPT 
-        # CHANGE 2: Updated client initialization
-        self.client = Mistral(api_key=os.getenv(self.API_KEY_ENV_VAR)) # Mistral
+        self.client = OpenAI(api_key=os.getenv(self.API_KEY_ENV_VAR)) # GPT 
+        # self.client = Mistral(api_key=os.getenv(self.API_KEY_ENV_VAR)) # Mistral
         # self.client = OpenAI(api_key=os.getenv(self.API_KEY_ENV_VAR),
                             #  base_url = "https://api.llama-api.com") # LLAMA3
 
@@ -61,9 +60,10 @@ class GptChatBot:
 
     def ask(self, input: str,
             ## Change
-            # model: str = "gpt-4-1106-preview", # GPT model
-            model: str = "open-mixtral-8x22b", # Mistral model
-            # model : str = "llama3-70b", # LLAMA
+            # model: str = "gpt-4-1106-preview",    # OLD GPT model
+            model: str = "gpt-4.1-mini",            # NEW GPT model
+            # model: str = "open-mixtral-8x22b",    # Mistral model
+            # model : str = "llama3-70b",           # LLAMA
 
             show_output: bool = False,
             force_cot: bool = False) -> str:
@@ -100,11 +100,14 @@ class GptChatBot:
 
         # GPT query... costs money
         tic = time.time()
-        ## GPT, LLAMA
+        ## OLD GPT, LLAMA
         # response = self.client.chat.completions.create(model=model, messages=msgs, max_tokens=128000) # Change to use correct api call method
+        
+        # new GPT
+        response = self.client.chat.completions.create(model=model, messages=msgs)
         ## Mistral
-        # CHANGE 5: Updated method name from chat() to chat.complete()
-        response = self.client.chat.complete(model=model, messages=msgs) # Change to use correct api call method
+        # response = self.client.chat.complete(model=model, messages=msgs) # Change to use correct api call method
+  
 
         toc = time.time()
         self._response_times.append(toc-tic)

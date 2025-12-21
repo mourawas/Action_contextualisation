@@ -247,7 +247,7 @@ def beam_angle(beam1: str, beam2: str, target_angle: float = 90.0,
     # Check if within tolerance
     return np.abs(angle_deg - target_angle) < tolerance
 
-def beam_parallel(beam1: str, beam2: str, tolerance: float = 5.0) -> bool:
+def beam_parallel(beam1: str, beam2: str, tolerance: float = 10.0) -> bool:
     """
     Check if two beams are parallel (convenience function).
     

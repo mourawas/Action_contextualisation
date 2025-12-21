@@ -140,6 +140,15 @@ def performance_logger(evaluation_log, evaluation_plan):
                 elif func == 'can_reach':
                     current_reason = f"{func}({args}) Robot is unable to reach {args[0]} |"
                     failure_reasons = failure_reasons + current_reason
+                elif func == 'beam_contact':
+                    current_reason = f"{func}({args[0]}, {args[1]}) Beams not in contact. Observed = {observed} Expected = {expected} |"
+                    failure_reasons = failure_reasons + current_reason
+                elif func == 'beam_angle':
+                    current_reason = f"{func}({args[0]}, {args[1]}, target_angle={args[2] if len(args) > 2 else 90.0}°) Beam angle incorrect. Observed = {observed} Expected = {expected} |"
+                    failure_reasons = failure_reasons + current_reason
+                elif func == 'beam_parallel':
+                    current_reason = f"{func}({args[0]}, {args[1]}) Beams not parallel. Observed = {observed} Expected = {expected} |"
+                    failure_reasons = failure_reasons + current_reason
 
 
             success_phrase = f"Action failed due to: {failure_reasons}."

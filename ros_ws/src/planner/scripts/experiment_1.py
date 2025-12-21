@@ -12,8 +12,8 @@ import os
 
 import numpy as np
 
-# Collision returns True vs ''
-# not detecting contact properly
+# ?not detecting contact properly?
+# we keep getting timeouts
 
 scene_description = (
     "The image shows an indoor scene with a white table at the center. "

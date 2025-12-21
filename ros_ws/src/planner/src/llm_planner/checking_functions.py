@@ -1,6 +1,8 @@
 from typing import Dict
 from typing import Tuple
 
+# useless deprecated file
+
 def can_grasp(object_to_grasp: str) -> bool:
     # if True:
     #     print("object_to_grasp")

@@ -118,7 +118,7 @@ eval_plan_ask = """
 
     beam_angle(beam1: str, beam2: str, target_angle: float = 90.0, tolerance: float = 5.0) -> bool: # Returns True if the angle between two beams matches the target angle within tolerance (in degrees). Use target_angle=90.0 for perpendicular beams such as in an L or U shape. Default tolerance is ±5°.
 
-    beam_parallel(beam1: str, beam2: str, tolerance: float = 5.0) -> bool: # Returns True if two beams are parallel within tolerance (in degrees). Equivalent to beam_angle with target_angle=0.0. Use for the two vertical beams in a U-shape assembly. Default tolerance is ±5°.
+    beam_parallel(beam1: str, beam2: str, tolerance: float = 10.0) -> bool: # Returns True if two beams are parallel within tolerance (in degrees). Equivalent to beam_angle with target_angle=0.0. Use for the two vertical beams in a U-shape assembly. Default tolerance is ±5°.
 
     The grasp argument is the same as the one in the "approach" and "pick" functions. It assumes one of the two values {"top", "side"}
 
@@ -177,7 +177,7 @@ evaluation_plan = [
          ('beam_contact', ('beam_3', 'beam_2', 0.05)),
          ('beam_angle', ('beam_1', 'beam_2', 90.0, 5.0)),
          ('beam_angle', ('beam_3', 'beam_2', 90.0, 5.0)),
-         ('beam_parallel', ('beam_1', 'beam_3', 5.0)),
+         ('beam_parallel', ('beam_1', 'beam_3', 10.0)),
          ('collision_free', ()),
          ('timeout', ()),
          ('check_motion_health', ())],

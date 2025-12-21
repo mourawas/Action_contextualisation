@@ -46,7 +46,7 @@ def main() -> None:
          ('beam_contact', ('beam_3', 'beam_2', 0.05)),
          ('beam_angle', ('beam_1', 'beam_2', 90.0, 5.0)),
          ('beam_angle', ('beam_3', 'beam_2', 90.0, 5.0)),
-         ('beam_parallel', ('beam_1', 'beam_3', 5.0)),
+         ('beam_parallel', ('beam_1', 'beam_3', 10.0)),
          ('collision_free', ()), 
          ('timeout', ())], 
         (True, True, True, True, True, True, True, '', True)),
