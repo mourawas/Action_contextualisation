@@ -149,6 +149,7 @@ RUN pip install mujoco \
                 scikit-image \
                 pyembree \
                 openai==1.12.0 \
+                httpx==0.27.2 \
                 pddl \
                 pyVHACD \
                 mistralai

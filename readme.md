@@ -37,7 +37,7 @@
 
 ### LLM Integration
 - **LLM framework**: Built the planner package with LLM code, adapted code to use Mistral AI in chatbots.py and adapted some prompts in prompt_generator.py
-- **API Key Setup**: For Mistral (Free limited API), get your key here https://admin.mistral.ai/organization/api-keys. After building and sourcing the workspace, set your Mistral API key with `export MISTRAL_API_KEY=YOUR_API_KEY`
+- **API Key Setup**: For Mistral (Free limited API), get your key here https://admin.mistral.ai/organization/api-keys. After building and sourcing the workspace, set your Mistral API key with `export MISTRAL_API_KEY=YOUR_API_KEY`. For Openai keys, `export GPT_API_KEY=YOUR_API_KEY`.
 
 ### Launch Commands
 

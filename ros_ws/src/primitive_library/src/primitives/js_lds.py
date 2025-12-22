@@ -69,7 +69,7 @@ class JS_LDS(ControllerBase):
     @cartesian_goal.setter
     def cartesian_goal(self, goal):
         # Goal is x, y, z, rx, ry, rz, rw (quaternions for rotation)
-        print("JS_LDS cartesian_goal setter called")
+        # print("JS_LDS cartesian_goal setter called")
         print(f"js_lds goal received: {goal}")
 
         if len(goal) == 7:
@@ -136,8 +136,7 @@ class JS_LDS(ControllerBase):
 
     def run_controller(self) -> None:
         
-        print("Running JS_LDS controller")
-        print(f"DEBUG run_controller: self._cartesian_goal = {self._cartesian_goal}")
+        print(f"Running JS_LDS controller, self._cartesian_goal = {self._cartesian_goal}")
 
         self.timeout = False
 
@@ -195,12 +194,13 @@ class JS_LDS(ControllerBase):
             current_hand = self.hand_position[:3, 3]
             goal = self._cartesian_goal[:3]
             dist = np.linalg.norm(current_hand - goal)
-            print(f"Start position: {current_hand}")
+            print(f"run_controllerStart position: {current_hand}")
             print(f"Goal position: {goal}")
-            print(f"Distance to goal: {dist:.6f} meters")
+            print(f"Distance to goal: {dist:.3f} meters")
 
             ee_rot = Rotation.from_matrix(self.hand_position[:3, :3])
             ee_rpy = ee_rot.as_euler('xyz', degrees=True)
+            print(f"EE position: {current_hand}")
             print(f"EE orientation (RPY): [{ee_rpy[0]:.2f}°, {ee_rpy[1]:.2f}°, {ee_rpy[2]:.2f}°]")
 
             if self.obj_grasped:
@@ -366,7 +366,7 @@ class JS_LDS(ControllerBase):
             print(f"  ee_rot_conv = {ee_rot_conv}")
             print(f"  ee_speed_conv = {ee_speed_conv}")
             print(f"  ee_omega_conv = {ee_omega_conv}")
-            print(f"  ee_trans_conv = {ee_trans_conv} (distance: {np.linalg.norm(ee_pos_trans - goal_trans):.6f})")
+            print(f"  ee_trans_conv = {ee_trans_conv} (distance: {np.linalg.norm(ee_pos_trans - goal_trans):.3f})")
 
         return goal_reached or has_converged or is_locked
 

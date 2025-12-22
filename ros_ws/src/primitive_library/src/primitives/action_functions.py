@@ -413,6 +413,7 @@ def approach(js_lds, # object_to_grasp: str,
             goal_rot = np.array([target_yaw])
 
     # Compute goal position in IIWA frame
+    print("Goal position:")
     print(obj_goal)
     obj_pos_in_iiwa = np.squeeze(np.linalg.inv(iiwa_base_pos) @ obj_goal)[:3]
     if goal_rot is not None:
@@ -449,12 +450,12 @@ def approach(js_lds, # object_to_grasp: str,
     js_lds.set_obstacles(meshes, radii, names)
     js_lds._obstacle_ik = obstacle_ik
     js_lds.cartesian_goal = obj_pos_in_iiwa
-    print(f"APPROACH DEBUG: _failed_ik={js_lds._failed_ik}, _in_collision={js_lds._in_collision}, mock_run={mock_run}")
-    print(f"APPROACH DEBUG: Will call run_controller? {not js_lds._failed_ik and not mock_run}")
+    print(f"Before running approach: _failed_ik={js_lds._failed_ik}, _in_collision={js_lds._in_collision}, mock_run={mock_run}")
+    print(f"\t Will call run_controller? {not js_lds._failed_ik and not mock_run}")
     if not js_lds._failed_ik and not mock_run:
         js_lds.run_controller()
     else:
-        print(f"APPROACH DEBUG: Skipping run_controller!")
+        print(f"\t Approach skipping run_controller")
 
 
 @robot_action
@@ -480,12 +481,11 @@ def pick(js_lds, object_to_grasp: str,
     if mock_run:
         return
 
-    after_approach_pos = js_lds.hand_position[:3, 3]
-    print(f"Position after approach: {after_approach_pos}")
-    print(f"In collision: {js_lds._in_collision}")
-    print(f"Obstacle collided: {js_lds._obstacle_collided}")
-    print(f"Failed IK: {js_lds._failed_ik}")
-    print(f"Timeout: {js_lds.timeout}")
+    # after_approach_pos = js_lds.hand_position[:3, 3]
+    print("After approach:")
+    # print(f"Position after approach: {after_approach_pos}")
+    print(f"Collision: {js_lds._in_collision}, Obstacle collided: {js_lds._obstacle_collided}, "
+          f"Failed IK: {js_lds._failed_ik}, Timeout: {js_lds.timeout}")
 
     if not js_lds._in_collision or js_lds._obstacle_collided == object_to_grasp:
         js_lds._in_collision = False
@@ -511,7 +511,7 @@ def pick(js_lds, object_to_grasp: str,
         except ValueError as e:
             if not (js_lds._in_collision and js_lds._obstacle_collided == object_to_grasp):
                 raise e
-        print(f"Position after grasp: {js_lds.hand_position[:3, 3]}")
+        #print(f"Position after grasp: {js_lds.hand_position[:3, 3]}")
 
     # Flyoff straight up to avoid some collisions
     if not js_lds._in_collision or js_lds._obstacle_collided == object_to_grasp:
@@ -525,7 +525,7 @@ def pick(js_lds, object_to_grasp: str,
         current_rotation = Rotation.from_matrix(current_hand_matrix[:3, :3])
         current_quat = current_rotation.as_quat()  # [qx, qy, qz, qw]
 
-        print(f"Hand position before flyoff: {current_hand_pos}")
+        #print(f"Hand position before flyoff: {current_hand_pos}")
 
         for fly_off_offset in [0.2]:
             hand_pos_goal = np.copy(current_hand_pos)
@@ -535,7 +535,7 @@ def pick(js_lds, object_to_grasp: str,
             full_goal = np.concatenate([hand_pos_goal, current_quat])
             
             js_lds.orientation_factor = .9
-            print(f"Hand position flyoff goal: {hand_pos_goal}")
+            #print(f"Hand position flyoff goal: {hand_pos_goal}")
             js_lds.cartesian_goal = full_goal  # Pass 7-element goal
             
             if not js_lds._failed_ik and not js_lds._in_collision:
@@ -589,10 +589,10 @@ def place(js_lds, object_to_grasp: tp.Union[str, list],
             
             # Convert to list for placement
             object_to_grasp = end_pos.tolist()
-            print(f"Placing at {beam_name}_end{end_num}: {object_to_grasp}")
+            print(f"Placing {object_to_grasp} at {beam_name}_end{end_num}")
 
     for vertical_offset in [0.2]:
-        print(f"Trying place with vertical offset: {vertical_offset}")
+        print(f"Place with vertical offset: {vertical_offset}")
         if js_lds._in_collision:
             print("Place entered break")
             break
