@@ -10,17 +10,17 @@ def main() -> None:
     
     # Define task plan for U-shape assembly
     task_plan = [
-        (0, 'approach', ('beam_1', 0.8, 0.05, 'top')),
-        (1, 'pick', ('beam_1', 0.8, 0.001, 'top')),
-        (2, 'place', ('beam_2_end2', 0.0, 0.4, 0.02, 0.0, True)),
-        (3, 'approach', ('beam_3', 0.8, 0.05, 'side')),
-        (4, 'pick', ('beam_3', 0.8, 0.001, 'top')),
-        (5, 'place', ('beam_2_end1', 0.0, 0.4, 0.02, 0.0, True)),
+        (0, 'approach', ('beam_3', 0.8, 0.05, 'side')),
+        (1, 'pick', ('beam_3', 0.8, 0.001, 'side')),
+        (2, 'place', ('beam_1_end1', 0.4, 0.02, 0.0, True)),
+        (3, 'approach', ('beam_2', 0.8, 0.05, 'top')),
+        (4, 'pick', ('beam_2', 0.8, 0.001, 'top')),
+        (5, 'place', ('beam_1_end2', 0.4, 0.02, 0.0, True)),
     ]
     
     # Define evaluation plan
     evaluation_plan = [
-    (0, [('can_grasp', ('beam_1', 'top')), 
+    (0, [('can_grasp', ('beam_3', 'side')), 
          ('collision_free', ()), 
          ('timeout', ())], 
         (True, '', True)),
@@ -28,11 +28,11 @@ def main() -> None:
          ('collision_free', ()), 
          ('timeout', ())], 
         (True, '', True)),
-    (2, [('at_location', ('beam_1', 'beam_2_end2')), 
+    (2, [('at_location', ('beam_3', 'beam_1_end1')), 
          ('collision_free', ()), 
          ('timeout', ())], 
         (True, '', True)),
-    (3, [('can_grasp', ('beam_3', 'top')), 
+    (3, [('can_grasp', ('beam_2', 'top')), 
          ('collision_free', ()), 
          ('timeout', ())], 
         (True, '', True)),
@@ -40,16 +40,15 @@ def main() -> None:
          ('collision_free', ()), 
          ('timeout', ())], 
         (True, '', True)),
-    (5, [('at_location', ('beam_1', 'beam_2_end2')),
-         ('at_location', ('beam_3', 'beam_2_end1')),
-         ('beam_contact', ('beam_1', 'beam_2', 0.08)),
-         ('beam_contact', ('beam_3', 'beam_2', 0.08)),
-         ('beam_angle', ('beam_1', 'beam_2', 90.0, 5.0)),
-         ('beam_angle', ('beam_3', 'beam_2', 90.0, 5.0)),
-         ('beam_parallel', ('beam_1', 'beam_3', 10.0)),
+    (5, [('at_location', ('beam_2', 'beam_1_end2')),
+         ('beam_contact', ('beam_2', 'beam_1', 0.08)),
+         ('beam_contact', ('beam_3', 'beam_1', 0.08)),
+         ('beam_angle', ('beam_2', 'beam_1', 90.0, 5.0)),
+         ('beam_angle', ('beam_3', 'beam_1', 90.0, 5.0)),
+         ('beam_parallel', ('beam_2', 'beam_3', 10.0)),
          ('collision_free', ()), 
          ('timeout', ())], 
-        (True, True, True, True, True, True, True, '', True)),
+        (True, True, True, True, True, True, '', True)),
     ]
     
     print("\n" + "="*60)

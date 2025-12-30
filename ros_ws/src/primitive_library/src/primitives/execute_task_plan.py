@@ -222,16 +222,20 @@ class TaskPlanExecutor:
 
             print(f"Predicate_check {evaluation_id}:")
             predicate_result = []
-
             predicate_ok = True
             predicate_names = [pred_name for pred_name, _ in evaluation_predicates]
-            for result, expected, predicate in zip(predicate_results, evaluation_expected, predicate_names):
+
+            # Fix expected values for collision_free BEFORE the loop
+            corrected_expected = list(evaluation_expected)
+            for i, predicate in enumerate(predicate_names):
+                if predicate == 'collision_free' and corrected_expected[i] == True:
+                    corrected_expected[i] = ""
+            corrected_expected = tuple(corrected_expected)
+
+            for result, expected, predicate in zip(predicate_results, corrected_expected, predicate_names):
                 # Revert obstacle name for LLM to understand output
                 if predicate == 'collision_free':
                     result = self.inv_obj_matching_dict[result]
-                    # Fix an issue that happens sometimes
-                    if expected == True:
-                        expected = ""
 
                 predicate_result.append(result)
                 if result == expected:
