@@ -67,31 +67,3 @@ catkin_make -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 source devel/setup.bash
 rosrun primitive_library test_beam.py
 ```
-
-### Modifying Objects on Table
-
-Edit `ros_ws/src/llm_simulator/src/description/llm_objects/llm_object_bodies.xml`:
-
-Comment out objects:
-```xml
-<!-- <body name="apple" pos="0.5 -0.45 1.07" quat="1 1 0 0">
-    <inertial pos="-0.0016480202957852835 -0.002256664593323946 -0.0007355532922551801" mass="0.002" fullinertia="0.00020654858167238498 0.0002167076279555137 0.000209544910164081 1.011183250711457e-06 -6.115403648378643e-07 1.948864069749578e-06" />
-    <geom mesh="apple" class="obj" type="mesh"/>
-    <geom mesh="apple" material="apple"  class="visual" type="mesh"/>
-    <freejoint/>
-</body> -->
-```
-
-Change object positions:
-```xml
-<body name="champagne_2" pos="0.6 -0.3 1.015">
-```
-- x: forward/backward
-- y: left/right  
-- z: height (1.07 is table height)
-
-Then update dictionaries in `llm_common/utils.py`:
-- `SIM_OBJECT_LIST`
-- `ROUND_OBJECTS`
-
-Rebuild and restart after changes.
