@@ -97,21 +97,6 @@ def holding() -> bool:
 
 # Modify to handle positions directly
 def at_location(object: str, location: tp.Union[str, list]) -> bool:
-    """
-    Check if object is at location.
-    
-    Args:
-        object: Name of the object to check
-        location: Can be:
-            - "robot": Check if object is held by robot
-            - [x, y, z]: 3D coordinates
-            - "beam_X_endY": Beam end location (e.g., "beam_2_end1", "beam_2_end2")
-            - table position string (e.g., "left_side", "center", "right_side")
-            - object name: Check proximity to another object
-    
-    Returns:
-        True if object is at the specified location
-    """
     from primitives.action_functions import js_lds
     from primitives.execute_task_plan import TaskPlanExecutor
     from scipy.spatial.transform import Rotation
@@ -131,7 +116,7 @@ def at_location(object: str, location: tp.Union[str, list]) -> bool:
         xy_distances = np.linalg.norm(obj_mesh[:, :2] - target_pos[:2], axis=1)
         min_dst = np.min(xy_distances - obj_radii)
         
-        return min_dst < 0.05  # 5cm tolerance in horizontal plane
+        return min_dst < 0.02  # bigger tolerances are more fun
 
     # NEW: Parse beam end locations (e.g., "beam_2_end1", "beam_2_end2")
     if isinstance(location, str) and '_end' in location:
@@ -168,7 +153,7 @@ def at_location(object: str, location: tp.Union[str, list]) -> bool:
             xy_distances = np.linalg.norm(obj_mesh[:, :2] - target_pos[:2], axis=1)
             min_dst = np.min(xy_distances - obj_radii)
             
-            return min_dst < 0.08  # 8cm tolerance in horizontal plane
+            return min_dst < 0.02  # bigger tolerances are more fun
 
     # Check if location is a table position
     tpe = TaskPlanExecutor()
@@ -183,9 +168,9 @@ def at_location(object: str, location: tp.Union[str, list]) -> bool:
         distances = np.linalg.norm(obj_mesh - np.array(table_pos), axis=1)
         min_dst = np.min(distances - obj_radii)
         
-        return min_dst < 0.15  # Within 15cm of table position
+        return min_dst < 0.02  # bigger tolerances are more fun
     
-    else:
+    else: # from original work, unused
         # Existing code for object-to-object distance
         obj_mesh, obj_radii, _ = get_meshes([object], detailed_meshes=True)
         location_mesh, location_radii, _ = get_meshes([location], detailed_meshes=True)
@@ -207,10 +192,10 @@ def beam_contact(beam1: str, beam2: str, tolerance: float = 0.08) -> bool:
     distances = distances - beam2_radii
     
     min_dst = np.min(distances)
-    return min_dst < tolerance  # 1cm default
+    return min_dst < tolerance  # 8CM IS ACTUALLY 1CM BECAUSE OF THE SPHERES
 
 def beam_angle(beam1: str, beam2: str, target_angle: float = 90.0, 
-               tolerance: float = 10.0) -> bool:
+               tolerance: float = 5.0) -> bool:
     from scipy.spatial.transform import Rotation
     
     # Get beam orientations from vision service
@@ -246,36 +231,6 @@ def beam_angle(beam1: str, beam2: str, target_angle: float = 90.0,
     # Check if within tolerance
     return np.abs(angle_deg - target_angle) < tolerance
 
-def beam_parallel(beam1: str, beam2: str, tolerance: float = 10.0) -> bool:
-    """
-    Check if two beams are parallel (convenience function).
-    
-    Args:
-        beam1: Name of first beam
-        beam2: Name of second beam
-        tolerance: Acceptable deviation in degrees (default ±10°)
-    
-    Returns:
-        True if beams are parallel within tolerance
-        
-    Example:
-        # U-shape: check if two vertical beams are parallel
-        beam_parallel("beam_left", "beam_right", tolerance=10.0)
-    """
+def beam_parallel(beam1: str, beam2: str, tolerance: float = 5.0) -> bool:
+
     return beam_angle(beam1, beam2, target_angle=0.0, tolerance=tolerance)
-
-    # # TODO: Not super accurate description without radius
-    # else:
-
-    #     # Get meshes
-    #     obj_mesh, obj_radii, _ = get_meshes([object], detailed_meshes=True)
-    #     location_mesh, location_radii, _ = get_meshes([location], detailed_meshes=True)
-    #     distances = distance.cdist(obj_mesh, location_mesh)
-
-    #     # Adjust for radii
-    #     distances = (distances.T - obj_radii).T
-    #     distances = distances - location_radii
-
-    #     min_dst = np.min(distances)
-    #     return min_dst < 0.75 # TODO: This extension is not super good but ok for now
-    #     # return min_dst < 0.5 # TODO: This extension is not super good but ok for now

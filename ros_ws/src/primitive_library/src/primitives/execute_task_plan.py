@@ -20,11 +20,7 @@ class TaskPlanExecutor:
                                        'place': place,
                                        'pick': pick,
                                        'drop': drop,
-                                       'throw': throw}
-
-        # Do we add positions as objects that we will have to define in objects xml files
-        # and add them to sim_objects_list ?
-        # or do we modify execute_task_plan to handle positions ?
+                                       'throw': throw} # throw and drop unused
 
         self.object_matching_dict = {
         #                              'crumpled paper ball 1': 'paper_ball_1',

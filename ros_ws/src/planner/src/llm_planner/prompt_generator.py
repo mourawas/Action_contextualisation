@@ -91,15 +91,13 @@ def task_plan_gen(task: str, prompt0: str, objects: tp.List[str], locations: tp.
 
     The "vertical" argument for the 'place' function is a boolean that indicates whether the robot should place the beam standing up in a vertical orientation (True) or laying down in a horizontal orientation (False). If vertical=True, the robot will orient the beam such that its main axis is aligned with the vertical axis of the world frame during placement. If vertical=False, the robot will orient the beam such that its main axis is aligned with the horizontal plane of the world frame during placement.
 
-    The "placement_angle" argument for the 'place' function defines the yaw angle in degrees at which the robot should place the beam down. The yaw describes an orientation within the horizontal plane, and is clipped between -75 and 75 degrees, with zero being straight ahead, and positive values are counter-clockwise when viewed from above. If vertical=True, this argument should be ignored.
+    The "placement_angle" argument for the 'place' function defines the yaw angle in degrees at which the robot should place the beam down. The yaw describes an orientation within the horizontal plane, and is clipped between -75 and 75 degrees, with zero being straight ahead, and positive values are counter-clockwise when viewed from above.
 
     L (with 2 beams) or U-shape (with 3 beams) assembly tasks can be requested. To do so, one beam should be laying flat on the table and serve as a base for the other beam(s) to be placed vertically (standing up) on top of the base beam, on its ends. The base beam could already be laying down without needing any action to it, or it could be placed down by the robot as part of the task.
     In the "place" function:
     - If you want to place down the base beam: use location='left_side', 'center', or 'right_side'
     - For beam assembly/stacking: use location='beam_X_end1' or 'beam_X_end2' where X is the beam number.
     Example: place('beam_1_end1', ...) places the held beam at end 1 of beam_1
-
-    end2 is the left end, end1 is the right end. Pick and place beams from left to right for efficient motion (left beam to end2, right beam to end1).
 
     The actions described in these functions are the only motions known to the robot. The task for the robot is: "{task}". First explain how you are going to solve the task, why each step is executed and how it makes sense to a human that you do it this way.
 
@@ -142,11 +140,11 @@ def eval_plan_gen():
 
     can_reach(goal: str, grasp: str) -> bool: # Returns True if it is feasible for the robot to reach the "goal" object or location from the current state from the side determined by the grasp argument "side" or "top". Objects that are out of the workspace will always return False.
 
-    beam_contact(beam1: str, beam2: str, tolerance: float = 0.08) -> bool: # Returns True if two beams are touching within the given tolerance (in meters). Default tolerance is 5cm.
+    beam_contact(beam1: str, beam2: str, tolerance: float = 0.08) -> bool: # Returns True if two beams are touching within the given tolerance (in meters).
 
     beam_angle(beam1: str, beam2: str, target_angle: float = 90.0, tolerance: float = 5.0) -> bool: # Returns True if the angle between two beams matches the target angle within tolerance (in degrees). Use target_angle=90.0 for perpendicular beams such as in an L or U shape. Default tolerance is ±5°.
 
-    beam_parallel(beam1: str, beam2: str, tolerance: float = 10.0) -> bool: # Returns True if two beams are parallel within tolerance (in degrees). Equivalent to beam_angle with target_angle=0.0. Use for the two vertical beams in a U-shape assembly. Default tolerance is ±5°.
+    beam_parallel(beam1: str, beam2: str, tolerance: float = 5.0) -> bool: # Returns True if two beams are parallel within tolerance (in degrees). Equivalent to beam_angle with target_angle=0.0. Use for the two vertical beams in a U-shape assembly. Default tolerance is ±5°.
 
     The grasp argument is the same as the one in the "approach" and "pick" functions. It assumes one of the two values {"top", "side"}
 

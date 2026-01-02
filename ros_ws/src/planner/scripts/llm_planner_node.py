@@ -48,8 +48,6 @@ action_plan_ask = """
     - For beam assembly/stacking: use location='beam_X_end1' or 'beam_X_end2' where X is the beam number.
     Example: place('beam_1_end1', ...) places the held beam at end 1 of beam_1
 
-    end2 is the left end, end1 is the right end. Pick and place beams from left to right for efficient motion (left beam to end2, right beam to end1). 
-
     The actions described in these functions are the only motions known to the robot. The task for the robot is: "{task}". First explain how you are going to solve the task, why each step is executed and how it makes sense to a human that you do it this way.
 
     Then, using the actions functions, 'objects' and 'locations', define a task plan as a Python list of tuples (named 'task_plan'), for the robot to follow. The action_functions from the task_plan will be directly run on the robot. Each element of the list is a tuple of the form (action number, action function name string, (arguments)). For each action, use object and task specific arguments.
@@ -114,11 +112,11 @@ eval_plan_ask = """
 
     can_reach(goal: str, grasp: str) -> bool: # Returns True if it is feasible for the robot to reach the "goal" object or location from the current state from the side determined by the grasp argument "side" or "top". Objects that are out of the workspace will always return False.
 
-    beam_contact(beam1: str, beam2: str, tolerance: float = 0.08) -> bool: # Returns True if two beams are touching within the given tolerance (in meters). Default tolerance is 5cm.
+    beam_contact(beam1: str, beam2: str, tolerance: float = 0.08) -> bool: # Returns True if two beams are touching within the given tolerance (in meters).
 
     beam_angle(beam1: str, beam2: str, target_angle: float = 90.0, tolerance: float = 5.0) -> bool: # Returns True if the angle between two beams matches the target angle within tolerance (in degrees). Use target_angle=90.0 for perpendicular beams such as in an L or U shape. Default tolerance is ±5°.
 
-    beam_parallel(beam1: str, beam2: str, tolerance: float = 10.0) -> bool: # Returns True if two beams are parallel within tolerance (in degrees). Equivalent to beam_angle with target_angle=0.0. Use for the two vertical beams in a U-shape assembly. Default tolerance is ±5°.
+    beam_parallel(beam1: str, beam2: str, tolerance: float = 5.0) -> bool: # Returns True if two beams are parallel within tolerance (in degrees). Equivalent to beam_angle with target_angle=0.0. Use for the two vertical beams in a U-shape assembly. Default tolerance is ±5°.
 
     The grasp argument is the same as the one in the "approach" and "pick" functions. It assumes one of the two values {"top", "side"}
 
@@ -146,6 +144,7 @@ eval_plan_ask = """
     """
 
 # eval plan answer as tuple instead of dict
+# used only when warm_start=True, to SKIP the llm ->
 eval_plan_answer = """
 ```python
 # Example evaluation plan for a U-shape beam assembly task
@@ -205,20 +204,6 @@ objects = [
     "beam_1",
     "beam_2",
     "beam_3"
-    # "crumpled paper ball 1",
-    # "crumpled paper ball 2",
-    #"crumpled paper ball 3",
-    #"crumpled paper ball 4",
-    #"crumpled paper ball 5",
-    # "whole apple",
-    # "half-eaten apple",
-    # "empty glass 1",
-    # #"empty glass 2",
-    # "glass with yellowish liquid",
-    # "large red trash can",
-    # "discarded plastic wrapper 1",
-    # "discarded plastic wrapper 2",
-    # "discarded plastic wrapper 3",
 ]
 
 # Labels that are considered locations
