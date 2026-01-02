@@ -132,7 +132,7 @@ def performance_logger(evaluation_log, evaluation_plan):
                     current_reason = f"{func}() Collision encountered with {observed} |"
                     failure_reasons = failure_reasons + current_reason
                 elif func == 'timeout':
-                    current_reason = f"{func}() Action takes too long |"
+                    current_reason = f"{func}() Action timed out, execution too slow |"
                     failure_reasons = failure_reasons + current_reason
                 elif func == 'check_motion_health':
                     current_reason = f"{func}() Unsafe motion for robot |"

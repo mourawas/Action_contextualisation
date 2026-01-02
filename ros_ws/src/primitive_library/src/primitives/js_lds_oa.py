@@ -10,6 +10,10 @@ from llm_common import utils as llmu
 
 import torch
 
+# for logging
+import pickle
+import os
+
 
 class JS_LDS_OA(JS_LDS_ORIENTED):
 
@@ -40,6 +44,10 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
         self._max_prox = -np.inf
         self._condition_numbers = []
         self._time_arr = []
+        # for logging
+        self._trajectory_log = []
+        self._logging_enabled = False
+        self._log_filename = None
 
     def reset_collosion_proximity(self):
         self.collision_proximity = self.COLLISION_PROXIMITY
@@ -61,12 +69,42 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
         self._obstacles_radii = np.concatenate([self._obstacles_radii, obstacle_radius])
         self._obstacles_names += obstacle_name
 
+    def start_logging(self, log_name="trajectory"):
+        """Enable trajectory logging"""
+        self._logging_enabled = True
+        self._trajectory_log = []
+        self._log_filename = f"{log_name}_no_obstacle.pkl"
+        print(f"Logging enabled: {self._log_filename}")
+    
+    def save_log(self):
+        """Save trajectory log"""
+        if not self._logging_enabled or not self._trajectory_log:
+            return None
+        
+        log_dir = "/tmp/js_lds_logs"
+        os.makedirs(log_dir, exist_ok=True)
+        filepath = os.path.join(log_dir, self._log_filename)
+        
+        with open(filepath, 'wb') as f:
+            pickle.dump(self._trajectory_log, f)
+        
+        print(f"Log saved: {filepath}")
+        self._logging_enabled = False
+        return filepath
+
     def _compute_desired_qd(self, q: np.ndarray, desired_qd: np.ndarray) -> tp.Tuple[np.ndarray, bool]:
 
         # Modulate ds for obstacle avoidance
         if self._obstacles is not None and len(self._obstacles) > 0:
             (self._in_collision, self._obstacle_collided, desired_qd) = \
                 self._modulate_ds_with_obstacle(q, desired_qd)
+            # Log data
+            if self._logging_enabled:
+                self._trajectory_log.append({
+                    'q': q.copy(),
+                    'desired_qd': desired_qd.copy(),
+                    'obstacle_modulation': True if self._obstacles is not None else False
+                })
             if self._in_collision:
                 print(f"Collision: torques to 0. Collision with '{self._obstacle_collided}'")
                 self._send_iiwa_torque(np.zeros(self._n_rbt))
