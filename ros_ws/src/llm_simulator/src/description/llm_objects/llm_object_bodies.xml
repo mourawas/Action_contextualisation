@@ -121,8 +121,8 @@
         <freejoint/>
     </body>
 
-    <!-- beam3 is aligned with Z -->
-    <body name="beam_3" pos="0.6 -0.3 1.20" quat="0.707 0 0.707 0">
+    <!-- beam3 is aligned with Z, rotated 45° around Z -->
+    <body name="beam_3" pos="0.6 -0.3 1.20" quat="0.653 0.271 0.653 -0.271">
         <inertial mass="0.001" pos="0 0 0" fullinertia="0.00001 0.00001 0.00001 0 0 0" />
         <geom mesh="beam" class="obj" type="mesh"/>
         <geom mesh="beam" material="beam" class="visual" type="mesh"/>

@@ -12,16 +12,15 @@ __pycache__/
 *.log
 log/
 
-
-# Imaged and ressources
+# Images and ressources
 *.jpg
 *.mp4
 *.npy
+*.png
 
 # Mujoco
 MUJOCO_LOG.TXT
 **/kinematics/*.txt
-
 
 # ROS
 devel/
@@ -32,3 +31,4 @@ msg_gen/
 srv_gen/
 
 docker-images/
+ros_ws/src/primitive_library/scripts/plot_trajectories.py

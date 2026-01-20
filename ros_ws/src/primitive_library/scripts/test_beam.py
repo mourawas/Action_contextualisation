@@ -8,51 +8,76 @@ def main() -> None:
     print("Starting main")
     rospy.init_node("test_beam")
     print("Node initialized")
-    
-    # object_to_grasp = "beam_1"
 
+    # this kinda works
     # print("Approach")
-    # approach(object_to_grasp=object_to_grasp,
-    #          speed=0.7,
-    #          grasp="top", 
-    #          obstacle_clearance=0.005)
-    # print(collision_free())
+    # approach(object_to_grasp="beam_3",
+    #          speed=0.8,
+    #          grasp="side", 
+    #          obstacle_clearance=0.05)
     
     # print("Pick")
-    # pick(object_to_grasp=object_to_grasp,
-    #      speed=0.8, obstacle_clearance=0.001, grasp_orientation="top")
+    # pick(object_to_grasp="beam_3",
+    #      speed=0.8, obstacle_clearance=0.001, grasp_orientation="side")
     # time.sleep(4)
-    # print(collision_free())
     # holding()
     
     # print("Place")
-    # place(object_to_grasp=[0.5, 0.3, 1.08], # +y goes to the left of the robot, +x goes away from the robot starts at 0.4
-    #       speed=0.4, obstacle_clearance=0.02, orientation=0.0, placement_angle=None, vertical=True)
-    # print(collision_free())
+    # place(object_to_grasp=[0.63, -0.15, 1.07],
+    #       speed=0.4, obstacle_clearance=0.02, placement_angle=0.0, vertical=True)
 
-    # next beam
-    object_to_grasp = "beam_1"
+
+    # print("Approach")
+    # approach(object_to_grasp="beam_2",
+    #          speed=0.8,
+    #          grasp="top", 
+    #          obstacle_clearance=0.05)
+
+    # print("Pick")
+    # pick(object_to_grasp="beam_2",
+    #      speed=0.8, obstacle_clearance=0.001, grasp_orientation="top")
+    # time.sleep(4)
+    # holding()
+
+    # print("Place")
+    # place(object_to_grasp=[0.62, 0.07, 1.07],
+    #       speed=0.4, obstacle_clearance=0.005, placement_angle=0.0, vertical=True)
+
+    #other way around
 
     print("Approach")
-    approach(object_to_grasp=object_to_grasp,
+    approach(object_to_grasp="beam_2",
              speed=0.8,
              grasp="top", 
              obstacle_clearance=0.05)
-    print(collision_free())
 
     print("Pick")
-    pick(object_to_grasp=object_to_grasp,
+    pick(object_to_grasp="beam_2",
          speed=0.8, obstacle_clearance=0.001, grasp_orientation="top")
     time.sleep(4)
-    print(collision_free())
     holding()
 
     print("Place")
-    place(object_to_grasp="beam_2_end2",
-          speed=0.4, obstacle_clearance=0.02, orientation=0.0, placement_angle=None, vertical=True)
-    print(collision_free())
+    place(object_to_grasp=[0.62, 0.08, 1.07],
+          speed=0.4, obstacle_clearance=0.005, placement_angle=0.0, vertical=True)
 
-    # try the priginal way of grasping
+
+    print("Approach")
+    approach(object_to_grasp="beam_3",
+             speed=0.8,
+             grasp="side", 
+             obstacle_clearance=0.05)
+    
+    print("Pick")
+    pick(object_to_grasp="beam_3",
+         speed=0.8, obstacle_clearance=0.001, grasp_orientation="side")
+    time.sleep(4)
+    holding()
+    
+    print("Place")
+    place(object_to_grasp=[0.63, -0.15, 1.07],
+          speed=0.4, obstacle_clearance=0.02, placement_angle=0.0, vertical=True)
+
     rospy.signal_shutdown("Beam test finished")
 
 
