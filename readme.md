@@ -1,69 +1,112 @@
-# LLM robotics with ROS integration
+# Beam Assembly with LLM Robot Control
 
-## Setup issues and fixes
+Transparent LLM-based planning framework for robotic beam assembly. Achieves 85% success rate on L-shape and U-shape assembly tasks through iterative refinement in simulation.
 
-### Docker Build Issues
-- **ROS GPG key expiration**: Added key update commands to Dockerfile because ROS signing keys had expired in the base image
-- **KUKA FRI private repository**: Commented out KUKA FRI installation since the repository requires private access and anyways isn't needed for simulation
+## System Overview
 
-### Container management  
-- **Missing AICA docker tools**: Installed AICA's optional custom Docker tools from their GitHub repository since they're not available via pip
+Uses LLMs to generate task plans for a KUKA iiwa14 arm with Allegro hand. The system combines:
+- LLM-based task and evaluation planning with physically grounded, interpretable action primitives
+- Dynamical systems control with collision avoidance
+- Simulation-based parameter tuning and replanning
+- MuJoCo physics simulation integrated with ROS
 
-### GPU Support
-- **NVIDIA Container Toolkit missing**: Installed NVIDIA Container Toolkit following official docs to enable GPU acceleration for MuJoCo
+## ROS Packages
 
-### ROS Workspace Build
-- **Missing Gazebo packages**: Installed needed Gazebo and ROS packages inside container since they were commented out in Dockerfile
-- **KUKA FRI dependency in build**: Deleted iiwa_driver, iiwa_moveit and iiwa_gazebo in the dockerfile because they need the KUKA FRI stuff from the private repo. To revert, remove the added lines in dockerfile and build again
+- **llm_common**: Shared utilities and base classes for LLM integration
+- **llm_simulator**: MuJoCo-based simulation environment and services
+- **primitive_library**: Action primitives (approach, pick, place) with physical parameters
+- **planner**: LLM-based task planner with iterative refinement
+- **vision_server**: Vision services for real robot deployment with OptiTrack
 
-### KUKA FRI Installation (Real Robot Support)
-- **KUKA FRI from public repo**: Installed kuka_fri from public GitHub repo (https://github.com/mourawas/kuka_fri) instead of private epfl-lasa repo
-- **Real robot packages restored**: Kept iiwa_driver and iiwa_moveit for real robot control, only removed iiwa_gazebo (not needed - using MuJoCo for simulation)
-- **waf permissions**: Added `chmod +x waf` before building kuka_fri to fix permission issues
+## Prerequisites
 
-### CMake Compatibility Issues
-- **CMake upgraded to 3.20+**: Required for RBDyn, but broke compatibility with older packages
-- **CMake policy workaround**: Added `-DCMAKE_POLICY_VERSION_MINIMUM=3.5` flag to:
-  - mc_rbdyn_urdf
-  - corrade
-  - robot_controllers
-  - catkin_make (workspace build)
-- **Building workspace**: Must use `catkin_make -DCMAKE_POLICY_VERSION_MINIMUM=3.5` instead of plain `catkin_make`
+- ROS (tested with ROS Noetic)
+- Docker
+- Python 3
+- MuJoCo physics engine
+- LLM API access (GPT-4.1-mini recommended)
 
-### Python Package Versions
-- **OpenAI compatibility**: Pinned `openai==1.12.0` for Python 3.8 compatibility (newer versions require jiter>=0.10.0 which doesn't exist for Python 3.8)
+## Installation
 
-### LLM Integration
-- **LLM framework**: Built the planner package with LLM code, adapted code to use Mistral AI in chatbots.py and adapted some prompts in prompt_generator.py
-- **API Key Setup**: For Mistral (Free limited API), get your key here https://admin.mistral.ai/organization/api-keys. After building and sourcing the workspace, set your Mistral API key with `export MISTRAL_API_KEY=YOUR_API_KEY`. For Openai keys, `export GPT_API_KEY=YOUR_API_KEY`.
-
-### Launch Commands
-
-#### Simulation with the LLM with a launch file:
+1. Clone the repository
+2. Build the Docker image:
 ```bash
-cd Action_contextualisation/
-bash start_docker.sh interactive
-catkin_make -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+./start_docker.sh build
+```
+
+3. Set up your LLM API key:
+```bash
+export GPT_API_KEY=your_api_key_here
+```
+
+Note: While Mistral (free) is supported, a smarter (paid) model such as GPT-4.1-mini is strongly recommended.
+
+## Usage
+
+1. Start the Docker container:
+```bash
+./start_docker.sh interactive
+```
+
+2. Inside the container, source the workspace:
+```bash
 source devel/setup.bash
-export MISTRAL_API_KEY=YOUR_API_KEY  # Set API key after sourcing
+```
+
+3. Run the full pipeline:
+```bash
 roslaunch planner experiment_1.launch
 ```
 
-#### If you want to run a specific script, in a first terminal:
-```bash
-cd Action_contextualisation/
-bash start_docker.sh interactive
-catkin_make -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-source devel/setup.bash
-export MISTRAL_API_KEY=YOUR_API_KEY  # Set API key after sourcing
-roslaunch llm_simulator simulator.launch 
+This launches:
+- MuJoCo simulator with KUKA iiwa14 and Allegro hand
+- Vision server for object pose tracking
+- LLM planner with iterative refinement
+- Action primitives library
+
+## Task Examples
+
+The specific task given to the robot should be changed in ```ros_ws/src/planner/scripts/experiment_1.py```
+
+**L-Shape Assembly**: Places one beam vertically at the end of a horizontal base beam
+
+**U-Shape Assembly**: Places two beams vertically at both ends of a horizontal base beam
+
+## Action Primitives
+
+All primitives use physically meaningful parameters:
+
+- **approach()**: Move to beam vicinity
+- **pick()**: Grasp and lift up the beam
+- **place()**: Place beam at target location with target orientation
+
+## Performance
+
+Experimental results (20 runs, GPT-4.1-mini):
+- Overall success rate: 85%
+- L-shape: 90% (9/10)
+- U-shape: 80% (8/10)
+
+Primitive success rates:
+- approach: 98.8%
+- pick: 92.1%
+- place: 84.8%
+
+## Project Structure
+
+```
+ros_ws/src/
+├── llm_common/          # Shared LLM utilities
+├── llm_simulator/       # MuJoCo simulation environment
+├── primitive_library/   # Action primitives implementation
+├── planner/            # LLM-based task planner
+└── vision_server/      # Vision services for real robot
 ```
 
-#### And in a second terminal:
-```bash
-cd Action_contextualisation/
-bash start_docker.sh connect
-catkin_make -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-source devel/setup.bash
-rosrun primitive_library test_beam.py
-```
+## Related Work
+
+This work is a fork of [Action_contextualisation](https://github.com/epfl-lasa/Action_contextualisation) from Sthithpragya Gupta (LASA EPFL) who's work focused on table clearing using LLMs (Gupta & al. "Action Contextualization: Adaptive Task Planning and Action Tuning using Large Language Models", in IEEE Robotics and Automation Letters, 2024), in this work extended to construction tasks.
+
+## Author
+
+Mouhamad Rawas, EPFL Robotics MSc student.
