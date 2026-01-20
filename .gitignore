@@ -17,6 +17,7 @@ log/
 *.mp4
 *.npy
 *.png
+*.save
 
 # Mujoco
 MUJOCO_LOG.TXT
@@ -32,3 +33,4 @@ srv_gen/
 
 docker-images/
 ros_ws/src/primitive_library/scripts/plot_trajectories.py
+ros_ws/src/planner/src/llm_planner/log
