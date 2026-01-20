@@ -271,9 +271,6 @@ class LLMSimulator:
                 rospy.logerr(f"No object named {obj_name}")
         self._controller_lock.release()
 
-        # if obj_name == "shelf":
-        #     obj_pos = np.array([-0.1, -0.55, 0.9, 1., 0., 0., 0.])
-
         # Send obj pos
         reply = objPosResponse()
         reply.object_position = obj_pos.tolist()
@@ -295,9 +292,6 @@ class LLMSimulator:
             except:
                 rospy.logerr(f"No object named {obj_name}")
         self._controller_lock.release()
-
-        # if obj_name == "shelf":
-        #     obj_pos = np.array([-0.1, -0.55, 0.9])
 
         # Send obj pos
         reply = objPosResponse()

@@ -7,7 +7,7 @@ import rospy
 
 from llm_common import helpers as llmh
 from llm_simulator.srv import objPos, objMesh
-from primitives.action_functions import pick, get_meshes, get_table_mesh, get_shelf_mesh
+from primitives.action_functions import pick, get_meshes, get_table_mesh
 
 # Constants from action_functions.py
 BEAM_LENGTH = 0.3  # meters

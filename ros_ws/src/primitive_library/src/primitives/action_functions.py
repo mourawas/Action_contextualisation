@@ -42,7 +42,6 @@ def robot_action(func):
 
     return wrapper_robot_action
 
-
 def reset_controller():
     global js_lds
     with contextlib.redirect_stdout(None):
@@ -51,73 +50,6 @@ def reset_controller():
                         llmu.ALLEGRO_URDF_FOLDER,
                         llmu.ALLEGRO_URDF_PATH)
         js_lds.send_robot_zero_torque()
-
-
-def get_shelf_mesh() -> np.ndarray:
-    # Original shelf mesh
-    # <body name="shelf" pos="-0.1 -0.55 0.45">
-    x_min = -0.4
-    x_max = 0.2
-    y_min = -0.65
-    y_max = -0.35
-    z_min = 0.45  # Only model the top part of the shelf
-    z_max = 0.9
-
-    # # New shelf mesh
-    # <body name="shelf" pos="-0.1 0.75 0.45">
-    # <geom name="shelf" class="collision" type="box" size="0.3 0.2 .45" pos="0 0 0" mass="10" rgba="0.5 0.5 0.5 1"/>
-    # x_min = -0.4
-    # x_max = 0.2
-    # y_min = 0.95
-    # y_max = 0.55
-    # z_min = 0.45  # Only model the top part of the shelf
-    # z_max = 0.9
-
-    total_nb_pts = 200
-
-    # Generate top obstascle
-    nb_pts_per_side = int(np.round(np.sqrt(total_nb_pts)))
-    x_range = np.linspace(x_min, x_max, nb_pts_per_side)
-    y_range = np.linspace(y_min, y_max, nb_pts_per_side)
-    z_range = np.array([z_max])
-    xx, yy, zz = np.meshgrid(x_range, y_range, z_range)
-    xx = np.expand_dims(xx.flatten(), axis=1)
-    yy = np.expand_dims(yy.flatten(), axis=1)
-    zz = np.expand_dims(zz.flatten(), axis=1)
-    top_mesh = np.concatenate((xx, yy, zz), axis=1)
-
-    # Generate side pannel 1
-    x_range = np.array([x_min])
-    y_range = np.linspace(y_min, y_max, nb_pts_per_side)
-    z_range = np.linspace(z_min, z_max, nb_pts_per_side)
-    xx, yy, zz = np.meshgrid(x_range, y_range, z_range)
-    xx = np.expand_dims(xx.flatten(), axis=1)
-    yy = np.expand_dims(yy.flatten(), axis=1)
-    zz = np.expand_dims(zz.flatten(), axis=1)
-    side_mesh_1 = np.concatenate((xx, yy, zz), axis=1)
-
-    # Generate side pannel 2
-    x_range = np.array([x_max])
-    y_range = np.linspace(y_min, y_max, nb_pts_per_side)
-    z_range = np.linspace(z_min, z_max, nb_pts_per_side)
-    xx, yy, zz = np.meshgrid(x_range, y_range, z_range)
-    xx = np.expand_dims(xx.flatten(), axis=1)
-    yy = np.expand_dims(yy.flatten(), axis=1)
-    zz = np.expand_dims(zz.flatten(), axis=1)
-    side_mesh_2 = np.concatenate((xx, yy, zz), axis=1)
-
-    # Generate front pannel
-    x_range = np.linspace(x_min, x_max, nb_pts_per_side)
-    y_range = np.array([y_max])
-    z_range = np.linspace(z_min, z_max, nb_pts_per_side)
-    xx, yy, zz = np.meshgrid(x_range, y_range, z_range)
-    xx = np.expand_dims(xx.flatten(), axis=1)
-    yy = np.expand_dims(yy.flatten(), axis=1)
-    zz = np.expand_dims(zz.flatten(), axis=1)
-    front_mesh = np.concatenate((xx, yy, zz), axis=1)
-
-    return np.concatenate((front_mesh, side_mesh_1, side_mesh_2, top_mesh), axis=0)
-
 
 def get_table_mesh() -> np.ndarray:
     nb_table_points = 1000
@@ -168,12 +100,6 @@ def get_meshes(obj_names: tp.List[str], detailed_meshes: bool = True, use_robot_
                     new_radius = np.ones([new_mesh.shape[0]]) * 0.006  # from trigo
                 else:
                     new_radius = np.ones([new_mesh.shape[0]]) * 0.01
-            elif name == "shelf":
-                new_mesh = get_shelf_mesh()
-                if detailed_meshes:
-                    new_radius = np.ones([new_mesh.shape[0]]) * 0.007
-                else:
-                    new_radius = np.ones([new_mesh.shape[0]]) * 0.01
             else:
                 mesh_details = mesh_service(name)
                 new_mesh = np.reshape(mesh_details.object_vertices, (-1, 3))
@@ -197,7 +123,6 @@ def get_meshes(obj_names: tp.List[str], detailed_meshes: bool = True, use_robot_
 
     return (meshes, radius, names)
 
-
 def get_mesh_for_round_object(obj_name: str) -> tp.Tuple[np.ndarray, np.ndarray]:
     rospy.wait_for_service('objMesh')
     rospy.wait_for_service('objComPos')
@@ -212,7 +137,6 @@ def get_mesh_for_round_object(obj_name: str) -> tp.Tuple[np.ndarray, np.ndarray]
     radius = np.max(np.linalg.norm(obj_mesh - obj_com_pos, axis=1) + obj_radii)
 
     return (np.array([obj_com_pos]), np.array([radius]))
-
 
 def update_static_obstacles() -> None:
     global static_elements
@@ -275,7 +199,7 @@ def approach(js_lds, # object_to_grasp: str,
         obj_com_pos[:3] = np.expand_dims(com_pos_service(object_to_grasp).object_position, axis=1)
         
         # Get mesh for objects
-        if object_to_grasp in ['shelf', 'table']:
+        if object_to_grasp in ['table']:
             (obj_mesh, obj_radii, _) = get_meshes([object_to_grasp], detailed_meshes=True, use_robot_frame=False)
         else:
             obj_mesh = np.reshape(mesh_service(object_to_grasp).object_vertices, (-1, 3))
