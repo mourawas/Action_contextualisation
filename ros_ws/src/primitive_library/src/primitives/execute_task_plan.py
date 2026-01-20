@@ -23,24 +23,9 @@ class TaskPlanExecutor:
                                        'throw': throw} # throw and drop unused
 
         self.object_matching_dict = {
-        #                              'crumpled paper ball 1': 'paper_ball_1',
-        #                              'crumpled paper ball 2': 'paper_ball_2',
-        #                              'crumpled paper ball 3': 'paper_ball_3',
-        #                              'crumpled paper ball 4': 'paper_ball_4',
-        #                              'crumpled paper ball 5': 'paper_ball_5',
-        #                              'apple_1': 'apple_1',
-        #                              'apple_2': 'apple_2',
                                      'beam_1': 'beam_1',
                                      'beam_2': 'beam_2',
                                      'beam_3': 'beam_3',
-                                    #  'half-eaten apple': 'eaten_apple',
-                                    #  'empty glass 1': 'champagne_2',
-                                    #  'empty glass 2': 'champagne_3',
-                                    #  'glass with yellowish liquid': 'champagne_1',
-                                    #  'large red trash can': 'trash_bin',
-                                    #  "large white sink": 'sink',
-                                    #  'robot': 'robot',
-                                    #  'storage shelf': 'shelf',
                                      "white table": "table",
                                      '': ''}
         
@@ -57,7 +42,6 @@ class TaskPlanExecutor:
                                         'timeout': timeout,
                                         'check_motion_health': check_motion_health,
                                         'can_reach': can_reach,
-                                        #new
                                         'beam_contact': beam_contact,
                                         'beam_angle': beam_angle,
                                         'beam_parallel': beam_parallel}
@@ -148,9 +132,6 @@ class TaskPlanExecutor:
                 action_arguments = [action_arguments]
 
             # Handling positions here
-            # object_to_approach = self.object_matching_dict[action_arguments[0]]
-            # print(action_function_name, object_to_approach)
-
             object_to_approach = action_arguments[0]
 
             # Check if it's already a list (coordinates) - use directly

@@ -14,36 +14,17 @@ import llm_common.helpers as llmh
 
 class VisionServer:
     VRPN_TOPICS_NAMES = [
-        "/vrpn_client_node/apple/pose",
-        "/vrpn_client_node/champagne_1/pose",
-        "/vrpn_client_node/champagne_2/pose",
-        "/vrpn_client_node/eaten_apple/pose",
         "/vrpn_client_node/iiwa_base7/pose",
-        "/vrpn_client_node/paper_ball_1/pose",
-        "/vrpn_client_node/paper_ball_2/pose",
-        #"/vrpn_client_node/paper_ball_3/pose",
-        "/vrpn_client_node/shelf/pose",
-        "/vrpn_client_node/sink/pose",
-        "/vrpn_client_node/table/pose",
-        "/vrpn_client_node/trash_bin/pose",
         "/vrpn_client_node/beam_1/pose",
         "/vrpn_client_node/beam_2/pose",
         "/vrpn_client_node/beam_3/pose",
+        "/vrpn_client_node/table/pose"
         "/vrpn_client_node/iiwa_base7/pose"
         ]
     
     COM_Y_OFFSETS = {
-        'apple': 0,
-        'eaten_apple': -0.3,
-        'champagne_1': 0.045,
-        'champagne_2': 0.045,
-        'paper_ball_1': 0,
-        'paper_ball_2': 0,
         'iiwa_base7': 0,
-        'shelf': 0,
-        'sink': 0,
         'table': 0,
-        'trash_bin': 0,
         'beam_1': 0,
         'beam_2': 0,
         'beam_3': 0
@@ -94,95 +75,9 @@ class VisionServer:
         radii = np.ones((mesh.shape[0])) * 0.01
 
         return mesh, radii
-    
-    def get_sink_mesh(self):
-        nb_table_points = 400
-        table_x_min = -0.2
-        table_x_max = 0.2
-        table_z_min = -0.15
-        table_z_max =  0.15
 
-        nb_pts_per_side = int(np.round(np.sqrt(nb_table_points)))
-        x_range = np.linspace(table_x_min, table_x_max, nb_pts_per_side)
-        y_range = np.array([0])
-        z_range = np.linspace(table_z_min, table_z_max, nb_pts_per_side)
-
-        xx, yy, zz = np.meshgrid(x_range, y_range, z_range)
-
-        xx = np.expand_dims(xx.flatten(), axis=1)
-        yy = np.expand_dims(yy.flatten(), axis=1)
-        zz = np.expand_dims(zz.flatten(), axis=1)
-
-        mesh = np.concatenate((xx, yy, zz), axis=1)
-        radii = np.ones((mesh.shape[0])) * 0.025
-
-        return mesh, radii
-
-    def get_shelf_mesh(self):
-        nb_table_points = 400
-        table_x_min = -0.2
-        table_x_max = 0.2
-        table_z_min = -0.35
-        table_z_max =  0.35
-
-        nb_pts_per_side = int(np.round(np.sqrt(nb_table_points)))
-        x_range = np.linspace(table_x_min, table_x_max, nb_pts_per_side)
-        y_range = np.array([0])
-        z_range = np.linspace(table_z_min, table_z_max, nb_pts_per_side)
-
-        xx, yy, zz = np.meshgrid(x_range, y_range, z_range)
-
-        xx = np.expand_dims(xx.flatten(), axis=1)
-        yy = np.expand_dims(yy.flatten(), axis=1)
-        zz = np.expand_dims(zz.flatten(), axis=1)
-
-        mesh = np.concatenate((xx, yy, zz), axis=1)
-        radii = np.ones((mesh.shape[0])) * 0.025
-        return mesh, radii
-    
-    def get_bin_mesh(self):
-        nb_table_points = 400
-        table_x_min = -0.16
-        table_x_max = 0.16
-        table_z_min = -0.16
-        table_z_max =  0.16
-
-        nb_pts_per_side = int(np.round(np.sqrt(nb_table_points)))
-        x_range = np.linspace(table_x_min, table_x_max, nb_pts_per_side)
-        y_range = np.array([0])
-        z_range = np.linspace(table_z_min, table_z_max, nb_pts_per_side)
-
-        xx, yy, zz = np.meshgrid(x_range, y_range, z_range)
-
-        xx = np.expand_dims(xx.flatten(), axis=1)
-        yy = np.expand_dims(yy.flatten(), axis=1)
-        zz = np.expand_dims(zz.flatten(), axis=1)
-
-        mesh = np.concatenate((xx, yy, zz), axis=1)
-        radii = np.ones((mesh.shape[0])) * 0.01
-        return mesh, radii
-
-    def get_paper_ball_mesh(self):
-        return np.array([[0., 0., .0]]), np.array([0.04])
-    
-    def get_apple_mesh(self):
-        return np.array([[0., 0., .0]]), np.array([0.065])
-    
-    def get_eaten_apple_mesh(self):
-        return np.array([[0., 0., .0]]), np.array([0.05])
-    
-    def get_champagne_mesh(self):
-
-        mesh = np.array([[0., .3, 0.],
-                         [0., .6, 0.],
-                         [0., .12, 0.],])
-        radii = np.array([.3, .3, .3])
-
-        return mesh, radii
-    
     def get_beam_mesh(self):
         # Beam is modeled as elongated rectangular prism
-        # Adjust BEAM_LENGTH based on your actual beams (in meters)
         BEAM_LENGTH = 0.30  # e.g., 30cm beams
         BEAM_WIDTH = 0.07   # 7cm width
         
@@ -196,22 +91,8 @@ class VisionServer:
 
     def get_mesh(self, mesh_name):
 
-        if mesh_name == 'sink':
-            mesh, radii = self.get_sink_mesh()
-        elif mesh_name == 'table':
+        if mesh_name == 'table':
             mesh, radii = self.get_table_mesh()
-        elif mesh_name == 'shelf':
-            mesh, radii = self.get_shelf_mesh()
-        elif mesh_name == 'trash_bin':
-            mesh, radii = self.get_bin_mesh()
-        elif mesh_name in ['paper_ball_1', 'paper_ball_2']:
-            mesh, radii = self.get_paper_ball_mesh()
-        elif mesh_name == 'apple':
-            mesh, radii = self.get_apple_mesh()
-        elif mesh_name == 'eaten_apple':
-            mesh, radii = self.get_eaten_apple_mesh()
-        elif mesh_name in ['champagne_1', 'champagne_2']:
-            mesh, radii = self.get_champagne_mesh()
         elif mesh_name in ['beam_1', 'beam_2', 'beam_3']:
             mesh, radii = self.get_beam_mesh()
         else:

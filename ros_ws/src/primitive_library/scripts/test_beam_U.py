@@ -3,6 +3,8 @@ from primitives.execute_task_plan import TaskPlanExecutor
 from llm_planner.utils import create_experiment_log
 import os
 
+# Test script with task and eval plan for U-shape
+
 def main() -> None:
     print("Starting beam U test")
     rospy.init_node("test_beam_U")
