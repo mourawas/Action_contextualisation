@@ -1,6 +1,6 @@
 import rospy
 import time
-from primitives.action_functions import approach, pick, place, drop
+from primitives.action_functions import approach, pick, place
 from primitives.predicates import holding, collision_free
 
 # Test script for beam manipulation

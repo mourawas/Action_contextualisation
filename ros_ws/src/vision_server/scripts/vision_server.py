@@ -147,7 +147,6 @@ class VisionServer:
 
         # Get object position
         obj_pos = self.object_poses[obj_name]
-        #obj_pos[1] += self.COM_Y_OFFSETS[obj_name]  # TODO: Wrong axis
 
         if obj_name == 'iiwa_base7':
             obj_se3 = llmh.mujoco_pos_quat_to_se3(obj_pos[:3], obj_pos[3:])

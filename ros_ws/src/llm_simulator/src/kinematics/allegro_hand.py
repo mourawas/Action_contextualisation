@@ -20,7 +20,7 @@ class Robot:
             if right_hand:
                 tip_link = ['link_3.0_tip', 'link_7.0_tip', 'link_11.0_tip', 'link_15.0_tip']
             else:
-                tip_link = ['link_3_tip', 'link_7_tip', 'link_11_tip', 'link_15_tip']  # todo modify urdf file to have the same name
+                tip_link = ['link_3_tip', 'link_7_tip', 'link_11_tip', 'link_15_tip']
         tips = []
         self.use_fingers = use_fingers
         for i in range(len(use_fingers)):
@@ -31,7 +31,6 @@ class Robot:
             if meshes:
                 path = path_prefix + 'description/allegro_all/allegro_right_mount_meshes.urdf'
         else:
-            # todo
             path = path_prefix + 'description/allegro_all/allegro_left_mount.urdf'
             if meshes:
                 path = path_prefix + 'description/allegro_all/allegro_left_mount_meshes.urdf'

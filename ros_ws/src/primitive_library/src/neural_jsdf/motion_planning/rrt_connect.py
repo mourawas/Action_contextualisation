@@ -78,7 +78,6 @@ class RRTConnect:
 
     def constrained_extend(self, tree, q_near, q_target, q_near_id, constraint=None):
         '''
-        TODO: Implement extend for RRT Connect
         - Only perform self.project_to_constraint if constraint is not None
         - Use self._is_seg_valid, self._q_step_size
         '''

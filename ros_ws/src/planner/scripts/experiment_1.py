@@ -342,10 +342,6 @@ def plan_and_retune(parameter_history, domain_history, warm_start=False):
         task_plan = ask_for_task_plan(llm_bot, task, scene_description, objects, locations)
         evaluation_plan = ask_for_evaluation_plan(llm_bot)
 
-    # TODO: Check task plan content
-    # TODO: Check evaluation plan content
-    # TODO: Check task-evaluation congruence
-
     # Test plan
     print("=============== EXECUTING INITIAL PLAN =================")
     task_success, history_log, failure_id = execute_and_log_plans(task_plan, evaluation_plan, tpu)

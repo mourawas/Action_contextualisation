@@ -112,8 +112,6 @@ class LLMSimulator:
             compensed_torque = msg.data + self._controller.C # Compensating gravity and coriolis
             self._controller.send_torque(compensed_torque)  # Works only if IIWA joints are the first 7 joints
             self._latest_iiwa_cmd = np.asarray(msg.data)
-            # self._controller.step()  # TODO: make a dedicated thread for this
-            # self._view.sync()
         elif self._sim_initialized.locked():
             self._sim_running.release()
         self._controller_lock.release()
@@ -193,7 +191,7 @@ class LLMSimulator:
             compensed_allegro_torque = self._latest_allegro_cmd + self._controller.C_allegro
             self._controller.send_torque(compensed_iiwa_torque)
             self._controller.send_torque_h(compensed_allegro_torque)
-            self._controller.step()  # TODO: make a dedicated thread for this
+            self._controller.step()
             self._view.sync()
             self._controller_lock.release()
 

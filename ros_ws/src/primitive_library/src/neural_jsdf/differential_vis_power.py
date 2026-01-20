@@ -427,7 +427,6 @@ class differentiate_solver:
 
 
 if __name__ == "__main__":
-    # TODO: Add box sphere cylinder for collision avoidance.
     solver = differentiate_solver(obj_name='MustardBottle')
     # solver.current_jp = [0.5] * 10
     # solver.get_robot_mesh()

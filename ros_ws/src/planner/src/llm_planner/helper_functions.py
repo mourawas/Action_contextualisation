@@ -25,16 +25,6 @@ def robot_execution(task_plan, evaluation_plan):
             result = pick(*action_args)
         elif action_name == 'place':
             result = place(*action_args)
-        elif action_name == 'drop':
-            if is_tuple(action_args):
-                result = drop(*action_args)
-            else:
-                result = drop(action_args)
-        elif action_name == 'throw':
-            if is_tuple(action_args):
-                result = throw(*action_args)
-            else:
-                result = throw(action_args)
 
         # Check the action using evaluation_plan
         check_function_list = evaluation_plan[int(action_number) - 1][1]

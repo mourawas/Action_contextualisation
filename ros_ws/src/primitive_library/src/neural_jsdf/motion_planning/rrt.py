@@ -33,8 +33,6 @@ class RRT:
         self._is_in_collision = is_in_collision
 
         '''
-        TODO: You can tune these parameters to improve RRT performance.
-
         However, make sure the values satisfy the following conditions:
             self._constraint_th < 2e-3
             self._q_step_size < 0.1
@@ -48,8 +46,6 @@ class RRT:
 
     def sample_valid_joints(self):
         '''
-        TODO: Implement sampling a random valid configuration.
-
         The sampled configuration must be within the joint limits, but it does not check for collisions.
 
         Please use the following in your code:
@@ -64,8 +60,6 @@ class RRT:
 
     def project_to_constraint(self, q, constraint):
         '''
-        TODO: Implement projecting a configuration to satisfy a constraint function using gradient descent.
-
         Please use the following parameters in your code:
             self._project_step_size - learning rate for gradient descent
             self._constraint_th - a threshold lower than which the constraint is considered to be satisfied

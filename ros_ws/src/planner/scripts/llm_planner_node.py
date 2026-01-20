@@ -32,7 +32,7 @@ action_plan_ask = """
 
     place(location: str, speed: float, obstacle_clearance: float, placement_angle: float = 0., vertical: bool = False) -> None: # Positions the "grasped_object" on/at/in the "location" and release the grasp. It is not advised to use the approach function directly before this one.
 
-    The "speed" argument for 'approach', 'pick', 'drop' and 'place' functions, assumes value in [0,1] and regulates how fast the robot moves. The closer the the value is to 1 the faster the robot moves. moving with higher speed is faster but might result in a jerky and less precise motion.
+    The "speed" argument for 'approach', 'pick' and 'place' functions, assumes value in [0,1] and regulates how fast the robot moves. The closer the the value is to 1 the faster the robot moves. moving with higher speed is faster but might result in a jerky and less precise motion.
 
     The "grasp" argument for 'approach' and 'pick' is mandatory and assumes one of the two values {"top", "side"}, never use None, where "top" instructs the robot to approach or pick the beam from the top and selecting "side" instructs the robot to approach or pick the beam from the side. For the same object, you must use the same grasp for both 'approach' and 'pick' functions. "top" should be used for beams that are laying down, "side" should be used for beams that are standing up.
 
@@ -513,10 +513,6 @@ def plan_and_retune(parameter_history, domain_history, warm_start=False):
     else:
         task_plan = ask_for_task_plan(llm_bot, task, scene_description, objects, locations)
         evaluation_plan = ask_for_evaluation_plan(llm_bot)
-
-    # TODO: Check task plan content
-    # TODO: Check evaluation plan content
-    # TODO: Check task-evaluation congruence
 
     # Test plan
     print("=============== EXECUTING INITIAL PLAN =================")

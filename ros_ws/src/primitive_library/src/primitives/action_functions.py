@@ -280,28 +280,6 @@ def approach(js_lds, # object_to_grasp: str,
         else:
             obj_mesh = np.reshape(mesh_service(object_to_grasp).object_vertices, (-1, 3))
             obj_radii = np.asarray(mesh_service(object_to_grasp).object_radii)
-    
-
-    # # Waiting for services
-    # rospy.wait_for_service('objComPos')
-    # rospy.wait_for_service('objPos')
-    # rospy.wait_for_service('objMesh')
-    # obj_frame_service = rospy.ServiceProxy('objPos', objPos, persistent=True)
-    # com_pos_service = rospy.ServiceProxy('objComPos', objPos, persistent=True)
-    # mesh_service = rospy.ServiceProxy('objMesh', objMesh, persistent=True)
-
-    # # Getting object positions
-    # iiwa_pos = obj_frame_service('kuka_base').object_position
-    # iiwa_base_pos = llmh.mujoco_pos_quat_to_se3(iiwa_pos[:3], iiwa_pos[3:])
-    # obj_com_pos = np.ones((4, 1))
-    # obj_com_pos[:3] = np.expand_dims(com_pos_service(object_to_grasp).object_position, axis=1)
-
-    # # Here we are doing something cheeky because I am too tired to figure out why the proper way doesn't work. TODO: Do this right
-    # if object_to_grasp in ['shelf', 'table']:
-    #     (obj_mesh, obj_radii, _) = get_meshes([object_to_grasp], detailed_meshes=True, use_robot_frame=False)
-    # else:
-    #     obj_mesh = np.reshape(mesh_service(object_to_grasp).object_vertices, (-1, 3))
-    #     obj_radii = np.asarray(mesh_service(object_to_grasp).object_radii)
 
     base_obj_vec = np.squeeze(obj_com_pos[:3]) - iiwa_base_pos[:3, 3]
     obj_goal = obj_com_pos
@@ -428,13 +406,6 @@ def approach(js_lds, # object_to_grasp: str,
     else:
         js_lds.collision_proximity = obstacle_clearance
 
-    # Set obstacles
-    # obstacles = ["apple", "eaten_apple",
-    #              "paper_ball_1", "paper_ball_2",
-    #              # "paper_ball_3",
-    #              "champagne_1", "champagne_2",
-    #              "table", "sink", "shelf", "trash_bin"]
-    # obstacles = ["eaten_apple", "champagne_1", "sink", "shelf", "trash_bin", "table"]
     obstacles = llmu.OBSTACLES.copy()
     if disregard_table:
         obstacles.remove("table")
@@ -493,12 +464,7 @@ def pick(js_lds, object_to_grasp: str,
         # Perform grasping
         js_lds.grasping = True
         js_lds.obj_grasped = object_to_grasp
-        # obstacles = ["apple", "eaten_apple",
-        #             "paper_ball_1", "paper_ball_2",
-        #             #"paper_ball_3",
-        #             "champagne_1", "champagne_2", "sink", "shelf",
-        #             "trash_bin"]
-        # obstacles = ["eaten_apple", "champagne_1", "sink", "shelf", "trash_bin"]
+
         obstacles = llmu.OBSTACLES.copy()
 
         js_lds._obstacle_to_approach = js_lds.obj_grasped
@@ -545,10 +511,6 @@ def pick(js_lds, object_to_grasp: str,
                 print(f"Flyoff failed for pick")
                 break
 
-# These action functions expect object names that get resolved to positions
-# Place and drop pass their first argument to approach function
-# So modify approach function
-# remove orientation
 @robot_action
 def place(js_lds, object_to_grasp: tp.Union[str, list],
           speed: float, obstacle_clearance: float, 
@@ -615,9 +577,6 @@ def place(js_lds, object_to_grasp: tp.Union[str, list],
         if not js_lds._failed_ik:
             break
 
-    # call to correct based on beam
-    # just need to make vertical = None possible
-    # and give object to grasp the current x y position (?) or not
     if not js_lds._in_collision:
         print("Second place approach")
         approach(object_to_grasp,
@@ -634,7 +593,7 @@ def place(js_lds, object_to_grasp: tp.Union[str, list],
         print(f"After second approach: _failed_ik={js_lds._failed_ik}, _in_collision={js_lds._in_collision}")
 
     if not js_lds._in_collision:
-        # Drop the object
+        # Let go of the object
         js_lds.let_go = True
         js_lds.grasping = False
         js_lds.run_controller()
@@ -666,52 +625,3 @@ def place(js_lds, object_to_grasp: tp.Union[str, list],
 
             js_lds.run_controller()
             js_lds.obj_grasped = ""
-
-
-@robot_action
-def drop(js_lds, object_to_grasp: str,
-         speed: float = 1.,
-         obstacle_clearance: float = 0.05,
-         orientation: float = 0,
-         placement_angle: float = None) -> None:
-    print(orientation)
-    approach(object_to_grasp,
-             speed, grasp="top",
-             orientation=orientation,
-             placement_angle=placement_angle,
-             detailed_obstacles=True,
-             disregard_object_to_grasp=True,
-             disregard_table=True,
-             apply_offsets=False,
-             force_altitude=1.5,
-             obstacle_clearance=obstacle_clearance,
-             drop_side_offset=False)
-    if not js_lds._in_collision and not js_lds._failed_ik:
-        # Drop the object
-        js_lds.let_go = True
-        js_lds.grasping = False
-        js_lds.run_controller()
-        js_lds.let_go = False
-        js_lds.obj_grasped = ""
-
-
-@robot_action
-def throw(js_lds, object_to_grasp: str,
-          speed: float = 1.,
-          obstacle_clearance: float = 0.05) -> None:
-
-    approach(object_to_grasp,
-             speed, grasp="top",
-             orientation=0.,
-             disregard_object_to_grasp=True,
-             force_altitude=1.3,
-             obstacle_clearance=obstacle_clearance,
-             drop_side_offset=True)
-
-    if not js_lds._in_collision:
-        # Drop the object
-        js_lds.let_go = True
-        js_lds.grasping = False
-        js_lds.run_controller()
-        js_lds.let_go = False
-        js_lds.obj_grasped = ""

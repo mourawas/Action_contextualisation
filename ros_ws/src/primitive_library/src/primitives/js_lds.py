@@ -28,7 +28,6 @@ class JS_LDS(ControllerBase):
                    .0, .0, .0, .0,   # Ring
                    .0, .0, .0, .0]) * 0.1 # Thumb
 
-    # TODO: Build these arrays better
     JOINT_TOL = np.array([0.01] * 7 + [0.1] * 16)
     SPEED_TOL = np.array([0.01] * 7 + [0.1] * 16)
     CONTROLLER_SLEEP_PRD = 0.001

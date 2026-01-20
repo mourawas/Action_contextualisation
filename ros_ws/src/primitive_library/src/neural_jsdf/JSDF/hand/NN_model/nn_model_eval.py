@@ -413,7 +413,7 @@ class NN_hand_obj:
         q_normal = q.detach().clone()
         lb = self.hand_bound[0, :]
         ub = self.hand_bound[1, :]
-        for i in range(16):  # joint angles # todo
+        for i in range(16):  # joint angles
             q_normal[:, i] = (q_normal[:, i] - lb[i]) / (ub[i] - lb[i]) * 2 - 1
 
         if self.add_sin_cos == 3:

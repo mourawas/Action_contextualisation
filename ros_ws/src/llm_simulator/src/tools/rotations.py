@@ -270,7 +270,6 @@ def mat2quat(mat):
     K[..., 3, 2] = Qxy - Qyx
     K[..., 3, 3] = Qxx + Qyy + Qzz
     K /= 3.0
-    # TODO: vectorize this -- probably could be made faster
     q = np.empty(K.shape[:-2] + (4,))
     it = np.nditer(q[..., 0], flags=["multi_index"])
     while not it.finished:

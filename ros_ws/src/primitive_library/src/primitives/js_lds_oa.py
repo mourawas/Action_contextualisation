@@ -52,7 +52,6 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
     def reset_collosion_proximity(self):
         self.collision_proximity = self.COLLISION_PROXIMITY
 
-    # TODO: Proper obstacle handling framwork
     def set_obstacles(self,
                       obstacles_points: np.ndarray,
                       obstacle_radii: np.ndarray,
@@ -574,7 +573,6 @@ class JS_LDS_OA(JS_LDS_ORIENTED):
 
         return distance_health + condition_health
 
-    # TODO: Not effective but ok because it's not called often
     def is_holding(self) -> bool:
         holding = False
 

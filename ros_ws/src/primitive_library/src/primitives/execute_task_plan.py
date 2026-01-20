@@ -1,4 +1,4 @@
-from primitives.action_functions import pick, place, drop, approach, throw, reset_controller
+from primitives.action_functions import pick, place, approach, reset_controller
 from primitives.predicates import at_location, can_grasp, holding, collision_free, timeout, check_motion_health, get_motion_health, can_reach, beam_contact, beam_angle, beam_parallel
 import contextlib
 import roslaunch
@@ -18,9 +18,7 @@ class TaskPlanExecutor:
     def __init__(self, metadata_file: tp.Optional[str] = None) -> None:
         self.function_matching_dict = {'approach': approach,
                                        'place': place,
-                                       'pick': pick,
-                                       'drop': drop,
-                                       'throw': throw} # throw and drop unused
+                                       'pick': pick}
 
         self.object_matching_dict = {
                                      'beam_1': 'beam_1',
@@ -172,7 +170,7 @@ class TaskPlanExecutor:
             self.average_score = np.average(total_score_history)
 
             # ======  Evaluate
-            if action_function_name in ['drop', 'place']:
+            if action_function_name in ['place']:
                 time.sleep(7)  # Give a bit of time for things in the simulator to settle
             evaluation_id = evaluation[0]
             evaluation_predicates = evaluation[1]  # Now a list of tuples

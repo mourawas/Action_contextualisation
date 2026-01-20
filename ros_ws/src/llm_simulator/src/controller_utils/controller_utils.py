@@ -80,7 +80,6 @@ class Robot:
         input the joint control torque
         Here I imply that the joints with id from 0 to n are the actuators.
         so, please put robot xml before the object xml.
-        todo, use joint_name2id to avoid this problem
         :param torque:  (n, ) numpy array
         :return:
         """
@@ -96,7 +95,6 @@ class Robot:
         input the joint control torque for the hand
         Here I imply that the joints with id from 0 to n are the actuators.
         so, please put robot xml before the object xml.
-        todo, use joint_name2id to avoid this problem
         :param torque:  (n_h, ) numpy array
         :return:
         """
